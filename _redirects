@@ -38,3 +38,6 @@
 
 # Technical Netlify Forms detection page
 /_forms.html /_forms.html 200
+
+/pl/dziekujemy /pl/dziekujemy.html 301
+/nl/dziekujemy /nl/dziekujemy.html 301
