@@ -608,3 +608,11 @@
 form[aria-busy="true"] {
   opacity: .92;
 }
+
+
+/* v39 — czytelniejszy błąd formularza */
+.form-submit-status.is-error {
+  border-color: rgba(255,90,90,.42);
+  background: rgba(255,90,90,.09);
+  color: #fff0f0;
+}

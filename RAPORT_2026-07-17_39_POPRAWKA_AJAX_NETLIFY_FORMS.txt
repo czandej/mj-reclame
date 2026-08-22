@@ -1,0 +1,31 @@
+MJ Reclame — paczka 2026-07-17_39 — poprawka AJAX Netlify Forms
+
+Baza:
+- mj_reclame_2026-07-17_38_poprawka_formularza_dziekujemy.zip
+
+Problem:
+- formularz pokazywał komunikat o problemie z wysłaniem,
+- oznaczało to, że Netlify Forms zwracał błąd przy wysyłce AJAX.
+
+Poprawiono:
+- formularz wysyła dane najpierw do /_forms.html, czyli technicznego pliku wykrywanego przez Netlify Forms,
+- dodano fallback wysyłki do /,
+- bez załączników formularz wysyła dane jako application/x-www-form-urlencoded,
+- z załącznikami formularz wysyła dane jako multipart/form-data przez surowy FormData,
+- puste pola file są usuwane z FormData, żeby nie przesyłać pustych załączników,
+- dodano plik __forms.html jako dodatkowy techniczny detector,
+- formularz nadal przekierowuje po sukcesie do /pl/dziekujemy.html albo /nl/dziekujemy.html,
+- zachowano upload grafik DTF,
+- zachowano autoresponder Netlify Function.
+
+Bez zmian:
+- wygląd strony,
+- moduł Twoje zapytanie,
+- kolory,
+- tabele rozmiarów,
+- lewe menu,
+- wersje PL/NL.
+
+Kontrola:
+- Błędy: 0
+- ZIP: OK
