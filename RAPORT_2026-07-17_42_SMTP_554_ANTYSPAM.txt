@@ -1,0 +1,27 @@
+MJ Reclame — paczka 2026-07-17_42 — poprawka SMTP 554 spam
+
+Baza:
+- mj_reclame_2026-07-17_41_formularz_przez_funkcje.zip
+
+Problem:
+- funkcja contact-dtf działała,
+- SMTP odrzucił wysłanie wiadomości kodem 554 5.7.0 Reject ... spam.
+
+Poprawiono:
+- uproszczono treść i nagłówki maila,
+- From jest zawsze firmowy,
+- Reply-To do firmy wskazuje e-mail klienta,
+- dodano bezpieczny envelope sender MAIL_ENVELOPE_FROM,
+- dodano Message-ID z domeną MAIL_DOMAIN,
+- autoresponder do klienta nie zawiera załączników,
+- mail do MJ Reclame zawiera załączniki, ale ma prosty temat i treść,
+- ograniczono ryzyko odrzucenia przez filtr antyspamowy.
+
+Do dodania w Netlify:
+- MAIL_ENVELOPE_FROM=info@reclamemj.nl
+- MAIL_DOMAIN=reclamemj.nl
+- CONTACT_TO=info@reclamemj.nl
+
+Kontrola:
+- Błędy: 0
+- ZIP: OK
