@@ -1,0 +1,110 @@
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #050505;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.page {
+  min-height: 100vh;
+  background: #050505;
+}
+
+.visual {
+  position: relative;
+  width: min(100vw, 1448px);
+  margin: 0 auto;
+  background: #050505;
+}
+
+.visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+
+.hotspot {
+  position: absolute;
+  display: block;
+  z-index: 4;
+  border-radius: 4px;
+}
+
+.hotspot:focus-visible {
+  outline: 3px solid #47df00;
+  outline-offset: 2px;
+}
+
+.semantic {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+@media (max-width: 780px) {
+  .visual {
+    width: 1448px;
+    max-width: none;
+  }
+
+  body {
+    overflow-x: auto;
+  }
+}
+
+
+.privacy-visible-link {
+  position: absolute;
+  right: 14.6%;
+  bottom: 5.85%;
+  z-index: 8;
+  color: #47df00;
+  background: rgba(5, 5, 5, 0.78);
+  border: 1px solid rgba(71, 223, 0, 0.45);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 11px;
+  line-height: 1;
+  text-decoration: none;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.privacy-visible-link:hover,
+.privacy-visible-link:focus-visible {
+  background: #47df00;
+  color: #050505;
+}
+
+
+.company-visible-link {
+  position: absolute;
+  right: 14.6%;
+  bottom: 8.15%;
+  z-index: 8;
+  color: #47df00;
+  background: rgba(5, 5, 5, 0.78);
+  border: 1px solid rgba(71, 223, 0, 0.45);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 11px;
+  line-height: 1;
+  text-decoration: none;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.company-visible-link:hover,
+.company-visible-link:focus-visible {
+  background: #47df00;
+  color: #050505;
+  border-color: #47df00;
+}
+
+

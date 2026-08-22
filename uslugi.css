@@ -1,0 +1,46 @@
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: #050505;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.page {
+  min-height: 100vh;
+  background: #050505;
+}
+.visual {
+  position: relative;
+  width: min(100vw, 1122px);
+  margin: 0 auto;
+  background: #050505;
+}
+.visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+.hotspot {
+  position: absolute;
+  display: block;
+  z-index: 4;
+  border-radius: 4px;
+}
+.hotspot:focus-visible {
+  outline: 3px solid #47df00;
+  outline-offset: 2px;
+}
+.semantic {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+@media (max-width: 780px) {
+  .visual {
+    width: 1122px;
+    max-width: none;
+  }
+  body { overflow-x: auto; }
+}

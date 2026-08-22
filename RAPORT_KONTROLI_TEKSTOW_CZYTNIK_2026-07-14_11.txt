@@ -1,0 +1,29 @@
+RAPORT KONTROLI TEKSTÓW — CZYTNIK MJ RECLAME
+
+Sprawdzone pliki widoczne dla użytkownika:
+- strefa-tworcow.html
+- czytnik.html
+- e-booki.html
+- reader.js
+
+Zakres poprawek:
+- teksty przerobiono na bezpośredni zwrot do osoby czytającej,
+- usunięto opis techniczny typu „wersja demonstracyjna”, „sprawdź prototyp”,
+- usunięto pisanie o czytelniku w trzeciej osobie w sekcji zachęcającej do czytnika,
+- CTA zmieniono na bardziej naturalne: „Zacznij czytać”,
+- teksty w czytniku prowadzą użytkownika bezpośrednio: wybierz, czytaj, dopasuj, wróć.
+
+Kontrola podejrzanych sformułowań:
+- znaleziono: czytelnik w reader.js
+- znaleziono: użytkownik w reader.js
+
+Uwaga:
+Pliki TXT z instrukcjami technicznymi mogą nadal zawierać słowa techniczne, bo są przeznaczone dla administratora, nie dla użytkownika strony.
+
+Dodatkowa kontrola po poprawkach reader.js:
+- nadal znaleziono: czytelnik w reader.js
+- nadal znaleziono: użytkownik w reader.js
+
+
+Kontrola końcowa po pełnym czyszczeniu reader.js:
+- OK — w sprawdzonych plikach widocznych dla użytkownika nie znaleziono wskazanych problematycznych sformułowań.

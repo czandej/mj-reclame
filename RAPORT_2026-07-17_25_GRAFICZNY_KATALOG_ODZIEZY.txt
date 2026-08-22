@@ -1,0 +1,38 @@
+MJ Reclame — paczka 2026-07-17_25 — graficzny katalog odzieży
+
+Baza:
+- mj_reclame_2026-07-17_24_odziez_katalog.zip
+
+Poprawiono zgodnie z uwagą:
+- podstrona "Odzież z nadrukiem" jest bardziej graficzna,
+- dodano większe kafelki produktów,
+- dodano duże grafiki odzieży w kafelkach,
+- rozmiary pokazano jako osobne etykiety,
+- kolory pokazano jako próbki kolorystyczne,
+- dodano boczny panel filtrowania:
+  * typ odzieży,
+  * kolor,
+  * wyszukiwanie,
+- dodano licznik widocznych produktów,
+- zachowano kody produktów,
+- zachowano przekazywanie kodu produktu do formularza kontaktowego.
+
+Nie zmieniano:
+- struktury PL/NL,
+- formularzy Netlify poza utrzymaniem product_code,
+- treści prawnych,
+- favikony,
+- dynamicznego tła.
+
+Ważne:
+- W paczce nadal nie ma nazwy wskazanego partnera.
+- Grafiki produktów są lokalne i neutralne.
+- Liczba produktów: 16.
+
+Kontrola:
+- ZIP OK,
+- linki OK,
+- JS OK,
+- formularze OK,
+- zakazane słowo: niewykryte,
+- liczba błędów: 0.

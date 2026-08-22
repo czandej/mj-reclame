@@ -1,0 +1,38 @@
+MJ Reclame — paczka 2026-07-17_27 — podstrona sprzedażowa odzieży
+
+Baza:
+- mj_reclame_2026-07-17_26_odziez_produkty_statyczne.zip
+
+Poprawiono:
+- usunięto teksty robocze nieprzeznaczone dla klienta,
+- podstrona ma charakter sprzedażowy,
+- produkty są widoczne od razu,
+- użyto zdjęć produktów ładowanych z zewnętrznego źródła,
+- każdy produkt ma:
+  * zdjęcie,
+  * kod produktu,
+  * rozmiary,
+  * kolory,
+  * ilość,
+  * gramaturę,
+  * skład,
+  * opis,
+  * przycisk „Zapytaj o wycenę” / „Vraag offerte aan”,
+- klient może wybrać rozmiar, kolor i ilość,
+- link do formularza działa z parametrami:
+  produkt, rozmiar, kolor, ilość, wiadomość,
+- formularz kontaktowy przejmuje dane produktu do ukrytych pól:
+  product_code, product_size, product_color, product_quantity.
+
+Ważne:
+- widoczna treść strony nie pokazuje nazwy partnera,
+- zdjęcia są zewnętrzne, więc połączenie z internetem jest potrzebne do ich wyświetlenia,
+- Netlify Forms pozostają zachowane.
+
+Kontrola:
+- liczba produktów: 12
+- ZIP OK,
+- linki lokalne OK,
+- JS OK,
+- formularze OK,
+- błędy: 0

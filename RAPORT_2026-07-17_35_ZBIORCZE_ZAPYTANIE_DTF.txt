@@ -1,0 +1,36 @@
+MJ Reclame — paczka 2026-07-17_35 — zbiorcze zapytanie DTF
+
+Baza:
+- mj_reclame_2026-07-17_34_uklad_kafelki_lewe_menu.zip
+
+Dodano:
+- moduł „Twoje zapytanie” / „Jouw aanvraag”,
+- możliwość dodawania wielu wariantów jednego lub kilku produktów,
+- obsługę różnych rozmiarów, kolorów i ilości w jednym zapytaniu,
+- sumę sztuk w zapytaniu,
+- możliwość usuwania pozycji,
+- możliwość wyczyszczenia całego zapytania,
+- automatyczne przekazanie listy produktów do formularza kontaktowego,
+- informację, że klient może przesłać grafikę, logo lub gotowy plik do nadruku DTF,
+- notatkę o plikach graficznych w formularzu kontaktowym PL/NL,
+- ukryte pole product_inquiry w formularzu Netlify.
+
+Zmieniono:
+- główny przycisk w karcie produktu na „Dodaj do zapytania”,
+- pozostawiono mały link „Zapytaj o ten wariant” dla pojedynczego wariantu.
+
+Bez zmian:
+- góra podstrony,
+- paleta kolorów,
+- tabela rozmiarów,
+- lewe menu Usługi/Wydawnictwo,
+- zmiana zdjęcia po wyborze koloru,
+- poprawione kolory 21 i 290,
+- formularze Netlify,
+- wersje PL/NL,
+- dynamiczne tło,
+- favikona.
+
+Kontrola:
+- Błędy: 0
+- ZIP: OK

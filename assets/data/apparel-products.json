@@ -1,0 +1,1077 @@
+[
+  {
+    "code": "21150",
+    "category": "tshirts",
+    "tier": "basic",
+    "name_pl": "T-shirt Standard 150",
+    "name_nl": "T-shirt Standard 150",
+    "type_pl": "Koszulka męska",
+    "type_nl": "Heren T-shirt",
+    "sizes": "S, M, L, XL, XXL",
+    "weight": "150 g/m²",
+    "material_pl": "100% bawełny półczesanej ring-spun",
+    "material_nl": "100% halfgekamd ring-spun katoen",
+    "colors": "20, 22, 26, 28, 30, 32",
+    "marking_pl": "DTF, nadruk front/plecy/rękaw",
+    "marking_nl": "DTF, print voorzijde/rug/mouw",
+    "note_pl": "Lekka koszulka bazowa do większych nakładów.",
+    "note_nl": "Licht basismodel voor grotere oplages.",
+    "shape": "tshirt",
+    "image": "../assets/apparel/product-21150.svg",
+    "sizes_array": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "color_swatches": [
+      {
+        "code": "20",
+        "hex": "#ffffff"
+      },
+      {
+        "code": "22",
+        "hex": "#090909"
+      },
+      {
+        "code": "26",
+        "hex": "#16265f"
+      },
+      {
+        "code": "28",
+        "hex": "#24402f"
+      },
+      {
+        "code": "30",
+        "hex": "#7f0d23"
+      },
+      {
+        "code": "32",
+        "hex": "#f4d51c"
+      }
+    ],
+    "primary_color": "#ffffff"
+  },
+  {
+    "code": "21149",
+    "category": "tshirts",
+    "tier": "kids",
+    "name_pl": "T-shirt Standard Kid 150",
+    "name_nl": "T-shirt Standard Kid 150",
+    "type_pl": "Koszulka dziecięca",
+    "type_nl": "Kinder T-shirt",
+    "sizes": "98, 110, 122, 132, 144, 156, 168",
+    "weight": "150 g/m²",
+    "material_pl": "100% bawełny półczesanej ring-spun",
+    "material_nl": "100% halfgekamd ring-spun katoen",
+    "colors": "20, 22, 26, 28, 30, 32, 34",
+    "marking_pl": "DTF, nadruk szkolny/eventowy",
+    "marking_nl": "DTF, school-/eventprint",
+    "note_pl": "Model dziecięcy do wydarzeń, szkół i promocji.",
+    "note_nl": "Kindermodel voor events, scholen en promotie.",
+    "shape": "tshirt",
+    "image": "../assets/apparel/product-21149.svg",
+    "sizes_array": [
+      "98",
+      "110",
+      "122",
+      "132",
+      "144",
+      "156",
+      "168"
+    ],
+    "color_swatches": [
+      {
+        "code": "20",
+        "hex": "#ffffff"
+      },
+      {
+        "code": "22",
+        "hex": "#090909"
+      },
+      {
+        "code": "26",
+        "hex": "#16265f"
+      },
+      {
+        "code": "28",
+        "hex": "#24402f"
+      },
+      {
+        "code": "30",
+        "hex": "#7f0d23"
+      },
+      {
+        "code": "32",
+        "hex": "#f4d51c"
+      },
+      {
+        "code": "34",
+        "hex": "#7d8387"
+      }
+    ],
+    "primary_color": "#ffffff"
+  },
+  {
+    "code": "21172",
+    "category": "tshirts",
+    "tier": "popular",
+    "name_pl": "T-shirt Heavy 170",
+    "name_nl": "T-shirt Heavy 170",
+    "type_pl": "Koszulka męska",
+    "type_nl": "Heren T-shirt",
+    "sizes": "XS, S, M, L, XL, 2XL, 3XL, 4XL",
+    "weight": "170 g/m²",
+    "material_pl": "100% bawełny półczesanej ring-spun",
+    "material_nl": "100% halfgekamd ring-spun katoen",
+    "colors": "20, 22, 24, 26, 27, 28, 30, 32, 34, 36, 50",
+    "marking_pl": "DTF, nadruk firmowy, grafika wielokolorowa",
+    "marking_nl": "DTF, bedrijfsprint, meerkleurige graphic",
+    "note_pl": "Najbardziej uniwersalna koszulka pod nadruk firmowy.",
+    "note_nl": "Veelzijdig T-shirt voor bedrijfsbedrukking.",
+    "shape": "tshirt",
+    "image": "../assets/apparel/product-21172.svg",
+    "sizes_array": [
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL",
+      "2XL",
+      "3XL",
+      "4XL"
+    ],
+    "color_swatches": [
+      {
+        "code": "20",
+        "hex": "#ffffff"
+      },
+      {
+        "code": "22",
+        "hex": "#090909"
+      },
+      {
+        "code": "24",
+        "hex": "#e0001b"
+      },
+      {
+        "code": "26",
+        "hex": "#16265f"
+      },
+      {
+        "code": "27",
+        "hex": "#154f9b"
+      },
+      {
+        "code": "28",
+        "hex": "#24402f"
+      },
+      {
+        "code": "30",
+        "hex": "#7f0d23"
+      },
+      {
+        "code": "32",
+        "hex": "#f4d51c"
+      },
+      {
+        "code": "34",
+        "hex": "#7d8387"
+      },
+      {
+        "code": "36",
+        "hex": "#0a572e"
+      },
+      {
+        "code": "50",
+        "hex": "#3047a1"
+      }
+    ],
+    "primary_color": "#ffffff"
+  },
+  {
+    "code": "22160",
+    "category": "tshirts",
+    "tier": "women",
+    "name_pl": "T-shirt Ladies Heavy 170",
+    "name_nl": "T-shirt Ladies Heavy 170",
+    "type_pl": "Koszulka damska",
+    "type_nl": "Dames T-shirt",
+    "sizes": "XS, S, M, L, XL, XL+",
+    "weight": "170 g/m²",
+    "material_pl": "100% bawełny półczesanej ring-spun",
+    "material_nl": "100% halfgekamd ring-spun katoen",
+    "colors": "20, 22, 24, 26, 28, 30, 32, 34, 36, 48, 50",
+    "marking_pl": "DTF, nadruk personalizowany",
+    "marking_nl": "DTF, gepersonaliseerde print",
+    "note_pl": "Damska wersja popularnego modelu 170 g/m².",
+    "note_nl": "Damesversie van het populaire 170 g/m² model.",
+    "shape": "tshirt",
+    "image": "../assets/apparel/product-22160.svg",
+    "sizes_array": [
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XL+"
+    ],
+    "color_swatches": [
+      {
+        "code": "20",
+        "hex": "#ffffff"
+      },
+      {
+        "code": "22",
+        "hex": "#090909"
+      },
+      {
+        "code": "24",
+        "hex": "#e0001b"
+      },
+      {
+        "code": "26",
+        "hex": "#16265f"
+      },
+      {
+        "code": "28",
+        "hex": "#24402f"
+      },
+      {
+        "code": "30",
+        "hex": "#7f0d23"
+      },
+      {
+        "code": "32",
+        "hex": "#f4d51c"
+      },
+      {
+        "code": "34",
+        "hex": "#7d8387"
+      },
+      {
+        "code": "36",
+        "hex": "#0a572e"
+      },
+      {
+        "code": "48",
+        "hex": "#9a9a9a"
+      },
+      {
+        "code": "50",
+        "hex": "#3047a1"
+      }
+    ],
+    "primary_color": "#ffffff"
+  },
+  {
+    "code": "21174",
+    "category": "tshirts",
+    "tier": "slim",
+    "name_pl": "T-shirt Heavy Slim 170",
+    "name_nl": "T-shirt Heavy Slim 170",
+    "type_pl": "Koszulka dopasowana",
+    "type_nl": "Slim-fit T-shirt",
+    "sizes": "S, M, L, XL, XXL",
+    "weight": "170 g/m²",
+    "material_pl": "100% bawełny półczesanej ring-spun",
+    "material_nl": "100% halfgekamd ring-spun katoen",
+    "colors": "20, 22, 26, 30, 32, 34, 50",
+    "marking_pl": "DTF, nadruk premium",
+    "marking_nl": "DTF, premium print",
+    "note_pl": "Dopasowany krój do bardziej eleganckich realizacji.",
+    "note_nl": "Slim-fit model voor elegantere toepassingen.",
+    "shape": "tshirt",
+    "image": "../assets/apparel/product-21174.svg",
+    "sizes_array": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "color_swatches": [
+      {
+        "code": "20",
+        "hex": "#ffffff"
+      },
+      {
+        "code": "22",
+        "hex": "#090909"
+      },
+      {
+        "code": "26",
+        "hex": "#16265f"
+      },
+      {
+        "code": "30",
+        "hex": "#7f0d23"
+      },
+      {
+        "code": "32",
+        "hex": "#f4d51c"
+      },
+      {
+        "code": "34",
+        "hex": "#7d8387"
+      },
+      {
+        "code": "50",
+        "hex": "#3047a1"
+      }
+    ],
+    "primary_color": "#ffffff"
+  },
+  {
+    "code": "21400",
+    "category": "tshirts",
+    "tier": "premium",
+    "name_pl": "T-shirt Voyage 175",
+    "name_nl": "T-shirt Voyage 175",
+    "type_pl": "Koszulka premium",
+    "type_nl": "Premium T-shirt",
+    "sizes": "S, M, L, XL, XXL, XXXL",
+    "weight": "175 g/m²",
+    "material_pl": "100% bawełny czesanej ring-spun",
+    "material_nl": "100% gekamd ring-spun katoen",
+    "colors": "20, 22, 26, 30, 32, 34, 50",
+    "marking_pl": "DTF, nadruk reklamowy premium",
+    "marking_nl": "DTF, premium reclameprint",
+    "note_pl": "Model o wyższej jakości materiału do reprezentacyjnych realizacji.",
+    "note_nl": "Model met hogere materiaalkwaliteit voor representatieve projecten.",
+    "shape": "tshirt",
+    "image": "../assets/apparel/product-21400.svg",
+    "sizes_array": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL",
+      "XXXL"
+    ],
+    "color_swatches": [
+      {
+        "code": "20",
+        "hex": "#ffffff"
+      },
+      {
+        "code": "22",
+        "hex": "#090909"
+      },
+      {
+        "code": "26",
+        "hex": "#16265f"
+      },
+      {
+        "code": "30",
+        "hex": "#7f0d23"
+      },
+      {
+        "code": "32",
+        "hex": "#f4d51c"
+      },
+      {
+        "code": "34",
+        "hex": "#7d8387"
+      },
+      {
+        "code": "50",
+        "hex": "#3047a1"
+      }
+    ],
+    "primary_color": "#ffffff"
+  },
+  {
+    "code": "21204",
+    "category": "premium",
+    "tier": "premium",
+    "name_pl": "T-shirt Premium Plus 200",
+    "name_nl": "T-shirt Premium Plus 200",
+    "type_pl": "Koszulka premium",
+    "type_nl": "Premium T-shirt",
+    "sizes": "S, M, L, XL, XXL",
+    "weight": "200 g/m²",
+    "material_pl": "100% bawełny czesanej ring-spun",
+    "material_nl": "100% gekamd ring-spun katoen",
+    "colors": "20, 22, 26, 30, 32, 34, 50",
+    "marking_pl": "DTF, grafika wysokiej jakości",
+    "marking_nl": "DTF, hoogwaardige graphic",
+    "note_pl": "Mocniejsza koszulka premium pod bardziej wymagające projekty.",
+    "note_nl": "Steviger premium T-shirt voor veeleisende projecten.",
+    "shape": "tshirt",
+    "image": "../assets/apparel/product-21204.svg",
+    "sizes_array": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "color_swatches": [
+      {
+        "code": "20",
+        "hex": "#ffffff"
+      },
+      {
+        "code": "22",
+        "hex": "#090909"
+      },
+      {
+        "code": "26",
+        "hex": "#16265f"
+      },
+      {
+        "code": "30",
+        "hex": "#7f0d23"
+      },
+      {
+        "code": "32",
+        "hex": "#f4d51c"
+      },
+      {
+        "code": "34",
+        "hex": "#7d8387"
+      },
+      {
+        "code": "50",
+        "hex": "#3047a1"
+      }
+    ],
+    "primary_color": "#ffffff"
+  },
+  {
+    "code": "42250",
+    "category": "polo",
+    "tier": "business",
+    "name_pl": "Polo Cotton 200",
+    "name_nl": "Polo Cotton 200",
+    "type_pl": "Koszulka polo męska",
+    "type_nl": "Heren polo",
+    "sizes": "S, M, L, XL, XXL, XXXL",
+    "weight": "200 g/m²",
+    "material_pl": "90% bawełny czesanej, 10% poliestru",
+    "material_nl": "90% gekamd katoen, 10% polyester",
+    "colors": "20, 22, 24, 26, 27, 28, 30, 32, 34, 36, 41, 42, 44, 46, 48, 50, 61, 72, 76, 55, 71, 251",
+    "marking_pl": "DTF, haft, znakowanie firmowe",
+    "marking_nl": "DTF, borduurwerk, bedrijfsmarkering",
+    "note_pl": "Klasyczne polo firmowe do obsługi, biura i eventów.",
+    "note_nl": "Klassieke bedrijfs-polo voor service, kantoor en events.",
+    "shape": "polo",
+    "image": "../assets/apparel/product-42250.svg",
+    "sizes_array": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL",
+      "XXXL"
+    ],
+    "color_swatches": [
+      {
+        "code": "20",
+        "hex": "#ffffff"
+      },
+      {
+        "code": "22",
+        "hex": "#090909"
+      },
+      {
+        "code": "24",
+        "hex": "#e0001b"
+      },
+      {
+        "code": "26",
+        "hex": "#16265f"
+      },
+      {
+        "code": "27",
+        "hex": "#154f9b"
+      },
+      {
+        "code": "28",
+        "hex": "#24402f"
+      },
+      {
+        "code": "30",
+        "hex": "#7f0d23"
+      },
+      {
+        "code": "32",
+        "hex": "#f4d51c"
+      },
+      {
+        "code": "34",
+        "hex": "#7d8387"
+      },
+      {
+        "code": "36",
+        "hex": "#0a572e"
+      },
+      {
+        "code": "41",
+        "hex": "#48a23f"
+      },
+      {
+        "code": "42",
+        "hex": "#8232a8"
+      },
+      {
+        "code": "44",
+        "hex": "#ffdc00"
+      },
+      {
+        "code": "46",
+        "hex": "#7fb241"
+      },
+      {
+        "code": "48",
+        "hex": "#9a9a9a"
+      },
+      {
+        "code": "50",
+        "hex": "#3047a1"
+      },
+      {
+        "code": "61",
+        "hex": "#203b73"
+      },
+      {
+        "code": "72",
+        "hex": "#0b4a75"
+      },
+      {
+        "code": "76",
+        "hex": "#8f1228"
+      },
+      {
+        "code": "55",
+        "hex": "#94c83d"
+      },
+      {
+        "code": "71",
+        "hex": "#005d40"
+      },
+      {
+        "code": "251",
+        "hex": "#d5d5d5"
+      }
+    ],
+    "primary_color": "#ffffff"
+  },
+  {
+    "code": "42195",
+    "category": "polo",
+    "tier": "women",
+    "name_pl": "Polo Ladies Cotton 200",
+    "name_nl": "Polo Ladies Cotton 200",
+    "type_pl": "Koszulka polo damska",
+    "type_nl": "Dames polo",
+    "sizes": "XS, S, M, L, XL, XL+",
+    "weight": "200 g/m²",
+    "material_pl": "90% bawełny czesanej, 10% poliestru",
+    "material_nl": "90% gekamd katoen, 10% polyester",
+    "colors": "20, 22, 24, 26, 27, 28, 30, 32, 34, 36, 41, 42, 44, 46, 48, 50, 61, 72, 76, 55, 71, 251",
+    "marking_pl": "DTF, haft, znakowanie zespołu",
+    "marking_nl": "DTF, borduurwerk, teammarkering",
+    "note_pl": "Damska wersja polo do spójnej odzieży firmowej.",
+    "note_nl": "Damesversie voor consistente bedrijfskleding.",
+    "shape": "polo",
+    "image": "../assets/apparel/product-42195.svg",
+    "sizes_array": [
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XL+"
+    ],
+    "color_swatches": [
+      {
+        "code": "20",
+        "hex": "#ffffff"
+      },
+      {
+        "code": "22",
+        "hex": "#090909"
+      },
+      {
+        "code": "24",
+        "hex": "#e0001b"
+      },
+      {
+        "code": "26",
+        "hex": "#16265f"
+      },
+      {
+        "code": "27",
+        "hex": "#154f9b"
+      },
+      {
+        "code": "28",
+        "hex": "#24402f"
+      },
+      {
+        "code": "30",
+        "hex": "#7f0d23"
+      },
+      {
+        "code": "32",
+        "hex": "#f4d51c"
+      },
+      {
+        "code": "34",
+        "hex": "#7d8387"
+      },
+      {
+        "code": "36",
+        "hex": "#0a572e"
+      },
+      {
+        "code": "41",
+        "hex": "#48a23f"
+      },
+      {
+        "code": "42",
+        "hex": "#8232a8"
+      },
+      {
+        "code": "44",
+        "hex": "#ffdc00"
+      },
+      {
+        "code": "46",
+        "hex": "#7fb241"
+      },
+      {
+        "code": "48",
+        "hex": "#9a9a9a"
+      },
+      {
+        "code": "50",
+        "hex": "#3047a1"
+      },
+      {
+        "code": "61",
+        "hex": "#203b73"
+      },
+      {
+        "code": "72",
+        "hex": "#0b4a75"
+      },
+      {
+        "code": "76",
+        "hex": "#8f1228"
+      },
+      {
+        "code": "55",
+        "hex": "#94c83d"
+      },
+      {
+        "code": "71",
+        "hex": "#005d40"
+      },
+      {
+        "code": "251",
+        "hex": "#d5d5d5"
+      }
+    ],
+    "primary_color": "#ffffff"
+  },
+  {
+    "code": "42254",
+    "category": "polo",
+    "tier": "slim",
+    "name_pl": "Polo Cotton Slim 200",
+    "name_nl": "Polo Cotton Slim 200",
+    "type_pl": "Polo dopasowane",
+    "type_nl": "Slim-fit polo",
+    "sizes": "S, M, L, XL, XXL",
+    "weight": "200 g/m²",
+    "material_pl": "90% bawełny czesanej, 10% poliestru",
+    "material_nl": "90% gekamd katoen, 10% polyester",
+    "colors": "20, 22, 26, 32, 34",
+    "marking_pl": "DTF, haft, eleganckie znakowanie",
+    "marking_nl": "DTF, borduurwerk, elegante markering",
+    "note_pl": "Dopasowana wersja polo do bardziej reprezentacyjnych projektów.",
+    "note_nl": "Slim-fit polo voor representatieve projecten.",
+    "shape": "polo",
+    "image": "../assets/apparel/product-42254.svg",
+    "sizes_array": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "color_swatches": [
+      {
+        "code": "20",
+        "hex": "#ffffff"
+      },
+      {
+        "code": "22",
+        "hex": "#090909"
+      },
+      {
+        "code": "26",
+        "hex": "#16265f"
+      },
+      {
+        "code": "32",
+        "hex": "#f4d51c"
+      },
+      {
+        "code": "34",
+        "hex": "#7d8387"
+      }
+    ],
+    "primary_color": "#ffffff"
+  },
+  {
+    "code": "42350",
+    "category": "polo",
+    "tier": "long",
+    "name_pl": "Polo Long Cotton 200",
+    "name_nl": "Polo Long Cotton 200",
+    "type_pl": "Polo z długim rękawem",
+    "type_nl": "Polo met lange mouw",
+    "sizes": "S, M, L, XL, XXL, XXXL",
+    "weight": "200 g/m²",
+    "material_pl": "90% bawełny czesanej, 10% poliestru",
+    "material_nl": "90% gekamd katoen, 10% polyester",
+    "colors": "22, 26, 30, 32, 34, 36, 50",
+    "marking_pl": "DTF, haft, odzież firmowa",
+    "marking_nl": "DTF, borduurwerk, bedrijfskleding",
+    "note_pl": "Polo z długim rękawem do pracy i reprezentacji.",
+    "note_nl": "Polo met lange mouw voor werk en representatie.",
+    "shape": "polo",
+    "image": "../assets/apparel/product-42350.svg",
+    "sizes_array": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL",
+      "XXXL"
+    ],
+    "color_swatches": [
+      {
+        "code": "22",
+        "hex": "#090909"
+      },
+      {
+        "code": "26",
+        "hex": "#16265f"
+      },
+      {
+        "code": "30",
+        "hex": "#7f0d23"
+      },
+      {
+        "code": "32",
+        "hex": "#f4d51c"
+      },
+      {
+        "code": "34",
+        "hex": "#7d8387"
+      },
+      {
+        "code": "36",
+        "hex": "#0a572e"
+      },
+      {
+        "code": "50",
+        "hex": "#3047a1"
+      }
+    ],
+    "primary_color": "#090909"
+  },
+  {
+    "code": "61300",
+    "category": "hoodies",
+    "tier": "hoodie",
+    "name_pl": "Bluza Weekend 300",
+    "name_nl": "Hoodie Weekend 300",
+    "type_pl": "Bluza z kapturem",
+    "type_nl": "Hoodie",
+    "sizes": "S, M, L, XL, XXL, XXXL",
+    "weight": "300 g/m²",
+    "material_pl": "55% bawełny, 45% poliestru",
+    "material_nl": "55% katoen, 45% polyester",
+    "colors": "20, 22, 24, 26, 28, 30, 32, 34, 36, 48, 50",
+    "marking_pl": "DTF, duży nadruk, grafika eventowa",
+    "marking_nl": "DTF, grote print, eventgraphic",
+    "note_pl": "Klasyczna bluza pod nadruki dla zespołów i wydarzeń.",
+    "note_nl": "Klassieke hoodie voor team- en eventprints.",
+    "shape": "hoodie",
+    "image": "../assets/apparel/product-61300.svg",
+    "sizes_array": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL",
+      "XXXL"
+    ],
+    "color_swatches": [
+      {
+        "code": "20",
+        "hex": "#ffffff"
+      },
+      {
+        "code": "22",
+        "hex": "#090909"
+      },
+      {
+        "code": "24",
+        "hex": "#e0001b"
+      },
+      {
+        "code": "26",
+        "hex": "#16265f"
+      },
+      {
+        "code": "28",
+        "hex": "#24402f"
+      },
+      {
+        "code": "30",
+        "hex": "#7f0d23"
+      },
+      {
+        "code": "32",
+        "hex": "#f4d51c"
+      },
+      {
+        "code": "34",
+        "hex": "#7d8387"
+      },
+      {
+        "code": "36",
+        "hex": "#0a572e"
+      },
+      {
+        "code": "48",
+        "hex": "#9a9a9a"
+      },
+      {
+        "code": "50",
+        "hex": "#3047a1"
+      }
+    ],
+    "primary_color": "#ffffff"
+  },
+  {
+    "code": "61333",
+    "category": "hoodies",
+    "tier": "women",
+    "name_pl": "Bluza Sister 260",
+    "name_nl": "Sweatshirt Sister 260",
+    "type_pl": "Bluza damska",
+    "type_nl": "Dames sweatshirt",
+    "sizes": "XS, S, M, L, XL, XL+",
+    "weight": "260 g/m²",
+    "material_pl": "80% bawełny, 20% poliestru",
+    "material_nl": "80% katoen, 20% polyester",
+    "colors": "22, 26, 30, 32, 34",
+    "marking_pl": "DTF, personalizacja, grafika zespołowa",
+    "marking_nl": "DTF, personalisatie, teamgraphic",
+    "note_pl": "Damska bluza do spójnych kompletów firmowych.",
+    "note_nl": "Dames sweatshirt voor consistente bedrijfskleding.",
+    "shape": "sweatshirt",
+    "image": "../assets/apparel/product-61333.svg",
+    "sizes_array": [
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XL+"
+    ],
+    "color_swatches": [
+      {
+        "code": "22",
+        "hex": "#090909"
+      },
+      {
+        "code": "26",
+        "hex": "#16265f"
+      },
+      {
+        "code": "30",
+        "hex": "#7f0d23"
+      },
+      {
+        "code": "32",
+        "hex": "#f4d51c"
+      },
+      {
+        "code": "34",
+        "hex": "#7d8387"
+      }
+    ],
+    "primary_color": "#090909"
+  },
+  {
+    "code": "61309",
+    "category": "hoodies",
+    "tier": "kids",
+    "name_pl": "Bluza Weekend Kid 260",
+    "name_nl": "Hoodie Weekend Kid 260",
+    "type_pl": "Bluza dziecięca",
+    "type_nl": "Kinder hoodie",
+    "sizes": "110, 122, 132, 144, 156, 168",
+    "weight": "260 g/m²",
+    "material_pl": "80% bawełny, 20% poliestru",
+    "material_nl": "80% katoen, 20% polyester",
+    "colors": "22, 26, 30, 32, 34",
+    "marking_pl": "DTF, odzież szkolna/eventowa",
+    "marking_nl": "DTF, school-/eventkleding",
+    "note_pl": "Dziecięca bluza do wydarzeń i kompletów rodzinnych.",
+    "note_nl": "Kinderhoodie voor events en familiesets.",
+    "shape": "hoodie",
+    "image": "../assets/apparel/product-61309.svg",
+    "sizes_array": [
+      "110",
+      "122",
+      "132",
+      "144",
+      "156",
+      "168"
+    ],
+    "color_swatches": [
+      {
+        "code": "22",
+        "hex": "#090909"
+      },
+      {
+        "code": "26",
+        "hex": "#16265f"
+      },
+      {
+        "code": "30",
+        "hex": "#7f0d23"
+      },
+      {
+        "code": "32",
+        "hex": "#f4d51c"
+      },
+      {
+        "code": "34",
+        "hex": "#7d8387"
+      }
+    ],
+    "primary_color": "#090909"
+  },
+  {
+    "code": "64100",
+    "category": "premium",
+    "tier": "premium",
+    "name_pl": "Bluza Buffalo 320",
+    "name_nl": "Hoodie Buffalo 320",
+    "type_pl": "Bluza premium z kapturem",
+    "type_nl": "Premium hoodie",
+    "sizes": "XS, S, M, L, XL, XXL, XXXL",
+    "weight": "320 g/m²",
+    "material_pl": "60% bawełna, 40% poliester",
+    "material_nl": "60% katoen, 40% polyester",
+    "colors": "20, 21, 26, 50, 60, 281, 760",
+    "marking_pl": "DTF, haft, znakowanie premium",
+    "marking_nl": "DTF, borduurwerk, premium markering",
+    "note_pl": "Mocna bluza premium do bardziej wymagających realizacji.",
+    "note_nl": "Sterke premium hoodie voor veeleisende projecten.",
+    "shape": "hoodie",
+    "image": "../assets/apparel/product-64100.svg",
+    "sizes_array": [
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL",
+      "XXXL"
+    ],
+    "color_swatches": [
+      {
+        "code": "20",
+        "hex": "#ffffff"
+      },
+      {
+        "code": "21",
+        "hex": "#f2efe9"
+      },
+      {
+        "code": "26",
+        "hex": "#16265f"
+      },
+      {
+        "code": "50",
+        "hex": "#3047a1"
+      },
+      {
+        "code": "60",
+        "hex": "#30302f"
+      },
+      {
+        "code": "281",
+        "hex": "#1d2426"
+      },
+      {
+        "code": "760",
+        "hex": "#55606a"
+      }
+    ],
+    "primary_color": "#ffffff"
+  },
+  {
+    "code": "64000",
+    "category": "premium",
+    "tier": "premium",
+    "name_pl": "Bluza Club Top",
+    "name_nl": "Hoodie Club Top",
+    "type_pl": "Bluza rozpinana premium",
+    "type_nl": "Premium zip hoodie",
+    "sizes": "S, M, L, XL, XXL",
+    "weight": "ok. 300 g/m²",
+    "material_pl": "dzianina typu pique, wykończenie antypillingowe",
+    "material_nl": "pique stof, antipilling-afwerking",
+    "colors": "20, 26, 32, 34, 50",
+    "marking_pl": "DTF, haft, odzież reprezentacyjna",
+    "marking_nl": "DTF, borduurwerk, representatieve kleding",
+    "note_pl": "Rozpinana bluza o technicznym kroju do firmowych zestawów.",
+    "note_nl": "Zip hoodie met technische snit voor bedrijfskleding.",
+    "shape": "ziphoodie",
+    "image": "../assets/apparel/product-64000.svg",
+    "sizes_array": [
+      "S",
+      "M",
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "color_swatches": [
+      {
+        "code": "20",
+        "hex": "#ffffff"
+      },
+      {
+        "code": "26",
+        "hex": "#16265f"
+      },
+      {
+        "code": "32",
+        "hex": "#f4d51c"
+      },
+      {
+        "code": "34",
+        "hex": "#7d8387"
+      },
+      {
+        "code": "50",
+        "hex": "#3047a1"
+      }
+    ],
+    "primary_color": "#ffffff"
+  }
+]

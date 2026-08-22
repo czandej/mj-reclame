@@ -1,0 +1,43 @@
+MJ Reclame — paczka 2026-07-17_32 — wszystkie zdjęcia dostępnych kolorów
+
+Baza:
+- mj_reclame_2026-07-17_31_zmiana_zdjec_po_kolorze.zip
+
+Poprawiono:
+- każda karta produktu ma jawną mapę zdjęć data-photo-map dla każdego dostępnego koloru produktu,
+- po wyborze koloru zdjęcie produktu jest podmieniane na konkretny URL wariantu kolorystycznego,
+- domyślne zdjęcie produktu jest ustawione zgodnie z pierwszym zaznaczonym kolorem,
+- kod 29 nie występuje; wszędzie stosowany jest kod 290,
+- link Zapytaj o wycenę nadal przekazuje kod produktu, rozmiar, kolor, ilość i gotową wiadomość.
+
+Mapy zdjęć produktów:
+21172: 25 kolorów -> 20, 22, 24, 26, 27, 28, 30, 32, 34, 36, 39, 41, 44, 46, 50, 55, 56, 57, 61, 65, 70, 72, 74, 290, 21
+22160: 30 kolorów -> 20, 22, 24, 25, 26, 27, 28, 30, 32, 34, 36, 39, 41, 44, 46, 50, 55, 56, 57, 61, 65, 67, 70, 71, 72, 74, 82, 83, 290, 21
+21150: 6 kolorów -> 20, 22, 26, 28, 30, 32
+21149: 17 kolorów -> 20, 21, 22, 24, 25, 26, 27, 30, 32, 34, 36, 41, 44, 46, 65, 71, 290
+21174: 7 kolorów -> 20, 22, 26, 34, 67, 82, 83
+21185: 14 kolorów -> 20, 21, 22, 26, 28, 31, 32, 34, 48, 50, 55, 70, 30, 74
+21187: 6 kolorów -> 20, 22, 26, 30, 32, 50
+21204: 7 kolorów -> 20, 22, 26, 30, 34, 58, 60
+21203: 7 kolorów -> 20, 22, 26, 30, 34, 58, 60
+21600: 8 kolorów -> 20, 22, 26, 30, 34, 42, 52, 75
+21603: 7 kolorów -> 20, 22, 26, 30, 42, 52, 75
+21400: 7 kolorów -> 20, 22, 26, 32, 34, 50, 30
+21172: 25 kolorów -> 20, 22, 24, 26, 27, 28, 30, 32, 34, 36, 39, 41, 44, 46, 50, 55, 56, 57, 61, 65, 70, 72, 74, 290, 21
+22160: 30 kolorów -> 20, 22, 24, 25, 26, 27, 28, 30, 32, 34, 36, 39, 41, 44, 46, 50, 55, 56, 57, 61, 65, 67, 70, 71, 72, 74, 82, 83, 290, 21
+21150: 6 kolorów -> 20, 22, 26, 28, 30, 32
+21149: 17 kolorów -> 20, 21, 22, 24, 25, 26, 27, 30, 32, 34, 36, 41, 44, 46, 65, 71, 290
+21174: 7 kolorów -> 20, 22, 26, 34, 67, 82, 83
+21185: 14 kolorów -> 20, 21, 22, 26, 28, 31, 32, 34, 48, 50, 55, 70, 30, 74
+21187: 6 kolorów -> 20, 22, 26, 30, 32, 50
+21204: 7 kolorów -> 20, 22, 26, 30, 34, 58, 60
+21203: 7 kolorów -> 20, 22, 26, 30, 34, 58, 60
+21600: 8 kolorów -> 20, 22, 26, 30, 34, 42, 52, 75
+21603: 7 kolorów -> 20, 22, 26, 30, 42, 52, 75
+21400: 7 kolorów -> 20, 22, 26, 32, 34, 50, 30
+
+Kontrola:
+- Produkty: 12
+- Mapowane warianty zdjęć: 141
+- Błędy: 0
+- ZIP: OK

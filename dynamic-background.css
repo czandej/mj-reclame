@@ -1,0 +1,21 @@
+
+/* MJ Reclame — dynamiczne tło grafitowe PL/NL
+   Baza: ciemny grafit
+   Efekt: subtelna zielona poświata, szaro-grafitowe światło, lekki ruch cieni
+*/
+html{background:#080d0b;min-height:100%}
+body.mj-dynamic-bg{position:relative;isolation:isolate;overflow-x:hidden;background-color:#080d0b!important;background-image:linear-gradient(135deg,#070a09 0%,#0e1412 42%,#121917 68%,#070907 100%)!important;background-attachment:fixed}
+body.mj-dynamic-bg::before,body.mj-dynamic-bg::after{content:"";position:fixed;pointer-events:none;z-index:0;will-change:transform,opacity;transform:translate3d(0,0,0)}
+body.mj-dynamic-bg::before{inset:-26vmax;background:radial-gradient(circle at 18% 18%,rgba(72,223,0,.22) 0%,rgba(72,223,0,.13) 18%,transparent 39%),radial-gradient(circle at 84% 18%,rgba(170,190,185,.15) 0%,rgba(120,145,138,.08) 22%,transparent 42%),radial-gradient(circle at 56% 82%,rgba(45,120,80,.17) 0%,rgba(45,120,80,.09) 23%,transparent 47%),radial-gradient(circle at 10% 88%,rgba(255,255,255,.055) 0%,transparent 30%);filter:blur(36px);opacity:.82;animation:mjGlowDrift 34s ease-in-out infinite alternate}
+body.mj-dynamic-bg::after{inset:-12vmax;background:linear-gradient(115deg,transparent 0%,rgba(255,255,255,.045) 24%,transparent 43%),radial-gradient(ellipse at 72% 62%,rgba(72,223,0,.08),transparent 36%),repeating-linear-gradient(120deg,rgba(255,255,255,.018) 0px,rgba(255,255,255,.018) 1px,transparent 1px,transparent 92px);opacity:.28;mix-blend-mode:screen;animation:mjShadowFlow 42s ease-in-out infinite alternate}
+body.mj-dynamic-bg>*:not(script):not(style){position:relative;z-index:1}
+body.mj-dynamic-bg.mj-bg-home::before{opacity:.98;animation-duration:24s}
+body.mj-dynamic-bg.mj-bg-home::after{opacity:.38;animation-duration:30s}
+body.mj-dynamic-bg.mj-bg-page::before{opacity:.66;animation-duration:46s}
+body.mj-dynamic-bg.mj-bg-page::after{opacity:.20;animation-duration:58s}
+body.mj-dynamic-bg .hero,body.mj-dynamic-bg .page-hero,body.mj-dynamic-bg .reader-hero,body.mj-dynamic-bg .creator-hero{position:relative}
+body.mj-dynamic-bg .hero::after,body.mj-dynamic-bg .page-hero::after,body.mj-dynamic-bg .reader-hero::after,body.mj-dynamic-bg .creator-hero::after{content:"";position:absolute;inset:-28px;pointer-events:none;z-index:-1;background:radial-gradient(circle at 22% 18%,rgba(72,223,0,.12),transparent 36%),radial-gradient(circle at 78% 30%,rgba(255,255,255,.055),transparent 34%);filter:blur(18px);opacity:.78}
+@media (prefers-reduced-motion:reduce){body.mj-dynamic-bg::before,body.mj-dynamic-bg::after{animation:none!important;transform:none!important}}
+@media (max-width:760px){body.mj-dynamic-bg::before{filter:blur(30px);opacity:.62}body.mj-dynamic-bg.mj-bg-home::before{opacity:.78}body.mj-dynamic-bg::after{opacity:.16}}
+@keyframes mjGlowDrift{0%{transform:translate3d(-2.2%,-1.2%,0) scale(1)}36%{transform:translate3d(2.6%,1.8%,0) scale(1.035)}68%{transform:translate3d(-1.0%,3.0%,0) scale(1.055)}100%{transform:translate3d(2.2%,-2.6%,0) scale(1.02)}}
+@keyframes mjShadowFlow{0%{transform:translate3d(0,0,0) rotate(.001deg)}45%{transform:translate3d(-2.4%,1.6%,0) rotate(.001deg)}100%{transform:translate3d(2.8%,-1.8%,0) rotate(.001deg)}}

@@ -1,0 +1,39 @@
+MJ Reclame — paczka 2026-07-17_24 — katalog odzieży z nadrukiem
+
+Baza:
+- mj_reclame_2026-07-17_23_favicon_google.zip
+
+Zmieniono:
+- rozbudowano /pl/odziez-z-nadrukiem.html,
+- rozbudowano /nl/odziez-z-nadrukiem.html,
+- dodano katalog produktów jako dane JSON:
+  assets/data/apparel-products.json,
+- dodano neutralne grafiki produktów:
+  assets/apparel/product-*.svg,
+- dodano wyszukiwarkę po nazwie, kodzie, kategorii i gramaturze,
+- dodano filtry: koszulki, polo, bluzy, premium, dziecięce,
+- dodano przyciski:
+  * Zapytaj o ten produkt / Vraag naar dit product,
+  * Kopiuj kod / Code kopiëren,
+- dodano automatyczne przekazywanie kodu produktu do formularza kontaktowego,
+- dodano ukryte pole product_code w formularzach kontaktowych PL/NL.
+
+Nie zmieniano:
+- struktury PL/NL,
+- favikony,
+- dynamicznego tła,
+- Netlify Forms poza dodaniem pola product_code,
+- treści prawnych.
+
+Ważne:
+- W paczce nie użyto nazwy wskazanego partnera ani w widocznej treści, ani w nazwach plików, ani w danych JSON.
+- Katalog startowy obejmuje 16 produktów z kodami.
+- Grafiki produktów są neutralnymi lokalnymi ilustracjami, bez oznaczeń partnera.
+
+Kontrola:
+- ZIP OK,
+- linki lokalne OK,
+- JS OK,
+- formularze kontaktowe zachowane,
+- zakazane słowo w paczce: 0,
+- liczba błędów: 0.

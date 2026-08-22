@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="nl">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Online lezen | MJ Reclame</title>
+<meta content="Kies een tekst, pas de leesweergave aan en lees zonder afleiding." name="description"/>
+<link href="../reader.css" rel="stylesheet"/>
+<link data-mj-hreflang="true" href="https://www.reclamemj.nl/pl/czytnik.html" hreflang="pl" rel="alternate"/><link data-mj-hreflang="true" href="https://www.reclamemj.nl/nl/czytnik.html" hreflang="nl" rel="alternate"/><link data-mj-hreflang="true" href="https://www.reclamemj.nl/" hreflang="x-default" rel="alternate"/><link data-mj-dynamic-bg="true" href="../dynamic-background.css" rel="stylesheet"/><link data-mj-favicon="true" href="/favicon.ico" rel="icon" sizes="any"/><link data-mj-favicon="true" href="/favicon-48x48.png" rel="icon" sizes="48x48" type="image/png"/><link data-mj-favicon="true" href="/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/><link data-mj-favicon="true" href="/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png"/><link data-mj-favicon="true" href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/><link data-mj-favicon="true" href="/site.webmanifest" rel="manifest"/><meta content="#080d0b" data-mj-favicon="true" name="theme-color"/></head>
+<body class="mj-dynamic-bg mj-bg-page">
+<div class="app-shell">
+<aside class="library-panel" id="libraryPanel">
+<div class="brand-box">
+<img alt="MJ Reclame" class="reader-logo" src="../assets/logo-mj-reclame.png"/>
+<div>
+<strong>MJ Reclame</strong>
+<span>Online lezen</span>
+</div>
+</div>
+<a class="site-return-link" href="strefa-tworcow.html">← Terug naar de Makerszone</a>
+<nav aria-label="Menu biblioteki" class="library-menu">
+<button class="menu-item active" data-view="library">
+<span>▦</span>
+<em>Mijn teksten</em>
+</button>
+<button class="menu-item" data-view="recent">
+<span>◷</span>
+<em>Laatst gelezen</em>
+</button>
+<button class="menu-item" data-view="favorites">
+<span>♡</span>
+<em>Favorieten</em>
+</button>
+<button class="menu-item" data-view="bookmarks">
+<span>▱</span>
+<em>Bladwijzers</em>
+</button>
+</nav><div class="language-switcher"><a href="../pl/czytnik.html"><span class="flag">🇵🇱</span>PL</a><a class="is-active" href="../nl/czytnik.html"><span class="flag">🇳🇱</span>NL</a></div>
+<div class="side-note">
+<strong>Lees op jouw manier</strong>
+<p>Kies een prettige modus, stel de tekstgrootte in en kom later terug naar de laatste pagina.</p>
+</div>
+</aside>
+<main class="main-area">
+<header class="topbar">
+<button aria-label="Kies een tekst, pas de leesweergave aan en lees zonder afleiding." class="icon-button mobile-only" id="toggleLibrary">☰</button>
+<div class="topbar-title">
+<span id="topbarMode">Bibliotheek</span>
+<strong id="topbarBookTitle">MJ Reclame Reader</strong>
+</div>
+<div class="topbar-actions">
+<button aria-label="Szukaj" class="icon-button" id="searchButton">⌕</button>
+<button aria-label="Kies een tekst, pas de leesweergave aan en lees zonder afleiding." class="icon-button" id="themeQuickButton">◐</button>
+<button aria-label="Ustawienia" class="icon-button" id="settingsButton">Aa</button>
+</div>
+</header>
+<section class="library-view" id="libraryView">
+<div class="hero-reader">
+<div>
+<p class="kicker">MJ Reclame Reader</p>
+<h1>Open een tekst. <span>Lees zonder afleiding.</span></h1>
+<p>Kies een tekst, pas de leesweergave aan en blader zoals jij wilt — met muis, toetsenbord of vingerbeweging.</p>
+</div>
+<div class="hero-card">
+<span>Jouw lectuur</span>
+<strong>online</strong>
+<small>klik / toetsenbord / vingergebaar</small>
+</div>
+</div>
+<div class="section-heading">
+<div>
+<p class="kicker">Bibliotheek</p>
+<h2>Kies een tekst om te lezen</h2>
+</div>
+<div class="search-box">
+<input id="librarySearch" placeholder="Kies een tekst, pas de leesweergave aan en lees zonder afleiding." type="search"/>
+</div>
+</div>
+<div class="book-grid" id="bookGrid"></div>
+</section>
+<section class="reader-view" hidden="" id="readerView">
+<div class="reader-layout">
+<aside class="toc-panel" id="tocPanel">
+<div class="toc-header">
+<strong>Inhoudsopgave</strong>
+<button aria-label="Kies een tekst, pas de leesweergave aan en lees zonder afleiding." class="icon-button small" id="closeTocButton">×</button>
+</div>
+<div class="toc-list" id="tocList"></div>
+</aside>
+<article aria-live="polite" class="reading-page" id="readingPage">
+<button aria-label="Kies een tekst, pas de leesweergave aan en lees zonder afleiding." class="page-hotspot page-hotspot-left" id="leftPageHotspot"></button>
+<button aria-label="Kies een tekst, pas de leesweergave aan en lees zonder afleiding." class="page-hotspot page-hotspot-right" id="rightPageHotspot"></button>
+<div class="reading-meta">
+<button class="back-button" id="backToLibrary">← Bibliotheek</button>
+<span id="bookMeta"></span>
+</div>
+<header class="chapter-header">
+<p id="chapterNumber"></p>
+<h1 id="chapterTitle"></h1>
+<div class="chapter-line"></div>
+</header>
+<div class="chapter-content page-flip-content" id="chapterContent"></div>
+<footer class="reader-controls">
+<button class="control-button" id="prevPage">← Vorige pagina</button>
+<div class="progress-wrap">
+<input aria-label="Kies een tekst, pas de leesweergave aan en lees zonder afleiding." id="progressSlider" max="100" min="0" type="range" value="0"/>
+<div class="page-status">
+<strong id="pageIndicator">Pagina 1 / 1</strong>
+<span id="progressText">0%</span>
+</div>
+</div>
+<button class="control-button primary" id="nextPage">Volgende pagina →</button>
+</footer>
+<div class="chapter-jump-controls">
+<button class="control-button subtle" id="prevChapter">← Vorig hoofdstuk</button>
+<button class="control-button subtle" id="tocToggleButton">Inhoudsopgave</button>
+<button class="control-button subtle" id="nextChapter">Volgend hoofdstuk →</button>
+</div>
+</article>
+</div>
+</section>
+</main>
+<aside aria-label="Leesinstellingen" class="settings-panel" hidden="" id="settingsPanel">
+<div class="settings-header">
+<strong>Leesinstellingen</strong>
+<button class="icon-button small" id="closeSettings">×</button>
+</div>
+<div class="setting-block">
+<label>Tekstgrootte</label>
+<div class="segmented">
+<button data-font="-">A−</button>
+<span id="fontSizeLabel">100%</span>
+<button data-font="+">A+</button>
+</div>
+</div>
+<div class="setting-block">
+<label>Leesmodus</label>
+<div class="theme-buttons">
+<button data-theme-choice="light">Licht</button>
+<button data-theme-choice="sepia">Sepia</button>
+<button data-theme-choice="dark">Donker</button>
+</div>
+</div>
+<div class="setting-block">
+<label>Paginalengte</label>
+<div class="segmented">
+<button data-page-size="short">Kort</button>
+<button data-page-size="normal">Normaal</button>
+<button data-page-size="long">Langer</button>
+</div>
+</div>
+<div class="setting-block">
+<label>Kolombreedte</label>
+<div class="segmented">
+<button data-width="narrow">Smal</button>
+<button data-width="normal">Normaal</button>
+<button data-width="wide">Breed</button>
+</div>
+</div>
+<div class="setting-block">
+<label>Regelafstand</label>
+<div class="segmented">
+<button data-line="compact">Kleiner</button>
+<button data-line="normal">Normalny</button>
+<button data-line="loose">Groter</button>
+</div>
+</div>
+<div class="setting-actions">
+<button class="control-button primary full" id="bookmarkButton">Bewaar deze pagina</button>
+<button class="control-button full" id="resetReader">Wis mijn instellingen</button>
+</div>
+<div class="keyboard-help">
+<strong>Bediening</strong>
+<p>← vorige pagina<br/>→ volgende pagina<br/>Veeg naar links om verder te lezen<br/>Veeg naar rechts om terug te gaan<br/>Esc sluit de instellingen</p>
+</div>
+</aside>
+<div aria-live="polite" class="toast" id="toast" role="status"></div>
+</div>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="../supabase-config.js"></script>
+<script src="../reader-nl.js"></script>
+</body>
+</html>

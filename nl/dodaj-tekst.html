@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+
+<html lang="nl">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Tekst toevoegen | MJ Reclame</title>
+<meta content="Beheer je account, profiel en inzendingen in de Makerszone." name="description"/>
+
+
+<link href="../podstrona.css" rel="stylesheet"/>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script defer="" src="../supabase-config.js"></script>
+<script defer="" src="../strefa-tworcow-app-nl.js"></script>
+<link data-mj-hreflang="true" href="https://www.reclamemj.nl/pl/dodaj-tekst.html" hreflang="pl" rel="alternate"/><link data-mj-hreflang="true" href="https://www.reclamemj.nl/nl/dodaj-tekst.html" hreflang="nl" rel="alternate"/><link data-mj-hreflang="true" href="https://www.reclamemj.nl/" hreflang="x-default" rel="alternate"/><link data-mj-dynamic-bg="true" href="../dynamic-background.css" rel="stylesheet"/><link data-mj-favicon="true" href="/favicon.ico" rel="icon" sizes="any"/><link data-mj-favicon="true" href="/favicon-48x48.png" rel="icon" sizes="48x48" type="image/png"/><link data-mj-favicon="true" href="/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/><link data-mj-favicon="true" href="/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png"/><link data-mj-favicon="true" href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/><link data-mj-favicon="true" href="/site.webmanifest" rel="manifest"/><meta content="#080d0b" data-mj-favicon="true" name="theme-color"/></head>
+<body class="creator-page creator-app-page mj-dynamic-bg mj-bg-page">
+<header class="site-header">
+<div class="wrap header-inner">
+<a aria-label="Beheer je account, profiel en inzendingen in de Makerszone." class="brand" href="index.html">
+<img alt="MJ Reclame" src="../assets/logo-mj-reclame.png"/>
+</a>
+<nav aria-label="Beheer je account, profiel en inzendingen in de Makerszone." class="main-nav">
+<a href="index.html">Startpagina</a>
+<a href="o-nas.html">Over ons</a>
+<a href="index.html#uslugi">Diensten</a>
+<a href="realizacje.html">Portfolio</a>
+<a href="wydawnictwo.html">Uitgeverij</a>
+<a class="active" href="strefa-tworcow.html">Makerszone</a>
+<a href="kontakt.html">Contact</a>
+</nav><div class="language-switcher"><a href="../pl/dodaj-tekst.html"><span class="flag">🇵🇱</span>PL</a><a class="is-active" href="../nl/dodaj-tekst.html"><span class="flag">🇳🇱</span>NL</a></div>
+<a class="quote" href="kontakt.html#formularz">Vraag een offerte aan <span>→</span></a>
+</div>
+</header>
+<main>
+<section class="creator-app-hero">
+<div class="wrap creator-app-hero-grid">
+<div>
+<p class="creator-hand">Makerszone</p>
+<h1>Toevoegen <span>tekst</span></h1>
+<p>Stuur een verhaal, boekfragment, gedicht of korte tekst ter controle. Eerst gaat het materiaal naar de beheerder. Na goedkeuring beslis je zelf of je het in de MJ Reclame-reader wilt publiceren.</p>
+</div>
+<div class="creator-app-hero-card">
+<img alt="Makerszone MJ Reclame" src="../assets/photo-wydawnictwo-podstrona.png"/>
+</div>
+</div>
+</section>
+<section class="creator-app-section">
+<div class="wrap dashboard-grid">
+<aside class="dashboard-menu">
+<h3>Beheer je account, profiel en inzendingen in de Makerszone.</h3>
+<a href="panel-tworcy.html">Mijn profiel</a>
+<a class="active" href="dodaj-tekst.html">Tekst toevoegen</a>
+<a href="dodaj-grafike.html">Graphic toevoegen</a>
+<a href="moje-prace.html">Mijn werken</a>
+<button id="logout-button">Uitloggen</button>
+</aside>
+<article class="creator-app-card wide-card">
+<p class="panel-kicker">Publikacja tekstowa</p>
+<h2>Stuur tekst ter controle</h2>
+<div class="submission-notice">
+<strong>Belangrijk:</strong> na verzending krijgt de tekst de status <em>oczekuje</em>De beheerder van MJ Reclame controleert de inzending. Als de tekst wordt goedgekeurd, verschijnt in “Mijn werken” een aparte knop voor publicatie in de reader.
+      </div>
+<div class="app-message" id="auth-message"></div>
+<form class="creator-live-form" id="text-submission-form"><input name="language" type="hidden" value="nl"/>
+<label>Titel
+          <input id="text-title" maxlength="160" required="" type="text"/>
+</label>
+<label>Categorie
+          <select id="text-category" required="">
+<option value="">Kies</option>
+<option value="opowiadanie">Opowiadanie</option>
+<option value="fragment_ksiazki">Boekfragment</option>
+<option value="poezja">Poezja</option>
+<option value="esej">Esej</option>
+<option value="inne">Anders</option>
+</select>
+</label>
+<label>Korte beschrijving
+          <textarea id="text-summary" maxlength="900" placeholder="Beheer je account, profiel en inzendingen in de Makerszone." rows="4"></textarea>
+</label>
+<label>Inhoud
+          <textarea id="text-content" placeholder="Beheer je account, profiel en inzendingen in de Makerszone." required="" rows="16"></textarea>
+</label>
+<label class="check">
+<input id="text-rights" required="" type="checkbox"/>
+          Ik verklaar dat ik de rechten op de verzonden tekst bezit, het reglement accepteer en begrijp dat verzenden niet automatisch publicatie betekent.
+        </label>
+<button type="submit">Verstuur ter controle <span>→</span></button>
+</form>
+</article>
+</div>
+</section>
+</main>
+<footer class="footer">
+<div class="wrap footer-inner">
+<img alt="MJ Reclame" src="../assets/logo-mj-reclame.png"/>
+<p>© MJ Reclame. Alle rechten voorbehouden.</p>
+<div class="footer-links">
+<a href="kontakt.html#formularz">info@reclamemj.nl</a>
+<a href="regulamin-strefy-tworcow.html">Reglement Makerszone</a>
+<a href="polityka-prywatnosci.html">Privacybeleid</a>
+<a href="dane-firmy.html">Bedrijfsgegevens</a>
+</div>
+</div>
+</footer>
+ Beheer je account, profiel en inzendingen in de Makerszone. 
+<form data-netlify="true" hidden="" name="powiadomienie-tekst-do-akceptacji" netlify=""><input name="language" type="hidden" value="nl"/>
+<input name="form-name" type="hidden" value="powiadomienie-tekst-do-akceptacji"/>
+<input name="typ_zgloszenia" type="hidden"/>
+<input name="adresat_powiadomienia" type="hidden"/>
+<input name="email_uzytkownika" type="hidden"/>
+<input name="tytul" type="hidden"/>
+<input name="kategoria" type="hidden"/>
+<input name="opis" type="hidden"/>
+<input name="tresc_tekstu" type="hidden"/>
+<input name="liczba_znakow" type="hidden"/>
+<input name="data_zgloszenia" type="hidden"/>
+<input name="panel_administratora" type="hidden"/>
+</form>
+</body>
+</html>

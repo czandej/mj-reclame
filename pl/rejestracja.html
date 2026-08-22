@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+
+<html lang="pl">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Rejestracja | MJ Reclame</title>
+<meta content="Rejestracja w Strefie Twórców MJ Reclame." name="description"/>
+
+
+<link href="../podstrona.css" rel="stylesheet"/>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script defer="" src="../supabase-config.js"></script>
+<script defer="" src="../strefa-tworcow-app.js"></script>
+<link data-mj-hreflang="true" href="https://www.reclamemj.nl/pl/rejestracja.html" hreflang="pl" rel="alternate"/><link data-mj-hreflang="true" href="https://www.reclamemj.nl/nl/rejestracja.html" hreflang="nl" rel="alternate"/><link data-mj-hreflang="true" href="https://www.reclamemj.nl/" hreflang="x-default" rel="alternate"/><link data-mj-dynamic-bg="true" href="../dynamic-background.css" rel="stylesheet"/><link data-mj-favicon="true" href="/favicon.ico" rel="icon" sizes="any"/><link data-mj-favicon="true" href="/favicon-48x48.png" rel="icon" sizes="48x48" type="image/png"/><link data-mj-favicon="true" href="/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/><link data-mj-favicon="true" href="/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png"/><link data-mj-favicon="true" href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/><link data-mj-favicon="true" href="/site.webmanifest" rel="manifest"/><meta content="#080d0b" data-mj-favicon="true" name="theme-color"/></head>
+<body class="creator-page creator-app-page mj-dynamic-bg mj-bg-page">
+<header class="site-header">
+<div class="wrap header-inner">
+<a aria-label="MJ Reclame — strona główna" class="brand" href="index.html">
+<img alt="MJ Reclame" src="../assets/logo-mj-reclame.png"/>
+</a>
+<nav aria-label="Główne menu" class="main-nav">
+<a href="index.html">Strona główna</a>
+<a href="o-nas.html">O nas</a>
+<a href="index.html#uslugi">Usługi</a>
+<a href="realizacje.html">Realizacje</a>
+<a href="wydawnictwo.html">Wydawnictwo</a>
+<a class="active" href="strefa-tworcow.html">Strefa Twórców</a>
+<a href="kontakt.html">Kontakt</a>
+</nav><div class="language-switcher"><a class="is-active" href="../pl/rejestracja.html"><span class="flag">🇵🇱</span>PL</a><a href="../nl/rejestracja.html"><span class="flag">🇳🇱</span>NL</a></div>
+<a class="quote" href="kontakt.html#formularz">Zapytaj o wycenę <span>→</span></a>
+</div>
+</header>
+<main>
+<section class="creator-app-hero">
+<div class="wrap creator-app-hero-grid">
+<div>
+<p class="creator-hand">Strefa Twórców</p>
+<h1>Rejestracja <span>twórcy</span></h1>
+<p>Załóż konto, uzupełnij profil i przesyłaj teksty lub grafiki do sprawdzenia.</p>
+</div>
+<div class="creator-app-hero-card">
+<img alt="Strefa Twórców MJ Reclame" src="../assets/photo-wydawnictwo-podstrona.png"/>
+</div>
+</div>
+</section>
+<section class="creator-app-section">
+<div class="wrap creator-app-layout">
+<article class="creator-app-card">
+<p class="panel-kicker">Nowe konto</p>
+<h2>Załóż konto</h2>
+<div class="app-message" id="auth-message"></div>
+<form class="creator-live-form" id="register-form">
+<label>Nazwa użytkownika
+          <input id="register-username" maxlength="40" placeholder="np. autor_mj" required="" type="text"/>
+</label>
+<label>E-mail
+          <input autocomplete="email" id="register-email" required="" type="email"/>
+</label>
+<label>Hasło
+          <input autocomplete="new-password" id="register-password" minlength="8" required="" type="password"/>
+</label>
+<label>Typ twórcy
+          <select id="register-creator-type" required="">
+<option value="">Wybierz</option>
+<option value="autor">Autor / pisarz</option>
+<option value="grafik">Grafik / ilustrator</option>
+<option value="autor_grafik">Autor i grafik</option>
+</select>
+</label>
+<label class="check">
+<input id="register-terms" required="" type="checkbox"/>
+          Akceptuję <a href="regulamin-strefy-tworcow.html">Regulamin Strefy Twórców</a> oraz <a href="polityka-prywatnosci.html">Politykę prywatności</a>.
+        </label>
+<button type="submit">Załóż konto <span>→</span></button>
+</form>
+</article>
+<aside class="creator-app-side">
+<h3>Po rejestracji</h3>
+<p>Otrzymasz wiadomość z linkiem aktywacyjnym. Po potwierdzeniu e-maila zalogujesz się do panelu twórcy.</p>
+<p>Publikacje nie pojawiają się od razu publicznie — najpierw trafiają do sprawdzenia.</p>
+</aside>
+</div>
+</section>
+</main>
+<footer class="footer">
+<div class="wrap footer-inner">
+<img alt="MJ Reclame" src="../assets/logo-mj-reclame.png"/>
+<p>© MJ Reclame. Wszystkie prawa zastrzeżone.</p>
+<div class="footer-links">
+<a href="kontakt.html#formularz">info@reclamemj.nl</a>
+<a href="regulamin-strefy-tworcow.html">Regulamin Strefy Twórców</a>
+<a href="polityka-prywatnosci.html">Polityka prywatności</a>
+<a href="dane-firmy.html">Dane firmy</a>
+</div>
+</div>
+</footer>
+</body>
+</html>

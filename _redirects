@@ -1,0 +1,40 @@
+# MJ Reclame redirects — old root URLs to Polish version
+/index.html / 302
+/admin-wizualizacje.html /pl/admin-wizualizacje.html 301
+/admin-zgloszenia.html /pl/admin-zgloszenia.html 301
+/audiobooki.html /pl/audiobooki.html 301
+/auth-callback.html /pl/auth-callback.html 301
+/czytnik.html /pl/czytnik.html 301
+/dane-firmy.html /pl/dane-firmy.html 301
+/dodaj-grafike.html /pl/dodaj-grafike.html 301
+/dodaj-tekst.html /pl/dodaj-tekst.html 301
+/druk.html /pl/druk.html 301
+/dtf.html /pl/dtf.html 301
+/dziekujemy.html /pl/dziekujemy.html 301
+/e-booki.html /pl/e-booki.html 301
+/galeria-grafik.html /pl/galeria-grafik.html 301
+/grafika.html /pl/grafika.html 301
+/identyfikacja-wizualna.html /pl/identyfikacja-wizualna.html 301
+/kontakt.html /pl/kontakt.html 301
+/login.html /pl/login.html 301
+/materialy-reklamowe.html /pl/materialy-reklamowe.html 301
+/moje-prace.html /pl/moje-prace.html 301
+/o-nas.html /pl/o-nas.html 301
+/odziez-z-nadrukiem.html /pl/odziez-z-nadrukiem.html 301
+/panel-tworcy.html /pl/panel-tworcy.html 301
+/polityka-prywatnosci.html /pl/polityka-prywatnosci.html 301
+/projektowanie-graficzne.html /pl/projektowanie-graficzne.html 301
+/realizacje.html /pl/realizacje.html 301
+/regulamin-strefy-tworcow.html /pl/regulamin-strefy-tworcow.html 301
+/rejestracja.html /pl/rejestracja.html 301
+/reklama.html /pl/reklama.html 301
+/reset-hasla.html /pl/reset-hasla.html 301
+/strefa-tworcow.html /pl/strefa-tworcow.html 301
+/uslugi.html /pl/uslugi.html 301
+/wydawnictwo.html /pl/wydawnictwo.html 301
+/zgoda-autorska.html /pl/zgoda-autorska.html 301
+/pl /pl/index.html 301
+/nl /nl/index.html 301
+
+# Technical Netlify Forms detection page
+/_forms.html /_forms.html 200

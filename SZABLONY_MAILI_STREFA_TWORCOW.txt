@@ -1,0 +1,38 @@
+Szablony maili Supabase — MJ Reclame
+
+1. Confirm signup / Potwierdzenie rejestracji
+
+Temat:
+Potwierdź rejestrację w Strefie Twórców MJ Reclame
+
+Treść:
+Cześć,
+
+dziękujemy za założenie konta w Strefie Twórców MJ Reclame.
+
+Aby aktywować konto, kliknij poniższy link:
+{{ .ConfirmationURL }}
+
+Po aktywacji konta będziesz mógł uzupełnić profil oraz przesłać swoje teksty lub grafiki do sprawdzenia.
+
+Pozdrawiamy,
+MJ Reclame
+
+
+2. Reset password / Reset hasła
+
+Temat:
+Reset hasła do Strefy Twórców MJ Reclame
+
+Treść:
+Cześć,
+
+otrzymaliśmy prośbę o zresetowanie hasła do Twojego konta w Strefie Twórców MJ Reclame.
+
+Kliknij poniższy link, aby ustawić nowe hasło:
+{{ .ConfirmationURL }}
+
+Jeżeli to nie Ty wysłałeś tę prośbę, zignoruj tę wiadomość.
+
+Pozdrawiamy,
+MJ Reclame

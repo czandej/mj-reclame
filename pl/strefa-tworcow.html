@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+
+<html lang="pl">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Strefa Twórców | MJ Reclame</title>
+<meta content="Strefa Twórców MJ Reclame — osobna przestrzeń dla pisarzy i grafików. Teksty i grafiki trafiają najpierw do sprawdzenia. Po akceptacji autor może sam opublikować tekst w czytniku e-book MJ Reclame." name="description"/>
+
+
+<link href="../podstrona.css" rel="stylesheet"/>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script defer="" src="../supabase-config.js"></script>
+<script defer="" src="../strefa-tworcow-app.js"></script>
+<link data-mj-hreflang="true" href="https://www.reclamemj.nl/pl/strefa-tworcow.html" hreflang="pl" rel="alternate"/><link data-mj-hreflang="true" href="https://www.reclamemj.nl/nl/strefa-tworcow.html" hreflang="nl" rel="alternate"/><link data-mj-hreflang="true" href="https://www.reclamemj.nl/" hreflang="x-default" rel="alternate"/><link data-mj-dynamic-bg="true" href="../dynamic-background.css" rel="stylesheet"/><link data-mj-favicon="true" href="/favicon.ico" rel="icon" sizes="any"/><link data-mj-favicon="true" href="/favicon-48x48.png" rel="icon" sizes="48x48" type="image/png"/><link data-mj-favicon="true" href="/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/><link data-mj-favicon="true" href="/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png"/><link data-mj-favicon="true" href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/><link data-mj-favicon="true" href="/site.webmanifest" rel="manifest"/><meta content="#080d0b" data-mj-favicon="true" name="theme-color"/></head>
+<body class="creator-page creator-showcase-page mj-dynamic-bg mj-bg-page">
+<header class="site-header">
+<div class="wrap header-inner">
+<a aria-label="MJ Reclame — strona główna" class="brand" href="index.html">
+<img alt="MJ Reclame" src="../assets/logo-mj-reclame.png"/>
+</a>
+<nav aria-label="Główne menu" class="main-nav">
+<a href="index.html">Strona główna</a>
+<a href="o-nas.html">O nas</a>
+<a href="index.html#uslugi">Usługi</a>
+<a href="realizacje.html">Realizacje</a>
+<a href="wydawnictwo.html">Wydawnictwo</a>
+<a class="active" href="strefa-tworcow.html">Strefa Twórców</a>
+<a href="kontakt.html">Kontakt</a>
+</nav><div class="language-switcher"><a class="is-active" href="../pl/strefa-tworcow.html"><span class="flag">🇵🇱</span>PL</a><a href="../nl/strefa-tworcow.html"><span class="flag">🇳🇱</span>NL</a></div>
+<a class="quote" href="kontakt.html#formularz">Zapytaj o wycenę <span>→</span></a>
+</div>
+</header>
+<main>
+<section class="tworcy-showcase-hero">
+<div class="wrap">
+<p class="breadcrumb"><a href="index.html">Strona główna</a> <span>›</span> <span>Strefa Twórców</span></p>
+<div class="tworcy-showcase-grid">
+<div class="tworcy-showcase-copy">
+<p class="tworcy-kicker">Twoje miejsce. Twoje słowa. Twoje grafiki.</p>
+<h1>Strefa <span>Twórców</span></h1>
+<p class="tworcy-showcase-lead">
+              MJ Reclame to nie tylko miejsce realizacji projektów — to społeczność twórców,
+              którzy dzielą się pasją, inspirują i tworzą razem coś wyjątkowego.
+            </p>
+<p>
+              Rozdzielamy przestrzeń dla <strong>pisarzy</strong> i <strong>grafików</strong>, aby każda grupa miała
+              własną ścieżkę publikacji, prezentacji i rozwoju. Teksty oraz grafiki są najpierw przesyłane
+              do sprawdzenia. Po akceptacji autor sam decyduje, czy chce opublikować tekst w czytniku.
+            </p>
+<div class="creator-actions">
+<a class="creator-btn primary" data-auth-logged-out="" href="rejestracja.html">Dołącz do Strefy Twórców <span>→</span></a>
+<a class="creator-btn ghost" data-auth-logged-out="" href="login.html">Zaloguj się <span>→</span></a>
+<a class="creator-btn outline" data-auth-logged-in="" hidden="" href="panel-tworcy.html">Mój panel <span>→</span></a>
+<button class="creator-btn outline" data-auth-logged-in="" hidden="" id="logout-button" type="button">Wyloguj się <span>→</span></button>
+</div>
+</div>
+<div aria-hidden="true" class="tworcy-showcase-art">
+<div class="tworcy-showcase-art-frame">
+<img alt="" loading="lazy" src="../assets/strefa-hero-art-approved.png"/>
+<div class="tworcy-neon-badge">MJ</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section aria-label="Wybór ścieżki twórcy" class="tworcy-path-bar">
+<div class="wrap">
+<div class="tworcy-path-switch">
+<a class="active" href="#dla-pisarzy"><span>✒</span> Pisarze <em>Słowa mają moc</em></a>
+<a href="#dla-grafikow"><span>▣</span> Graficy <em>Obrazy tworzą świat</em></a>
+</div>
+</div>
+</section>
+<section class="tworcy-roles-section">
+<div class="wrap tworcy-roles-grid">
+<article class="tworcy-role-card writers" id="dla-pisarzy">
+<div class="tworcy-role-copy">
+<p class="panel-kicker">Dla pisarzy</p>
+<h2>Pisz. Dziel się. <span>Buduj swoją markę.</span></h2>
+<p>
+              Publikuj opowiadania, fragmenty książek, wiersze, artykuły i felietony.
+              Otrzymuj komentarze i opinie od Tyów. Twórz profil autora i buduj
+              społeczność wokół swojej twórczości.
+            </p>
+<p class="tworcy-note-line">
+              Twój tekst nie pojawi się publicznie od razu. Najpierw trafia do sprawdzenia,
+              a po akceptacji może zostać pokazany Tyom.
+            </p>
+<div class="tworcy-mini-benefits">
+<div><strong>Publikuj</strong><span>swoje teksty</span></div>
+<div><strong>Otrzymuj</strong><span>komentarze i opinie</span></div>
+<div><strong>Rozwijaj</strong><span>markę autora</span></div>
+</div>
+<div class="tworcy-role-actions">
+<a class="creator-btn primary" href="dodaj-tekst.html">Dodaj tekst <span>→</span></a>
+<a class="creator-btn ghost" href="czytnik.html">Otwórz czytnik <span>→</span></a>
+<a class="creator-btn outline" href="panel-tworcy.html">Panel autora <span>→</span></a>
+</div>
+</div>
+<div class="tworcy-role-art">
+<img alt="Strefa Pisarzy MJ Reclame" loading="lazy" src="../assets/photo-wydawnictwo-podstrona.png"/>
+</div>
+</article>
+<article class="tworcy-role-card designers" id="dla-grafikow">
+<div class="tworcy-role-copy">
+<p class="panel-kicker">Dla grafików</p>
+<h2>Twórz. Inspiruj. <span>Pokaż swoje prace.</span></h2>
+<p>
+              Prezentuj ilustracje, okładki, projekty DTF, grafiki do druku i inne realizacje.
+              Buduj portfolio, zdobywaj zasięgi i współpracuj z markami oraz wydawcami.
+              Twoje prace mogą trafić do projektów realizowanych przez MJ Reclame.
+            </p>
+<p class="tworcy-note-line">
+              Twoja grafika nie pojawi się publicznie automatycznie. Najpierw trafia do sprawdzenia,
+              a po akceptacji może zostać pokazana w galerii.
+            </p>
+<div class="tworcy-mini-benefits">
+<div><strong>Pokaż</strong><span>swoje portfolio</span></div>
+<div><strong>Zdobądź</strong><span>zlecenia i współprace</span></div>
+<div><strong>Rozwijaj</strong><span>swój styl</span></div>
+</div>
+<div class="tworcy-role-actions">
+<a class="creator-btn primary" href="dodaj-grafike.html">Dodaj grafikę <span>→</span></a>
+<a class="creator-btn ghost" href="galeria-grafik.html">Galeria grafik <span>→</span></a>
+<a class="creator-btn outline" href="panel-tworcy.html">Panel grafika <span>→</span></a>
+</div>
+</div>
+<div class="tworcy-role-art">
+<img alt="Strefa Grafików MJ Reclame" loading="lazy" src="../assets/photo-projektowanie-graficzne-podstrona.png"/>
+</div>
+</article>
+</div>
+</section>
+<section class="tworcy-reader-section" id="czytnik-ebook">
+<div class="wrap tworcy-reader-panel">
+<div class="tworcy-reader-copy">
+<p class="panel-kicker">Czytnik e-book</p>
+<h2>Otwórz tekst i czytaj tak, jak lubisz</h2>
+<p>
+            Wybierz opowiadanie, fragment książki albo inny tekst autora i zanurz się w czytaniu bez rozpraszania.
+            Przewracaj strony kliknięciem, klawiaturą albo ruchem palca, dopasuj wielkość liter i wróć później dokładnie tam,
+            gdzie skończyłeś.
+          </p>
+<ul class="tworcy-reader-features">
+<li><strong>Czytaj po swojemu</strong><span>wybierz tryb jasny, ciemny albo sepia</span></li>
+<li><strong>Dopasuj litery</strong><span>zwiększ lub zmniejsz tekst jednym kliknięciem</span></li>
+<li><strong>Wracaj bez szukania</strong><span>czytnik zapamięta ostatnią stronę</span></li>
+<li><strong>Zapisuj ulubione</strong><span>zachowaj teksty, do których chcesz wrócić</span></li>
+</ul>
+<div class="tworcy-reader-actions">
+<a class="creator-btn primary" href="czytnik.html">Zacznij czytać <span>→</span></a>
+<a class="creator-btn ghost" href="dodaj-tekst.html">Wyślij tekst do sprawdzenia <span>→</span></a>
+</div>
+</div>
+<div class="tworcy-reader-visual">
+<img alt="Wizualizacja czytnika e-book MJ Reclame" loading="lazy" src="../assets/strefa-reader-art-approved.png"/>
+</div>
+</div>
+</section>
+<section class="tworcy-community-section">
+<div class="wrap">
+<div class="tworcy-community-grid">
+<article class="tworcy-community-copy">
+<p class="panel-kicker">Twórcy razem</p>
+<h2>Społeczność, <span>która inspiruje</span></h2>
+<p>
+              Wspieraj innych twórców, komentuj, oceniaj i dziel się opinią.
+              Częścią Strefy Twórców będzie aktywna społeczność MJ Reclame, w której teksty i grafiki
+              rozwijają się dzięki odbiorcom i profesjonalnemu wsparciu.
+            </p>
+<a class="creator-btn primary" href="panel-tworcy.html">Zobacz aktywność <span>→</span></a>
+</article>
+<div aria-label="Statystyki społeczności twórców" class="tworcy-stats-grid">
+<article>
+<strong>1 248</strong>
+<span>Twórców<br/>w społeczności</span>
+</article>
+<article>
+<strong>5 732</strong>
+<span>Opublikowanych<br/>tekstów</span>
+</article>
+<article>
+<strong>3 845</strong>
+<span>Prac graficznych<br/>w galerii</span>
+</article>
+<article>
+<strong>12 976</strong>
+<span>Komentarzy<br/>i opinii</span>
+</article>
+</div>
+</div>
+</div>
+</section>
+<section class="tworcy-approval-band">
+<div class="wrap tworcy-approval-grid">
+<article>
+<p class="panel-kicker">Akceptacja i publikacja</p>
+<h2>Najpierw sprawdzenie, potem Twoja decyzja</h2>
+<p>
+            Teksty i grafiki nie publikują się automatycznie. Każde zgłoszenie otrzymuje status
+            <strong>oczekuje</strong> i trafia do sprawdzenia. Gdy tekst zostanie zaakceptowany,
+            sam decydujesz, czy chcesz pokazać go w czytniku MJ Reclame.
+          </p>
+</article>
+<div class="tworcy-approval-steps">
+<div><span>1</span><strong>Dodanie materiału</strong><em>tekst albo grafika</em></div>
+<div><span>2</span><strong>Powiadomienie administratora</strong><em>informacja o nowym zgłoszeniu</em></div>
+<div><span>3</span><strong>Status: oczekuje</strong><em>brak publikacji publicznej</em></div>
+<div><span>4</span><strong>Akceptacja administratora</strong><em>tekst gotowy do decyzji autora</em></div>
+<div><span>5</span><strong>Publikujesz w czytniku</strong><em>po akceptacji oświadczeń</em></div>
+</div>
+</div>
+</section>
+<section class="creator-final-cta">
+<div class="wrap final-cta-inner">
+<div>
+<h2>Masz pomysł? Stwórzmy coś wyjątkowego.</h2>
+<p>Dołącz do Strefy Twórców MJ Reclame i pokaż światu swoją twórczość.</p>
+</div>
+<a class="creator-btn primary" data-auth-logged-out="" href="rejestracja.html">Załóż konto <span>→</span></a>
+<a class="creator-btn primary" data-auth-logged-in="" hidden="" href="panel-tworcy.html">Przejdź do panelu <span>→</span></a>
+</div>
+</section>
+</main>
+<footer class="footer">
+<div class="wrap footer-inner footer-inner-extended">
+<img alt="MJ Reclame" src="../assets/logo-mj-reclame.png"/>
+<div class="footer-extended-copy">
+<p>Tworzymy dla twórców. Realizujemy dla Ciebie.</p>
+<small>© MJ Reclame. Wszystkie prawa zastrzeżone.</small>
+</div>
+<div class="footer-links">
+<a href="kontakt.html#formularz">info@reclamemj.nl</a>
+<a href="regulamin-strefy-tworcow.html">Regulamin Strefy Twórców</a>
+<a href="polityka-prywatnosci.html">Polityka prywatności</a>
+<a href="dane-firmy.html">Dane firmy</a>
+</div>
+</div>
+</footer>
+</body>
+</html>

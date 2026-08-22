@@ -1,0 +1,22 @@
+MJ Reclame — podgląd kompaktowego nagłówka
+
+Problem:
+Nagłówek/hero zajmował zbyt dużo ekranu na komputerze. Użytkownik musiał za dużo przewijać, żeby zobaczyć właściwą treść.
+
+Zakres poprawki:
+- zmniejszono cały blok hero, nie tylko tekst,
+- zmniejszono główne h1,
+- zmniejszono zielony dopisek w h1,
+- zmniejszono tekst odręczny nad tytułem,
+- zmniejszono odstępy w nagłówku,
+- ograniczono wysokość grafik w nagłówku,
+- ograniczono wysokość bannera DTF na stronie głównej,
+- zastosowano na stronie głównej i podstronach.
+
+Nie zmieniano:
+- kafelków usług,
+- linków,
+- Strefy Twórców,
+- czytnika,
+- formularzy,
+- Supabase.

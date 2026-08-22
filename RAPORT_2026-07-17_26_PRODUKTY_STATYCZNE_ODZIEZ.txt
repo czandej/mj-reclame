@@ -1,0 +1,40 @@
+MJ Reclame — paczka 2026-07-17_26 — produkty statyczne na podstronie odzieży
+
+Baza:
+- mj_reclame_2026-07-17_25_odziez_katalog_graficzny.zip
+
+Poprawiono:
+- produkty są wpisane statycznie w HTML, więc klient widzi je od razu po wejściu na podstronę,
+- nie ma już sytuacji, że podstrona pokazuje kategorię bez produktów,
+- każdy produkt ma osobny kafelek z:
+  * dużą grafiką koszulki,
+  * kodem produktu,
+  * rozmiarami,
+  * próbkami kolorów,
+  * gramaturą,
+  * składem,
+  * opisem,
+  * przyciskiem zapytania,
+- kliknięcie kafelka pokazuje powiększony panel szczegółów,
+- kliknięcie koloru zmienia kolor koszulki w kafelku,
+- zachowano filtrowanie produktów,
+- zachowano przekazywanie kodu produktu do formularza kontaktowego.
+
+Nie zmieniano:
+- formularzy Netlify,
+- struktury PL/NL,
+- treści prawnych,
+- favikony,
+- dynamicznego tła.
+
+Ważne:
+- Nazwa partnera nie została wpisana w paczce.
+- Liczba produktów statycznych: 23.
+
+Kontrola:
+- ZIP OK,
+- linki OK,
+- JS OK,
+- formularze OK,
+- zakazane słowa: niewykryte,
+- liczba błędów: 0.

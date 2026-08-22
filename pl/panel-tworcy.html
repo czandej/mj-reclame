@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+
+<html lang="pl">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Panel twórcy | MJ Reclame</title>
+<meta content="Panel użytkownika Strefy Twórców MJ Reclame." name="description"/>
+
+
+<link href="../podstrona.css" rel="stylesheet"/>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script defer="" src="../supabase-config.js"></script>
+<script defer="" src="../strefa-tworcow-app.js"></script>
+<link data-mj-hreflang="true" href="https://www.reclamemj.nl/pl/panel-tworcy.html" hreflang="pl" rel="alternate"/><link data-mj-hreflang="true" href="https://www.reclamemj.nl/nl/panel-tworcy.html" hreflang="nl" rel="alternate"/><link data-mj-hreflang="true" href="https://www.reclamemj.nl/" hreflang="x-default" rel="alternate"/><link data-mj-dynamic-bg="true" href="../dynamic-background.css" rel="stylesheet"/><link data-mj-favicon="true" href="/favicon.ico" rel="icon" sizes="any"/><link data-mj-favicon="true" href="/favicon-48x48.png" rel="icon" sizes="48x48" type="image/png"/><link data-mj-favicon="true" href="/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/><link data-mj-favicon="true" href="/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png"/><link data-mj-favicon="true" href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/><link data-mj-favicon="true" href="/site.webmanifest" rel="manifest"/><meta content="#080d0b" data-mj-favicon="true" name="theme-color"/></head>
+<body class="creator-page creator-app-page mj-dynamic-bg mj-bg-page">
+<header class="site-header">
+<div class="wrap header-inner">
+<a aria-label="MJ Reclame — strona główna" class="brand" href="index.html">
+<img alt="MJ Reclame" src="../assets/logo-mj-reclame.png"/>
+</a>
+<nav aria-label="Główne menu" class="main-nav">
+<a href="index.html">Strona główna</a>
+<a href="o-nas.html">O nas</a>
+<a href="index.html#uslugi">Usługi</a>
+<a href="realizacje.html">Realizacje</a>
+<a href="wydawnictwo.html">Wydawnictwo</a>
+<a class="active" href="strefa-tworcow.html">Strefa Twórców</a>
+<a href="kontakt.html">Kontakt</a>
+</nav><div class="language-switcher"><a class="is-active" href="../pl/panel-tworcy.html"><span class="flag">🇵🇱</span>PL</a><a href="../nl/panel-tworcy.html"><span class="flag">🇳🇱</span>NL</a></div>
+<a class="quote" href="kontakt.html#formularz">Zapytaj o wycenę <span>→</span></a>
+</div>
+</header>
+<main>
+<section class="creator-app-hero">
+<div class="wrap creator-app-hero-grid">
+<div>
+<p class="creator-hand">Strefa Twórców</p>
+<h1>Panel <span>twórcy</span></h1>
+<p>Zarządzaj profilem, dodawaj teksty i grafiki oraz sprawdzaj status swoich zgłoszeń.</p>
+</div>
+<div class="creator-app-hero-card">
+<img alt="Strefa Twórców MJ Reclame" src="../assets/photo-wydawnictwo-podstrona.png"/>
+</div>
+</div>
+</section>
+<section class="creator-app-section">
+<div class="wrap dashboard-grid">
+<aside class="dashboard-menu">
+<h3>Panel twórcy</h3>
+<a class="active" href="panel-tworcy.html">Mój profil</a>
+<a href="dodaj-tekst.html">Dodaj tekst</a>
+<a href="dodaj-grafike.html">Dodaj grafikę</a>
+<a href="moje-prace.html">Moje prace</a>
+<button id="logout-button">Wyloguj się</button>
+</aside>
+<article class="creator-app-card">
+<p class="panel-kicker">Profil</p>
+<h2>Mój profil</h2>
+<div class="app-message" id="auth-message"></div>
+<form class="creator-live-form" id="profile-form">
+<label>Nazwa użytkownika
+          <input id="profile-username" maxlength="40" type="text"/>
+</label>
+<label>Typ twórcy
+          <select id="profile-creator-type">
+<option value="autor">Autor / pisarz</option>
+<option value="grafik">Grafik / ilustrator</option>
+<option value="autor_grafik">Autor i grafik</option>
+</select>
+</label>
+<label>Krótki opis
+          <textarea id="profile-bio" maxlength="800" placeholder="Napisz kilka zdań o sobie i swojej twórczości." rows="6"></textarea>
+</label>
+<button type="submit">Zapisz profil <span>→</span></button>
+</form>
+</article>
+<aside class="creator-app-side">
+<h3>Status konta</h3>
+<p id="user-status">Sprawdzanie użytkownika...</p>
+<h3>Następny krok</h3>
+<p>Dodaj pierwszy tekst albo grafikę. Materiał trafi do sprawdzenia przed publikacją.</p>
+</aside>
+</div>
+</section>
+</main>
+<footer class="footer">
+<div class="wrap footer-inner">
+<img alt="MJ Reclame" src="../assets/logo-mj-reclame.png"/>
+<p>© MJ Reclame. Wszystkie prawa zastrzeżone.</p>
+<div class="footer-links">
+<a href="kontakt.html#formularz">info@reclamemj.nl</a>
+<a href="regulamin-strefy-tworcow.html">Regulamin Strefy Twórców</a>
+<a href="polityka-prywatnosci.html">Polityka prywatności</a>
+<a href="dane-firmy.html">Dane firmy</a>
+</div>
+</div>
+</footer>
+</body>
+</html>

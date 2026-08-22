@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+
+<html data-theme="dark" lang="pl">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Czytaj online | MJ Reclame</title>
+<meta content="Czytaj teksty autorów online w wygodnym czytniku MJ Reclame." name="description"/>
+<link href="../reader.css" rel="stylesheet"/>
+<link data-mj-hreflang="true" href="https://www.reclamemj.nl/pl/czytnik.html" hreflang="pl" rel="alternate"/><link data-mj-hreflang="true" href="https://www.reclamemj.nl/nl/czytnik.html" hreflang="nl" rel="alternate"/><link data-mj-hreflang="true" href="https://www.reclamemj.nl/" hreflang="x-default" rel="alternate"/><link data-mj-dynamic-bg="true" href="../dynamic-background.css" rel="stylesheet"/><link data-mj-favicon="true" href="/favicon.ico" rel="icon" sizes="any"/><link data-mj-favicon="true" href="/favicon-48x48.png" rel="icon" sizes="48x48" type="image/png"/><link data-mj-favicon="true" href="/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png"/><link data-mj-favicon="true" href="/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png"/><link data-mj-favicon="true" href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/><link data-mj-favicon="true" href="/site.webmanifest" rel="manifest"/><meta content="#080d0b" data-mj-favicon="true" name="theme-color"/></head>
+<body class="mj-dynamic-bg mj-bg-page">
+<div class="app-shell">
+<aside class="library-panel" id="libraryPanel">
+<div class="brand-box">
+<img alt="MJ Reclame" class="reader-logo" src="../assets/logo-mj-reclame.png"/>
+<div>
+<strong>MJ Reclame</strong>
+<span>Czytaj online</span>
+</div>
+</div>
+<a class="site-return-link" href="strefa-tworcow.html">← Wróć do Strefy Twórców</a>
+<nav aria-label="Menu biblioteki" class="library-menu">
+<button class="menu-item active" data-view="library">
+<span>▦</span>
+<em>Moje teksty</em>
+</button>
+<button class="menu-item" data-view="recent">
+<span>◷</span>
+<em>Ostatnio czytane</em>
+</button>
+<button class="menu-item" data-view="favorites">
+<span>♡</span>
+<em>Ulubione</em>
+</button>
+<button class="menu-item" data-view="bookmarks">
+<span>▱</span>
+<em>Zakładki</em>
+</button>
+</nav><div class="language-switcher"><a class="is-active" href="../pl/czytnik.html"><span class="flag">🇵🇱</span>PL</a><a href="../nl/czytnik.html"><span class="flag">🇳🇱</span>NL</a></div>
+<div class="side-note">
+<strong>Czytaj po swojemu</strong>
+<p>Wybierz wygodny tryb, ustaw wielkość tekstu i wróć później do ostatniej strony.</p>
+</div>
+</aside>
+<main class="main-area">
+<header class="topbar">
+<button aria-label="Pokaż bibliotekę" class="icon-button mobile-only" id="toggleLibrary">☰</button>
+<div class="topbar-title">
+<span id="topbarMode">Biblioteka</span>
+<strong id="topbarBookTitle">MJ Reclame Reader</strong>
+</div>
+<div class="topbar-actions">
+<button aria-label="Szukaj" class="icon-button" id="searchButton">⌕</button>
+<button aria-label="Zmień tryb" class="icon-button" id="themeQuickButton">◐</button>
+<button aria-label="Ustawienia" class="icon-button" id="settingsButton">Aa</button>
+</div>
+</header>
+<section class="library-view" id="libraryView">
+<div class="hero-reader">
+<div>
+<p class="kicker">Czytnik MJ Reclame</p>
+<h1>Otwórz tekst. <span>Czytaj bez rozpraszania.</span></h1>
+<p>Wybierz tekst, dopasuj wygląd czytania i przewracaj strony tak, jak lubisz — myszką, klawiaturą albo ruchem palca.</p>
+</div>
+<div class="hero-card">
+<span>Twoja lektura</span>
+<strong>online</strong>
+<small>klik / klawiatura / gest palcem</small>
+</div>
+</div>
+<div class="section-heading">
+<div>
+<p class="kicker">Biblioteka</p>
+<h2>Wybierz tekst do czytania</h2>
+</div>
+<div class="search-box">
+<input id="librarySearch" placeholder="Znajdź tekst, autora albo temat..." type="search"/>
+</div>
+</div>
+<div class="book-grid" id="bookGrid"></div>
+</section>
+<section class="reader-view" hidden="" id="readerView">
+<div class="reader-layout">
+<aside class="toc-panel" id="tocPanel">
+<div class="toc-header">
+<strong>Spis treści</strong>
+<button aria-label="Zamknij spis treści" class="icon-button small" id="closeTocButton">×</button>
+</div>
+<div class="toc-list" id="tocList"></div>
+</aside>
+<article aria-live="polite" class="reading-page" id="readingPage">
+<button aria-label="Poprzednia strona" class="page-hotspot page-hotspot-left" id="leftPageHotspot"></button>
+<button aria-label="Następna strona" class="page-hotspot page-hotspot-right" id="rightPageHotspot"></button>
+<div class="reading-meta">
+<button class="back-button" id="backToLibrary">← Biblioteka</button>
+<span id="bookMeta"></span>
+</div>
+<header class="chapter-header">
+<p id="chapterNumber"></p>
+<h1 id="chapterTitle"></h1>
+<div class="chapter-line"></div>
+</header>
+<div class="chapter-content page-flip-content" id="chapterContent"></div>
+<footer class="reader-controls">
+<button class="control-button" id="prevPage">← Poprzednia strona</button>
+<div class="progress-wrap">
+<input aria-label="Postęp czytania" id="progressSlider" max="100" min="0" type="range" value="0"/>
+<div class="page-status">
+<strong id="pageIndicator">Strona 1 / 1</strong>
+<span id="progressText">0%</span>
+</div>
+</div>
+<button class="control-button primary" id="nextPage">Następna strona →</button>
+</footer>
+<div class="chapter-jump-controls">
+<button class="control-button subtle" id="prevChapter">← Poprzedni rozdział</button>
+<button class="control-button subtle" id="tocToggleButton">Spis treści</button>
+<button class="control-button subtle" id="nextChapter">Następny rozdział →</button>
+</div>
+</article>
+</div>
+</section>
+</main>
+<aside aria-label="Ustawienia czytania" class="settings-panel" hidden="" id="settingsPanel">
+<div class="settings-header">
+<strong>Ustawienia czytania</strong>
+<button class="icon-button small" id="closeSettings">×</button>
+</div>
+<div class="setting-block">
+<label>Wielkość tekstu</label>
+<div class="segmented">
+<button data-font="-">A−</button>
+<span id="fontSizeLabel">100%</span>
+<button data-font="+">A+</button>
+</div>
+</div>
+<div class="setting-block">
+<label>Tryb czytania</label>
+<div class="theme-buttons">
+<button data-theme-choice="light">Jasny</button>
+<button data-theme-choice="sepia">Sepia</button>
+<button data-theme-choice="dark">Ciemny</button>
+</div>
+</div>
+<div class="setting-block">
+<label>Długość strony</label>
+<div class="segmented">
+<button data-page-size="short">Krótka</button>
+<button data-page-size="normal">Normalna</button>
+<button data-page-size="long">Dłuższa</button>
+</div>
+</div>
+<div class="setting-block">
+<label>Szerokość kolumny</label>
+<div class="segmented">
+<button data-width="narrow">Wąska</button>
+<button data-width="normal">Normalna</button>
+<button data-width="wide">Szeroka</button>
+</div>
+</div>
+<div class="setting-block">
+<label>Odstęp między wierszami</label>
+<div class="segmented">
+<button data-line="compact">Mniejszy</button>
+<button data-line="normal">Normalny</button>
+<button data-line="loose">Większy</button>
+</div>
+</div>
+<div class="setting-actions">
+<button class="control-button primary full" id="bookmarkButton">Zapisz tę stronę</button>
+<button class="control-button full" id="resetReader">Wyczyść moje ustawienia</button>
+</div>
+<div class="keyboard-help">
+<strong>Sterowanie</strong>
+<p>← poprzednia strona<br/>→ następna strona<br/>Przesuń palcem w lewo, aby czytać dalej<br/>Przesuń palcem w prawo, aby cofnąć stronę<br/>Esc zamyka ustawienia</p>
+</div>
+</aside>
+<div aria-live="polite" class="toast" id="toast" role="status"></div>
+</div>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="../supabase-config.js"></script>
+<script src="../reader.js"></script>
+</body>
+</html>

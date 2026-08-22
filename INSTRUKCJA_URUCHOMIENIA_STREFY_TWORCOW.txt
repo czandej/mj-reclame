@@ -1,0 +1,28 @@
+MJ Reclame — Strefa Twórców — instrukcja uruchomienia
+
+1. Wgraj paczkę na Netlify jak dotychczas.
+2. Załóż projekt w Supabase.
+3. W Supabase otwórz SQL Editor i uruchom plik:
+   supabase-strefa-tworcow.sql
+4. W Supabase przejdź do Project Settings → API.
+5. Skopiuj:
+   - Project URL,
+   - anon public key.
+6. W pliku supabase-config.js podmień:
+   WKLEJ_TUTAJ_PROJECT_URL
+   WKLEJ_TUTAJ_ANON_PUBLIC_KEY
+7. W Supabase Auth ustaw adres strony:
+   Site URL: https://www.reclamemj.nl
+   Redirect URL: https://www.reclamemj.nl/auth-callback.html
+8. W Supabase Auth → Email Templates ustaw treści maili:
+   - Confirm signup,
+   - Reset password.
+9. Po założeniu pierwszego konta administratora uruchom w SQL Editor:
+   update public.profiles set role = 'admin' where email = 'TWOJ_EMAIL';
+10. Panel administratora jest pod adresem:
+   admin-zgloszenia.html
+
+Uwaga:
+- Formularz kontaktowy może nadal działać przez Netlify Forms.
+- Strefa Twórców działa przez Supabase.
+- Nie publikuj kluczy prywatnych Supabase. W pliku supabase-config.js używany jest tylko anon public key.

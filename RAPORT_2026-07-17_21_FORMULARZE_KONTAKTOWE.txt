@@ -1,0 +1,40 @@
+MJ Reclame — paczka finalna PL/NL 2026-07-17_21 — poprawka formularzy kontaktowych
+
+Baza:
+- mj_reclame_2026-07-17_20_final_pl_nl.zip
+
+Poprawiono:
+- formularz /pl/kontakt.html:
+  * name="kontakt-mj-reclame"
+  * method="POST"
+  * data-netlify="true"
+  * netlify
+  * netlify-honeypot="bot-field"
+  * action="/pl/dziekujemy.html"
+  * hidden form-name="kontakt-mj-reclame"
+  * hidden language="pl"
+  * hidden subject="MJ Reclame — formularz kontaktowy PL"
+
+- formularz /nl/kontakt.html:
+  * name="kontakt-mj-reclame"
+  * method="POST"
+  * data-netlify="true"
+  * netlify
+  * netlify-honeypot="bot-field"
+  * action="/nl/dziekujemy.html"
+  * hidden form-name="kontakt-mj-reclame"
+  * hidden language="nl"
+  * hidden subject="MJ Reclame — formularz kontaktowy NL"
+
+Dodano:
+- /_forms.html — techniczna strona wykrywania formularza przez Netlify po przeniesieniu strony do /pl/ i /nl/.
+- Zachowano nazwę formularza kontakt-mj-reclame, żeby nie zrywać istniejących ustawień Netlify, jeżeli były przypisane do tej nazwy.
+
+Ważne:
+- Ta paczka poprawia kod formularza.
+- Adres odbiorcy powiadomień e-mail trzeba sprawdzić lub ustawić w panelu Netlify:
+  Project configuration → Notifications → Emails and webhooks → Form submission notifications.
+- Formularz powinien być widoczny w Netlify jako kontakt-mj-reclame.
+
+Kontrola:
+- błędy: 0
