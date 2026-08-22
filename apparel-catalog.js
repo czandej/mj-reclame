@@ -81,13 +81,13 @@
     inquiry.forEach((item, index) => {
       lines.push(`${index + 1}. ${item.name}`);
       lines.push(`   Kod: ${item.code}`);
-      lines.push(`   Rozmiar/Maat: ${item.size}`);
-      lines.push(`   Kolor/Kleur: ${item.color}`);
-      lines.push(`   Ilość/Aantal: ${item.qty}`);
+      lines.push(`   ${lang === "nl" ? "Maat" : "Rozmiar"}: ${item.size}`);
+      lines.push(`   ${lang === "nl" ? "Kleur" : "Kolor"}: ${item.color}`);
+      lines.push(`   ${lang === "nl" ? "Aantal" : "Ilość"}: ${item.qty}`);
       lines.push("");
     });
     const sum = inquiry.reduce((acc, item) => acc + safeQty(item.qty), 0);
-    lines.push(`Razem/Totaal: ${sum} szt.`);
+    lines.push(`${lang === "nl" ? "Totaal" : "Razem"}: ${sum} ${lang === "nl" ? "stuks" : "szt."}`);
     lines.push("");
     lines.push(labels.graphicsLine);
     return lines.join("\n");

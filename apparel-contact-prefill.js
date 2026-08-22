@@ -26,13 +26,13 @@
         items.forEach((item, index) => {
           lines.push(`${index + 1}. ${item.name || ""}`);
           lines.push(`   Kod: ${item.code || ""}`);
-          lines.push(`   Rozmiar/Maat: ${item.size || ""}`);
-          lines.push(`   Kolor/Kleur: ${item.color || ""}`);
-          lines.push(`   Ilość/Aantal: ${item.qty || ""}`);
+          lines.push(`   ${isNl ? "Maat" : "Rozmiar"}: ${item.size || ""}`);
+          lines.push(`   ${isNl ? "Kleur" : "Kolor"}: ${item.color || ""}`);
+          lines.push(`   ${isNl ? "Aantal" : "Ilość"}: ${item.qty || ""}`);
           lines.push("");
         });
         const total = items.reduce((acc, item) => acc + (parseInt(item.qty, 10) || 0), 0);
-        lines.push(`Razem/Totaal: ${total} szt.`);
+        lines.push(`${isNl ? "Totaal" : "Razem"}: ${total} ${isNl ? "stuks" : "szt."}`);
         lines.push("");
         lines.push(isNl ? "Het ontwerp / logo voor DTF-bedrukking voeg ik toe als bijlage of stuur ik na contact door." : "Grafikę / logo do nadruku DTF dołączam w załączniku albo prześlę po kontakcie.");
         message = lines.join("\n");
