@@ -87,7 +87,7 @@
       lines.push("");
     });
     const sum = inquiry.reduce((acc, item) => acc + safeQty(item.qty), 0);
-    lines.push(`${lang === "nl" ? "Totaal" : "Razem"}: ${sum} ${lang === "nl" ? "stuks" : "szt."}`);
+    lines.push(lang === "nl" ? `Totaal: ${sum} stuks` : `Razem: ${sum} szt.`);
     lines.push("");
     lines.push(labels.graphicsLine);
     return lines.join("\n");
