@@ -1,0 +1,28 @@
+MJ Reclame — paczka 2026-07-17_45 — lista załączników w mailu klienta
+
+Baza:
+- mj_reclame_2026-07-17_44_stabilny_mail_utf8_plain.zip
+
+Dodano:
+- klient w mailu zwrotnym otrzymuje listę nazw przesłanych plików,
+- wersja PL:
+  Przesłane pliki:
+  1. nazwa-pliku.jpg
+  Pliki zostały dołączone do zapytania i zostaną uwzględnione przy wycenie.
+- wersja NL:
+  Toegevoegde bestanden:
+  1. bestandsnaam.jpg
+  De bestanden zijn aan de aanvraag toegevoegd en worden meegenomen in de offerte.
+
+Zostawiono bez zmian:
+- klient NIE otrzymuje plików jako załączników,
+- załączniki nadal idą tylko do MJ Reclame,
+- prosty mail tekstowy bez HTML i bez logo,
+- stabilny mechanizm SMTP z v44,
+- poprawne UTF-8,
+- rozdzielenie PL/NL,
+- formularz przez funkcję contact-dtf.
+
+Kontrola:
+- Błędy: 0
+- ZIP: OK

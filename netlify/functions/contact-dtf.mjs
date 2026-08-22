@@ -149,6 +149,9 @@ function labels(lang) {
     clientIntro2: "Wij hebben je aanvraag voor kleding met DTF-bedrukking ontvangen.",
     summary: "Samenvatting van de aanvraag",
     filesInfo: "Als er grafische bestanden zijn toegevoegd, nemen wij deze mee in de offerte.",
+    attachedFiles: "Toegevoegde bestanden",
+    noClientFiles: "Er zijn geen grafische bestanden toegevoegd aan het formulier.",
+    filesConfirmed: "De bestanden zijn aan de aanvraag toegevoegd en worden meegenomen in de offerte.",
     footer: "MJ Reclame\ninfo@reclamemj.nl",
     ownerTitle: "Nieuwe aanvraag via MJ Reclame",
     name: "Naam/bedrijf",
@@ -168,6 +171,9 @@ function labels(lang) {
     clientIntro2: "Otrzymaliśmy zapytanie dotyczące odzieży z nadrukiem DTF.",
     summary: "Podsumowanie zapytania",
     filesInfo: "Jeżeli do formularza dołączono pliki graficzne, uwzględnimy je przy przygotowaniu wyceny.",
+    attachedFiles: "Przesłane pliki",
+    noClientFiles: "Nie dołączono plików graficznych do formularza.",
+    filesConfirmed: "Pliki zostały dołączone do zapytania i zostaną uwzględnione przy wycenie.",
     footer: "MJ Reclame\ninfo@reclamemj.nl",
     ownerTitle: "Nowe zapytanie z formularza MJ Reclame",
     name: "Imię/nazwa",
@@ -182,7 +188,7 @@ function labels(lang) {
   };
 }
 
-function buildClientText(fields, lang) {
+function buildClientText(fields, files, lang) {
   const L = labels(lang);
   const name = getField(fields, ["name", "naam"], lang === "nl" ? "klant" : "Kliencie");
   const message = sanitizeText(getField(fields, ["message", "wiadomosc", "bericht"], ""));
@@ -197,10 +203,25 @@ function buildClientText(fields, lang) {
     "",
     message || (lang === "nl" ? "De aanvraag is ontvangen." : "Zapytanie zostało przyjęte do wyceny."),
     "",
-    L.filesInfo,
-    "",
-    L.footer
+    `${L.attachedFiles}:`
   ];
+
+  const visibleFiles = (files || []).filter(file => file.filename && file.content && file.content.length > 0);
+
+  if (visibleFiles.length) {
+    visibleFiles.forEach((file, index) => {
+      lines.push(`${index + 1}. ${file.filename}`);
+    });
+    lines.push("");
+    lines.push(L.filesConfirmed);
+  } else {
+    lines.push(L.noClientFiles);
+  }
+
+  lines.push("");
+  lines.push(L.filesInfo);
+  lines.push("");
+  lines.push(L.footer);
 
   return sanitizeText(lines.join("\n"));
 }
@@ -399,7 +420,7 @@ export async function handler(event) {
       to: customerEmail,
       replyTo: process.env.MAIL_REPLY_TO || DEFAULT_TO,
       subject: L.clientSubject,
-      text: buildClientText(fields, lang),
+      text: buildClientText(fields, files, lang),
       attachments: [],
     });
 
