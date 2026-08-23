@@ -24,3 +24,6 @@
   X-Robots-Tag: noindex, nofollow
 /__forms.html
   X-Robots-Tag: noindex, nofollow
+
+/panel/*
+  X-Robots-Tag: noindex, nofollow

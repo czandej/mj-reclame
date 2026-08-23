@@ -2,6 +2,9 @@
 https://symphonious-souffle-a65899.netlify.app/* https://www.reclamemj.nl/:splat 301!
 https://fastidious-bavarois-73fea6.netlify.app/* https://www.reclamemj.nl/:splat 301!
 
+# Private panel route
+/panel /panel/index.html 200
+
 # MJ Reclame redirects — old root URLs to Polish version
 /index.html / 302
 /admin-wizualizacje.html /pl/admin-wizualizacje.html 301

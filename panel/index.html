@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel firmowy | MJ Reclame</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Prywatny panel firmowy MJ Reclame do obsługi klientów, zamówień i faktur.">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/favicon-96x96.png" sizes="96x96" type="image/png">
+  <link rel="stylesheet" href="/assets/panel-firmowy.css">
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script defer src="/supabase-config.js"></script>
+  <script defer src="/assets/canonical-domain.js"></script>
+  <script defer src="/assets/panel-firmowy.js"></script>
+</head>
+<body>
+  <div class="panel-shell">
+    <aside class="panel-sidebar">
+      <a class="panel-brand" href="/pl/index.html" aria-label="MJ Reclame — strona główna">
+        <img src="/assets/logo-mj-reclame.png" alt="MJ Reclame">
+      </a>
+      <div class="panel-badge">Panel firmowy</div>
+      <nav class="panel-nav" aria-label="Menu panelu firmowego">
+        <button class="is-active" data-view="dashboard">Pulpit</button>
+        <button data-view="clients">Klienci</button>
+        <button data-view="orders">Zamówienia</button>
+        <button data-view="invoices">Faktury</button>
+        <button data-view="settings">Ustawienia</button>
+      </nav>
+      <div class="panel-sidebar-footer">
+        <a href="/pl/index.html">Otwórz stronę</a>
+        <button id="panel-logout" type="button" hidden>Wyloguj</button>
+      </div>
+    </aside>
+
+    <main class="panel-main">
+      <header class="panel-topbar">
+        <div>
+          <p class="panel-kicker">MJ Reclame</p>
+          <h1>Panel firmowy</h1>
+        </div>
+        <div class="panel-user" id="panel-user-status">Sprawdzam logowanie…</div>
+      </header>
+
+      <section class="panel-card panel-auth" id="auth-section" hidden>
+        <div>
+          <p class="panel-kicker">Dostęp prywatny</p>
+          <h2>Zaloguj się do panelu</h2>
+          <p>Panel służy do obsługi klientów, zamówień i faktur MJ Reclame. Dane są chronione przez logowanie oraz uprawnienia administratora.</p>
+        </div>
+        <form id="panel-login-form" class="panel-form narrow">
+          <label>E-mail
+            <input id="panel-login-email" type="email" autocomplete="email" required>
+          </label>
+          <label>Hasło
+            <input id="panel-login-password" type="password" autocomplete="current-password" required>
+          </label>
+          <button type="submit" class="primary">Zaloguj</button>
+        </form>
+        <div class="panel-message" id="panel-auth-message"></div>
+      </section>
+
+      <section class="panel-card panel-locked" id="locked-section" hidden>
+        <p class="panel-kicker">Brak uprawnień</p>
+        <h2>Ten panel jest tylko dla administratora MJ Reclame.</h2>
+        <p>Zalogowane konto nie ma roli <strong>admin</strong> w tabeli <code>profiles</code>.</p>
+      </section>
+
+      <div id="app-section" hidden>
+        <section class="panel-view is-active" data-panel-view="dashboard">
+          <div class="panel-actions-row">
+            <div>
+              <p class="panel-kicker">Pulpit</p>
+              <h2>Najważniejsze informacje</h2>
+            </div>
+            <button class="secondary" id="refresh-all" type="button">Odśwież dane</button>
+          </div>
+
+          <div class="stats-grid">
+            <article class="stat-card"><span id="stat-new-orders">0</span><p>Nowe zamówienia</p></article>
+            <article class="stat-card"><span id="stat-active-clients">0</span><p>Klienci aktywni</p></article>
+            <article class="stat-card"><span id="stat-open-invoices">0</span><p>Faktury nieopłacone</p></article>
+            <article class="stat-card"><span id="stat-production-orders">0</span><p>Zlecenia w toku</p></article>
+          </div>
+
+          <div class="dashboard-grid">
+            <article class="panel-card inner">
+              <h3>Ostatnie zamówienia</h3>
+              <div class="mini-list" id="recent-orders">Brak danych.</div>
+            </article>
+            <article class="panel-card inner">
+              <h3>Faktury do sprawdzenia</h3>
+              <div class="mini-list" id="recent-invoices">Brak danych.</div>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel-view" data-panel-view="clients">
+          <div class="panel-actions-row">
+            <div>
+              <p class="panel-kicker">Baza klientów</p>
+              <h2>Klienci</h2>
+            </div>
+            <button class="primary" data-open-form="client-form-card" type="button">+ Dodaj klienta</button>
+          </div>
+
+          <article class="panel-card inner form-card" id="client-form-card" hidden>
+            <h3>Nowy klient</h3>
+            <form id="client-form" class="panel-form grid-form">
+              <label>Nazwa / imię i nazwisko<input id="client-name" required></label>
+              <label>Firma<input id="client-company"></label>
+              <label>E-mail<input id="client-email" type="email"></label>
+              <label>Telefon<input id="client-phone"></label>
+              <label>BTW/VAT<input id="client-vat"></label>
+              <label>KvK<input id="client-kvk"></label>
+              <label class="full">Adres<textarea id="client-address"></textarea></label>
+              <label class="full">Notatki<textarea id="client-notes"></textarea></label>
+              <div class="form-buttons full">
+                <button class="primary" type="submit">Zapisz klienta</button>
+                <button class="ghost" type="button" data-close-form="client-form-card">Anuluj</button>
+              </div>
+            </form>
+          </article>
+
+          <div class="table-tools">
+            <input id="client-search" placeholder="Szukaj klienta, firmy, e-maila…">
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>Klient</th><th>Firma</th><th>E-mail</th><th>Telefon</th><th>VAT</th><th>Notatki</th></tr></thead><tbody id="clients-table"></tbody></table></div>
+        </section>
+
+        <section class="panel-view" data-panel-view="orders">
+          <div class="panel-actions-row">
+            <div>
+              <p class="panel-kicker">Zlecenia i zapytania</p>
+              <h2>Zamówienia</h2>
+            </div>
+            <button class="primary" data-open-form="order-form-card" type="button">+ Dodaj zamówienie</button>
+          </div>
+
+          <article class="panel-card inner form-card" id="order-form-card" hidden>
+            <h3>Nowe zamówienie</h3>
+            <form id="order-form" class="panel-form grid-form">
+              <label>Klient<select id="order-client" required></select></label>
+              <label>Rodzaj usługi<select id="order-service"><option>DTF / odzież z nadrukiem</option><option>Projekt graficzny</option><option>Druk</option><option>Baner reklamowy</option><option>Materiały reklamowe</option><option>Wydawnictwo</option><option>E-book / audiobook</option><option>Inne</option></select></label>
+              <label class="full">Tytuł zamówienia<input id="order-title" required placeholder="np. 20 koszulek DTF dla firmy ABC"></label>
+              <label>Status<select id="order-status"><option>Nowe</option><option>W trakcie</option><option>Do wyceny</option><option>Wycenione</option><option>Zaakceptowane</option><option>W produkcji</option><option>Gotowe</option><option>Zakończone</option><option>Anulowane</option></select></label>
+              <label>Termin<input id="order-deadline" type="date"></label>
+              <label>Kwota netto €<input id="order-net" inputmode="decimal" placeholder="0,00"></label>
+              <label>VAT %<input id="order-vat" inputmode="decimal" value="21"></label>
+              <label class="full">Notatki<textarea id="order-notes"></textarea></label>
+              <div class="form-buttons full">
+                <button class="primary" type="submit">Zapisz zamówienie</button>
+                <button class="ghost" type="button" data-close-form="order-form-card">Anuluj</button>
+              </div>
+            </form>
+          </article>
+
+          <div class="table-wrap"><table><thead><tr><th>Data</th><th>Klient</th><th>Usługa</th><th>Tytuł</th><th>Status</th><th>Termin</th><th>Kwota</th></tr></thead><tbody id="orders-table"></tbody></table></div>
+        </section>
+
+        <section class="panel-view" data-panel-view="invoices">
+          <div class="panel-actions-row">
+            <div>
+              <p class="panel-kicker">Dokumenty sprzedaży</p>
+              <h2>Faktury</h2>
+            </div>
+            <button class="primary" data-open-form="invoice-form-card" type="button">+ Dodaj fakturę</button>
+          </div>
+
+          <article class="panel-card inner form-card" id="invoice-form-card" hidden>
+            <h3>Nowa faktura — zapis roboczy</h3>
+            <form id="invoice-form" class="panel-form grid-form">
+              <label>Klient<select id="invoice-client" required></select></label>
+              <label>Numer faktury<input id="invoice-number" required placeholder="MJ/2026/001"></label>
+              <label>Data wystawienia<input id="invoice-date" type="date"></label>
+              <label>Termin płatności<input id="invoice-due" placeholder="np. 14 dni / 14 dagen"></label>
+              <label>Netto €<input id="invoice-net" inputmode="decimal" placeholder="0,00"></label>
+              <label>VAT %<input id="invoice-vat-rate" inputmode="decimal" value="21"></label>
+              <label>VAT €<input id="invoice-vat-amount" readonly></label>
+              <label>Brutto €<input id="invoice-gross" readonly></label>
+              <label>Status<select id="invoice-status"><option>Nieopłacona</option><option>Opłacona</option><option>Po terminie</option><option>Anulowana</option></select></label>
+              <label class="full">Notatki<textarea id="invoice-notes"></textarea></label>
+              <div class="form-buttons full">
+                <button class="primary" type="submit">Zapisz fakturę</button>
+                <button class="ghost" type="button" data-close-form="invoice-form-card">Anuluj</button>
+              </div>
+            </form>
+          </article>
+
+          <div class="table-wrap"><table><thead><tr><th>Numer</th><th>Klient</th><th>Data</th><th>Termin</th><th>Status</th><th>Netto</th><th>VAT</th><th>Brutto</th></tr></thead><tbody id="invoices-table"></tbody></table></div>
+        </section>
+
+        <section class="panel-view" data-panel-view="settings">
+          <article class="panel-card inner">
+            <p class="panel-kicker">Ustawienia</p>
+            <h2>Informacje techniczne</h2>
+            <p>Ta pierwsza wersja panelu używa Supabase Auth, tabel firmowych oraz zasad RLS. Panel nie jest podpięty w publicznym menu i ma ustawione <code>noindex</code>.</p>
+            <ul class="check-list">
+              <li>Dane klientów zapisują się w tabeli <code>company_clients</code>.</li>
+              <li>Zamówienia zapisują się w tabeli <code>company_orders</code>.</li>
+              <li>Faktury zapisują się w tabeli <code>company_invoices</code>.</li>
+              <li>Dostęp do danych mają tylko konta z rolą <code>admin</code> w tabeli <code>profiles</code>.</li>
+            </ul>
+          </article>
+        </section>
+      </div>
+
+      <div class="panel-message fixed" id="panel-message" hidden></div>
+    </main>
+  </div>
+</body>
+</html>

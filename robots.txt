@@ -21,4 +21,6 @@ Disallow: /nl/dziekujemy
 Disallow: /_forms.html
 Disallow: /__forms.html
 
+Disallow: /panel/
+
 Sitemap: https://www.reclamemj.nl/sitemap.xml
