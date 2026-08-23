@@ -102,31 +102,50 @@
               <p class="panel-kicker">Baza klientów</p>
               <h2>Klienci</h2>
             </div>
-            <button class="primary" data-open-form="client-form-card" type="button">+ Dodaj klienta</button>
+            <button class="primary" id="client-new-button" type="button">+ Dodaj klienta</button>
           </div>
 
           <article class="panel-card inner form-card" id="client-form-card" hidden>
-            <h3>Nowy klient</h3>
+            <div class="panel-actions-row compact">
+              <h3 id="client-form-title">Nowy klient</h3>
+              <span class="muted small-note" id="client-form-mode">Tryb: dodawanie</span>
+            </div>
             <form id="client-form" class="panel-form grid-form">
-              <label>Nazwa / imię i nazwisko<input id="client-name" required></label>
-              <label>Firma<input id="client-company"></label>
-              <label>E-mail<input id="client-email" type="email"></label>
-              <label>Telefon<input id="client-phone"></label>
+              <input id="client-id" type="hidden">
+              <label>Nazwa / imię i nazwisko<input id="client-name" required autocomplete="name"></label>
+              <label>Firma<input id="client-company" autocomplete="organization"></label>
+              <label>E-mail<input id="client-email" type="email" autocomplete="email"></label>
+              <label>Telefon<input id="client-phone" autocomplete="tel"></label>
               <label>BTW/VAT<input id="client-vat"></label>
               <label>KvK<input id="client-kvk"></label>
-              <label class="full">Adres<textarea id="client-address"></textarea></label>
+              <label>Status<select id="client-status"><option value="active">Aktywny</option><option value="archived">Archiwalny</option></select></label>
+              <label>Kraj<input id="client-country" value="Nederland"></label>
+              <label class="full">Adres<textarea id="client-address" autocomplete="street-address"></textarea></label>
               <label class="full">Notatki<textarea id="client-notes"></textarea></label>
               <div class="form-buttons full">
-                <button class="primary" type="submit">Zapisz klienta</button>
-                <button class="ghost" type="button" data-close-form="client-form-card">Anuluj</button>
+                <button class="primary" id="client-submit-button" type="submit">Zapisz klienta</button>
+                <button class="ghost" id="client-cancel-button" type="button">Anuluj</button>
               </div>
             </form>
           </article>
 
-          <div class="table-tools">
-            <input id="client-search" placeholder="Szukaj klienta, firmy, e-maila…">
+          <article class="panel-card inner client-preview-card" id="client-preview-card" hidden>
+            <div class="panel-actions-row compact">
+              <h3>Karta klienta</h3>
+              <button class="ghost" id="client-preview-close" type="button">Zamknij</button>
+            </div>
+            <div id="client-preview-content" class="client-preview-content"></div>
+          </article>
+
+          <div class="table-tools wide-tools">
+            <input id="client-search" placeholder="Szukaj klienta, firmy, e-maila, telefonu, VAT, KvK, notatek…">
+            <select id="client-status-filter" aria-label="Filtr statusu klienta">
+              <option value="active">Tylko aktywni</option>
+              <option value="all">Wszyscy</option>
+              <option value="archived">Tylko archiwalni</option>
+            </select>
           </div>
-          <div class="table-wrap"><table><thead><tr><th>Klient</th><th>Firma</th><th>E-mail</th><th>Telefon</th><th>VAT</th><th>Notatki</th></tr></thead><tbody id="clients-table"></tbody></table></div>
+          <div class="table-wrap"><table><thead><tr><th>Klient</th><th>Firma</th><th>Kontakt</th><th>VAT / KvK</th><th>Status</th><th>Akcje</th></tr></thead><tbody id="clients-table"></tbody></table></div>
         </section>
 
         <section class="panel-view" data-panel-view="orders">
@@ -195,9 +214,9 @@
           <article class="panel-card inner">
             <p class="panel-kicker">Ustawienia</p>
             <h2>Informacje techniczne</h2>
-            <p>Ta pierwsza wersja panelu używa Supabase Auth, tabel firmowych oraz zasad RLS. Panel nie jest podpięty w publicznym menu i ma ustawione <code>noindex</code>.</p>
+            <p>Ta wersja panelu używa Supabase Auth, tabel firmowych oraz zasad RLS. Moduł Klienci ma realny zapis, odczyt, edycję, kartę klienta, wyszukiwarkę oraz status aktywny/archiwalny. Panel nie jest podpięty w publicznym menu i ma ustawione <code>noindex</code>.</p>
             <ul class="check-list">
-              <li>Dane klientów zapisują się w tabeli <code>company_clients</code>.</li>
+              <li>Dane klientów zapisują się w tabeli <code>company_clients</code> i pozostają widoczne po odświeżeniu strony.</li>
               <li>Zamówienia zapisują się w tabeli <code>company_orders</code>.</li>
               <li>Faktury zapisują się w tabeli <code>company_invoices</code>.</li>
               <li>Dostęp do danych mają tylko konta z rolą <code>admin</code> w tabeli <code>profiles</code>.</li>
