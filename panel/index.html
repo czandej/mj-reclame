@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Panel firmowy | MJ Reclame</title>
   <meta name="robots" content="noindex, nofollow">
-  <meta name="description" content="Prywatny panel firmowy MJ Reclame do obsługi klientów, zamówień i faktur.">
+  <meta name="description" content="Prywatny panel firmowy MJ Reclame do obsługi klientów, projektów, usług, zamówień i faktur.">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" href="/favicon-96x96.png" sizes="96x96" type="image/png">
   <link rel="stylesheet" href="/assets/panel-firmowy.css">
@@ -24,7 +24,8 @@
       <nav class="panel-nav" aria-label="Menu panelu firmowego">
         <button class="is-active" data-view="dashboard">Pulpit</button>
         <button data-view="clients">Klienci</button>
-        <button data-view="orders">Zamówienia</button>
+        <button data-view="projects">Projekty</button>
+        <button data-view="orders">Usługi / zlecenia</button>
         <button data-view="invoices">Faktury</button>
         <button data-view="settings">Ustawienia</button>
       </nav>
@@ -47,7 +48,7 @@
         <div>
           <p class="panel-kicker">Dostęp prywatny</p>
           <h2>Zaloguj się do panelu</h2>
-          <p>Panel służy do obsługi klientów, zamówień i faktur MJ Reclame. Dane są chronione przez logowanie oraz uprawnienia administratora.</p>
+          <p>Panel służy do obsługi klientów, projektów głównych, usług/zleceń i faktur MJ Reclame. Dane są chronione przez logowanie oraz uprawnienia administratora.</p>
         </div>
         <form id="panel-login-form" class="panel-form narrow">
           <label>E-mail
@@ -78,7 +79,7 @@
           </div>
 
           <div class="stats-grid">
-            <article class="stat-card"><span id="stat-new-orders">0</span><p>Nowe zamówienia</p></article>
+            <article class="stat-card"><span id="stat-active-projects">0</span><p>Aktywne projekty</p></article>
             <article class="stat-card"><span id="stat-active-clients">0</span><p>Klienci aktywni</p></article>
             <article class="stat-card"><span id="stat-open-invoices">0</span><p>Faktury nieopłacone</p></article>
             <article class="stat-card"><span id="stat-production-orders">0</span><p>Zlecenia w toku</p></article>
@@ -86,8 +87,8 @@
 
           <div class="dashboard-grid">
             <article class="panel-card inner">
-              <h3>Ostatnie zamówienia</h3>
-              <div class="mini-list" id="recent-orders">Brak danych.</div>
+              <h3>Ostatnie projekty</h3>
+              <div class="mini-list" id="recent-projects">Brak danych.</div>
             </article>
             <article class="panel-card inner">
               <h3>Faktury do sprawdzenia</h3>
@@ -148,34 +149,85 @@
           <div class="table-wrap"><table><thead><tr><th>Klient</th><th>Firma</th><th>Kontakt</th><th>VAT / KvK</th><th>Status</th><th>Akcje</th></tr></thead><tbody id="clients-table"></tbody></table></div>
         </section>
 
+        <section class="panel-view" data-panel-view="projects">
+          <div class="panel-actions-row">
+            <div>
+              <p class="panel-kicker">Realizacja wieloetapowa</p>
+              <h2>Projekty główne</h2>
+            </div>
+            <button class="primary" id="project-new-button" type="button">+ Dodaj projekt</button>
+          </div>
+
+          <article class="panel-card inner form-card" id="project-form-card" hidden>
+            <div class="panel-actions-row compact">
+              <h3 id="project-form-title">Nowy projekt</h3>
+              <span class="muted small-note" id="project-form-mode">Tryb: dodawanie</span>
+            </div>
+            <form id="project-form" class="panel-form grid-form">
+              <input id="project-id" type="hidden">
+              <label>Klient<select id="project-client" required></select></label>
+              <label>Status<select id="project-status"><option>Nowy</option><option>Planowanie</option><option>W toku</option><option>Wstrzymany</option><option>Zakończony</option><option>Anulowany</option><option>Archiwalny</option></select></label>
+              <label class="full">Nazwa projektu<input id="project-title" required placeholder="np. Książka autora + druk + materiały promocyjne"></label>
+              <label>Data rozpoczęcia<input id="project-start-date" type="date"></label>
+              <label>Termin projektu<input id="project-deadline" type="date"></label>
+              <label class="full">Opis projektu<textarea id="project-description" placeholder="Główny zakres i cel projektu"></textarea></label>
+              <label class="full">Notatki wewnętrzne<textarea id="project-notes"></textarea></label>
+              <div class="form-buttons full">
+                <button class="primary" id="project-submit-button" type="submit">Zapisz projekt</button>
+                <button class="ghost" id="project-cancel-button" type="button">Anuluj</button>
+              </div>
+            </form>
+          </article>
+
+          <article class="panel-card inner project-preview-card" id="project-preview-card" hidden>
+            <div class="panel-actions-row compact">
+              <h3>Karta projektu</h3>
+              <button class="ghost" id="project-preview-close" type="button">Zamknij</button>
+            </div>
+            <div id="project-preview-content"></div>
+          </article>
+
+          <div class="table-tools wide-tools">
+            <input id="project-search" placeholder="Szukaj projektu, klienta, opisu, notatek…">
+            <select id="project-status-filter" aria-label="Filtr statusu projektu">
+              <option value="active">Aktywne projekty</option>
+              <option value="all">Wszystkie</option>
+              <option value="finished">Zakończone</option>
+              <option value="archived">Archiwalne</option>
+            </select>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>Projekt</th><th>Klient</th><th>Status</th><th>Termin</th><th>Usługi</th><th>Wartość brutto</th><th>Akcje</th></tr></thead><tbody id="projects-table"></tbody></table></div>
+        </section>
+
         <section class="panel-view" data-panel-view="orders">
           <div class="panel-actions-row">
             <div>
-              <p class="panel-kicker">Zlecenia i zapytania</p>
-              <h2>Zamówienia</h2>
+              <p class="panel-kicker">Elementy projektu</p>
+              <h2>Usługi / zlecenia</h2>
             </div>
-            <button class="primary" data-open-form="order-form-card" type="button">+ Dodaj zamówienie</button>
+            <button class="primary" data-open-form="order-form-card" type="button">+ Dodaj usługę</button>
           </div>
 
           <article class="panel-card inner form-card" id="order-form-card" hidden>
-            <h3>Nowe zamówienie</h3>
+            <h3>Nowa usługa / zlecenie</h3>
             <form id="order-form" class="panel-form grid-form">
-              <label>Klient<select id="order-client" required></select></label>
-              <label>Rodzaj usługi<select id="order-service"><option>DTF / odzież z nadrukiem</option><option>Projekt graficzny</option><option>Druk</option><option>Baner reklamowy</option><option>Materiały reklamowe</option><option>Wydawnictwo</option><option>E-book / audiobook</option><option>Inne</option></select></label>
-              <label class="full">Tytuł zamówienia<input id="order-title" required placeholder="np. 20 koszulek DTF dla firmy ABC"></label>
+              <label>Projekt główny<select id="order-project" required></select></label>
+              <label>Klient projektu<select id="order-client" disabled></select></label>
+              <label>Rodzaj usługi<select id="order-service"><option>Wydawnictwo / książka</option><option>DTF / odzież z nadrukiem</option><option>Projekt graficzny</option><option>Druk</option><option>Plakaty / ulotki</option><option>Baner reklamowy</option><option>Materiały reklamowe</option><option>Reklama</option><option>E-book / audiobook</option><option>Inne</option></select></label>
               <label>Status<select id="order-status"><option>Nowe</option><option>W trakcie</option><option>Do wyceny</option><option>Wycenione</option><option>Zaakceptowane</option><option>W produkcji</option><option>Gotowe</option><option>Zakończone</option><option>Anulowane</option></select></label>
+              <label class="full">Tytuł usługi / zlecenia<input id="order-title" required placeholder="np. Druk 200 egzemplarzy książki"></label>
               <label>Termin<input id="order-deadline" type="date"></label>
               <label>Kwota netto €<input id="order-net" inputmode="decimal" placeholder="0,00"></label>
               <label>VAT %<input id="order-vat" inputmode="decimal" value="21"></label>
               <label class="full">Notatki<textarea id="order-notes"></textarea></label>
               <div class="form-buttons full">
-                <button class="primary" type="submit">Zapisz zamówienie</button>
+                <button class="primary" type="submit">Zapisz usługę</button>
                 <button class="ghost" type="button" data-close-form="order-form-card">Anuluj</button>
               </div>
             </form>
           </article>
 
-          <div class="table-wrap"><table><thead><tr><th>Data</th><th>Klient</th><th>Usługa</th><th>Tytuł</th><th>Status</th><th>Termin</th><th>Kwota</th></tr></thead><tbody id="orders-table"></tbody></table></div>
+          <div class="table-wrap"><table><thead><tr><th>Data</th><th>Projekt</th><th>Klient</th><th>Usługa</th><th>Tytuł</th><th>Status</th><th>Termin</th><th>Kwota</th></tr></thead><tbody id="orders-table"></tbody></table></div>
         </section>
 
         <section class="panel-view" data-panel-view="invoices">
@@ -214,10 +266,11 @@
           <article class="panel-card inner">
             <p class="panel-kicker">Ustawienia</p>
             <h2>Informacje techniczne</h2>
-            <p>Ta wersja panelu używa Supabase Auth, tabel firmowych oraz zasad RLS. Moduł Klienci ma realny zapis, odczyt, edycję, kartę klienta, wyszukiwarkę oraz status aktywny/archiwalny. Panel nie jest podpięty w publicznym menu i ma ustawione <code>noindex</code>.</p>
+            <p>Ta wersja panelu używa Supabase Auth, tabel firmowych oraz zasad RLS. Moduł Klienci pozostaje bez zmian, a moduł Projekty tworzy nadrzędną kartę realizacji, do której można przypisać wiele usług/zleceń. Panel nie jest podpięty w publicznym menu i ma ustawione <code>noindex</code>.</p>
             <ul class="check-list">
               <li>Dane klientów zapisują się w tabeli <code>company_clients</code> i pozostają widoczne po odświeżeniu strony.</li>
-              <li>Zamówienia zapisują się w tabeli <code>company_orders</code>.</li>
+              <li>Projekty główne zapisują się w tabeli <code>company_projects</code>.</li>
+              <li>Usługi/zlecenia zapisują się w tabeli <code>company_orders</code> i są łączone z projektem przez <code>project_id</code>.</li>
               <li>Faktury zapisują się w tabeli <code>company_invoices</code>.</li>
               <li>Dostęp do danych mają tylko konta z rolą <code>admin</code> w tabeli <code>profiles</code>.</li>
             </ul>
