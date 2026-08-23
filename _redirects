@@ -1,3 +1,7 @@
+# Canonical domain redirects
+https://symphonious-souffle-a65899.netlify.app/* https://www.reclamemj.nl/:splat 301!
+https://fastidious-bavarois-73fea6.netlify.app/* https://www.reclamemj.nl/:splat 301!
+
 # MJ Reclame redirects — old root URLs to Polish version
 /index.html / 302
 /admin-wizualizacje.html /pl/admin-wizualizacje.html 301
@@ -35,7 +39,7 @@
 /zgoda-autorska.html /pl/zgoda-autorska.html 301
 /pl /pl/index.html 301
 /nl /nl/index.html 301
-# Technical Netlify Forms detection page
+# Technical form detection page
 /_forms.html /_forms.html 200
 /pl/dziekujemy /pl/dziekujemy.html 200
 /nl/dziekujemy /nl/dziekujemy.html 200

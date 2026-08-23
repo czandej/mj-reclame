@@ -1,6 +1,12 @@
 {
   "name": "MJ Reclame",
   "short_name": "MJ Reclame",
+  "description": "MJ Reclame — reklama, druk, DTF, projektowanie graficzne i wydawnictwo.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#080d0b",
+  "background_color": "#080d0b",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
@@ -11,9 +17,12 @@
       "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "/assets/mj-reclame-logo-google.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     }
-  ],
-  "theme_color": "#47df00",
-  "background_color": "#080d0b",
-  "display": "standalone"
+  ]
 }

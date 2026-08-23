@@ -1,3 +1,24 @@
 User-agent: *
 Allow: /
+Disallow: /pl/admin-
+Disallow: /nl/admin-
+Disallow: /pl/login.html
+Disallow: /nl/login.html
+Disallow: /pl/rejestracja.html
+Disallow: /nl/rejestracja.html
+Disallow: /pl/reset-hasla.html
+Disallow: /nl/reset-hasla.html
+Disallow: /pl/auth-callback.html
+Disallow: /nl/auth-callback.html
+Disallow: /pl/dodaj-
+Disallow: /nl/dodaj-
+Disallow: /pl/panel-tworcy.html
+Disallow: /nl/panel-tworcy.html
+Disallow: /pl/moje-prace.html
+Disallow: /nl/moje-prace.html
+Disallow: /pl/dziekujemy
+Disallow: /nl/dziekujemy
+Disallow: /_forms.html
+Disallow: /__forms.html
+
 Sitemap: https://www.reclamemj.nl/sitemap.xml

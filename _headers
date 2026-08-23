@@ -1,0 +1,26 @@
+
+# MJ Reclame SEO/security headers
+/pl/admin-*
+  X-Robots-Tag: noindex, nofollow
+/nl/admin-*
+  X-Robots-Tag: noindex, nofollow
+/pl/login.html
+  X-Robots-Tag: noindex, nofollow
+/nl/login.html
+  X-Robots-Tag: noindex, nofollow
+/pl/rejestracja.html
+  X-Robots-Tag: noindex, nofollow
+/nl/rejestracja.html
+  X-Robots-Tag: noindex, nofollow
+/pl/reset-hasla.html
+  X-Robots-Tag: noindex, nofollow
+/nl/reset-hasla.html
+  X-Robots-Tag: noindex, nofollow
+/pl/auth-callback.html
+  X-Robots-Tag: noindex, nofollow
+/nl/auth-callback.html
+  X-Robots-Tag: noindex, nofollow
+/_forms.html
+  X-Robots-Tag: noindex, nofollow
+/__forms.html
+  X-Robots-Tag: noindex, nofollow

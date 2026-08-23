@@ -61,7 +61,7 @@
 
       return { ok: response.ok, skipped: false, status: response.status };
     } catch (error) {
-      console.warn("Nie udało się wysłać powiadomienia e-mail przez Netlify Forms:", error);
+      console.warn("Nie udało się wysłać powiadomienia e-mail:", error);
       return { ok: false, skipped: false, error };
     }
   }
@@ -296,11 +296,11 @@
 
         textForm.reset();
         if (notification.skipped) {
-          message("Tekst został wysłany do sprawdzenia. Po wdrożeniu strony na Netlify administrator otrzyma powiadomienie o nowym zgłoszeniu.", false);
+          message("Tekst został wysłany do sprawdzenia. Administrator otrzyma powiadomienie o nowym zgłoszeniu.", false);
         } else if (notification.ok) {
           message("Tekst został wysłany do sprawdzenia. Administrator otrzymał powiadomienie o nowym zgłoszeniu.", false);
         } else {
-          message("Tekst został zapisany do sprawdzenia, ale powiadomienie e-mail nie zostało wysłane. Sprawdź ustawienia formularza Netlify.", true);
+          message("Tekst został zapisany do sprawdzenia, ale powiadomienie e-mail nie zostało wysłane. Sprawdź ustawienia powiadomień.", true);
         }
       });
     }
@@ -350,11 +350,11 @@
 
         graphicForm.reset();
         if (notification.skipped) {
-          message("Grafika została wysłana do sprawdzenia. Po wdrożeniu strony na Netlify administrator otrzyma powiadomienie o nowym zgłoszeniu.", false);
+          message("Grafika została wysłana do sprawdzenia. Administrator otrzyma powiadomienie o nowym zgłoszeniu.", false);
         } else if (notification.ok) {
           message("Grafika została wysłana do sprawdzenia. Administrator otrzymał powiadomienie o nowym zgłoszeniu.", false);
         } else {
-          message("Grafika została zapisana do sprawdzenia, ale powiadomienie e-mail nie zostało wysłane. Sprawdź ustawienia formularza Netlify.", true);
+          message("Grafika została zapisana do sprawdzenia, ale powiadomienie e-mail nie zostało wysłane. Sprawdź ustawienia powiadomień.", true);
         }
       });
     }
