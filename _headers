@@ -27,3 +27,9 @@
 
 /panel/*
   X-Robots-Tag: noindex, nofollow
+
+/service-worker.js
+  Cache-Control: no-cache, no-store, must-revalidate
+  Service-Worker-Allowed: /
+/site.webmanifest
+  Cache-Control: no-cache

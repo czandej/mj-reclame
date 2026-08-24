@@ -178,13 +178,77 @@
     }
   }
 
+  function escapeSvgText(value){
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&apos;");
+  }
+
+  function getColorPaint(card, color){
+    const cleanColor = normalizeColorCode(color || "");
+    const btn = Array.from(card.querySelectorAll(".product-color")).find(b => normalizeColorCode(b.dataset.colorCode || "") === cleanColor);
+    let swatch = "";
+    if(btn){
+      swatch = (btn.style && btn.style.getPropertyValue("--swatch")) || "";
+      if(!swatch && window.getComputedStyle) swatch = getComputedStyle(btn).getPropertyValue("--swatch") || "";
+    }
+    const hex = String(swatch).match(/#[0-9a-f]{3,8}/i);
+    if(hex) return hex[0];
+    const special = {
+      "21":"#3b4f70",
+      "290":"#00a06f"
+    };
+    return special[cleanColor] || "#7b8580";
+  }
+
+  function makeColorFallback(card, color){
+    const cleanColor = normalizeColorCode(color || "");
+    const paint = getColorPaint(card, cleanColor);
+    const title = card.querySelector("h3")?.textContent?.trim() || (document.documentElement.lang === "nl" ? "Product" : "Produkt");
+    const code = card.querySelector(".sales-code")?.textContent?.replace(/^Kod\s*/i, "")?.trim() || "";
+    const dark = /^#(?:0{3,6}|0[0-9a-f]{5}|1[0-9a-f]{5}|2[0-9a-f]{5}|3[0-9a-f]{5})$/i.test(paint);
+    const stroke = dark ? "#dbe5df" : "#26302c";
+    const label = document.documentElement.lang === "nl" ? "Kleur" : "Kolor";
+    const preview = document.documentElement.lang === "nl" ? "Kleurvoorbeeld" : "Podgląd koloru";
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 680" role="img" aria-label="${escapeSvgText(title)} — ${label} ${escapeSvgText(cleanColor)}">
+        <defs>
+          <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#f7faf8"/>
+            <stop offset=".58" stop-color="#eef4f0"/>
+            <stop offset="1" stop-color="#dfe8e3"/>
+          </linearGradient>
+          <radialGradient id="glow" cx="80%" cy="18%" r="70%">
+            <stop offset="0" stop-color="#47df00" stop-opacity=".24"/>
+            <stop offset="1" stop-color="#47df00" stop-opacity="0"/>
+          </radialGradient>
+          <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
+            <feDropShadow dx="0" dy="24" stdDeviation="24" flood-color="#0a0e0c" flood-opacity=".22"/>
+          </filter>
+        </defs>
+        <rect width="900" height="680" rx="42" fill="url(#bg)"/>
+        <circle cx="760" cy="100" r="185" fill="url(#glow)"/>
+        <g filter="url(#shadow)">
+          <path d="M288 166l90-60h144l90 60 114 76-60 122-78-42v246H312V322l-78 42-60-122 114-76z" fill="${paint}" stroke="${stroke}" stroke-width="7" stroke-linejoin="round"/>
+          <path d="M392 120c14 34 34 51 58 51s44-17 58-51" fill="none" stroke="#47df00" stroke-width="12" stroke-linecap="round"/>
+        </g>
+        <rect x="56" y="46" width="220" height="54" rx="27" fill="#07100b"/>
+        <text x="84" y="81" font-family="Arial,sans-serif" font-size="24" font-weight="800" fill="#47df00">${escapeSvgText(label.toUpperCase())} ${escapeSvgText(cleanColor)}</text>
+        <text x="70" y="620" font-family="Arial,sans-serif" font-size="30" font-weight="800" fill="#07100b">${escapeSvgText(title)}</text>
+        <text x="70" y="652" font-family="Arial,sans-serif" font-size="18" font-weight="700" fill="#51605a">${escapeSvgText(preview)}${code ? " • " + escapeSvgText(code) : ""}</text>
+      </svg>`;
+    return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+  }
+
   function updatePhoto(card, color){
     const img = card.querySelector("img.sales-photo");
     if(!img) return;
 
     const cleanColor = normalizeColorCode(color || "");
     const mapRaw = img.getAttribute("data-photo-map");
-    const fallback = img.getAttribute("data-default-src") || img.getAttribute("src");
     let nextSrc = "";
 
     if(mapRaw){
@@ -199,25 +263,75 @@
       if(template && cleanColor) nextSrc = template.replace("{color}", encodeURIComponent(cleanColor));
     }
 
-    if(!nextSrc) return;
+    if(!cleanColor) return;
 
+    const requestId = `${cleanColor}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    img.dataset.photoRequest = requestId;
+    img.dataset.selectedColor = cleanColor;
     img.classList.add("is-loading-color");
 
-    img.onerror = function(){
+    const colorFallback = makeColorFallback(card, cleanColor);
+    const compactMode = (window.matchMedia && window.matchMedia("(max-width: 760px)").matches) ||
+      (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+
+    if(!nextSrc){
       img.onerror = null;
-      img.src = fallback;
+      img.onload = null;
+      img.src = colorFallback;
+      img.setAttribute("data-photo-active", colorFallback);
+      img.classList.remove("is-loading-color");
+      img.classList.add("has-photo-fallback");
+      return;
+    }
+
+    if(compactMode){
+      // Na telefonie/PWA natychmiast pokazuj faktycznie wybrany kolor, a zdjęcie producenta
+      // dociągaj w tle. Dzięki temu awaria hotlinku nie pozostawia poprzedniego koloru.
+      img.onerror = null;
+      img.onload = null;
+      img.src = colorFallback;
+      img.setAttribute("data-photo-active", colorFallback);
+      img.classList.add("has-photo-fallback");
+
+      const probe = new Image();
+      probe.referrerPolicy = "no-referrer";
+      probe.onload = function(){
+        if(img.dataset.photoRequest !== requestId || img.dataset.selectedColor !== cleanColor) return;
+        img.src = nextSrc;
+        img.setAttribute("data-photo-active", nextSrc);
+        img.classList.remove("is-loading-color");
+        img.classList.remove("has-photo-fallback");
+      };
+      probe.onerror = function(){
+        if(img.dataset.photoRequest !== requestId || img.dataset.selectedColor !== cleanColor) return;
+        img.classList.remove("is-loading-color");
+        img.classList.add("has-photo-fallback");
+      };
+      probe.src = nextSrc;
+      return;
+    }
+
+    // Desktop zachowuje dotychczasowy sposób przełączania zdjęć. Jedyna zmiana:
+    // w razie niedostępności zdjęcia pokazuje podgląd WYBRANEGO koloru, nie stare zdjęcie.
+    img.onerror = function(){
+      if(img.dataset.photoRequest !== requestId || img.dataset.selectedColor !== cleanColor) return;
+      img.onerror = null;
+      img.onload = null;
+      img.src = colorFallback;
+      img.setAttribute("data-photo-active", colorFallback);
       img.classList.remove("is-loading-color");
       img.classList.add("has-photo-fallback");
     };
-
     img.onload = function(){
+      if(img.dataset.photoRequest !== requestId || img.dataset.selectedColor !== cleanColor) return;
       img.classList.remove("is-loading-color");
       img.classList.remove("has-photo-fallback");
     };
-
     if(img.src !== nextSrc){
       img.src = nextSrc;
       img.setAttribute("data-photo-active", nextSrc);
+    } else {
+      img.classList.remove("is-loading-color");
     }
   }
 
