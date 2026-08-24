@@ -10,7 +10,9 @@
   .site-header .language-switcher{grid-column:2!important;grid-row:1!important;justify-self:end!important;margin:0!important;gap:5px!important;flex-wrap:nowrap!important}
   .site-header .language-switcher a{padding:5px 8px!important;font-size:.78rem!important}
 
-  .site-header .language-switcher .mobile-app-install{display:inline-flex!important;min-height:32px;height:32px;padding:0 8px;align-items:center;justify-content:center;gap:5px;border:1px solid rgba(71,223,0,.42);border-radius:9px;background:rgba(71,223,0,.08);color:#fff;font:900 .72rem/1 Manrope,Arial,sans-serif;letter-spacing:.04em;cursor:pointer}
+  .site-header .language-switcher .mobile-app-install{display:none!important;min-height:32px;height:32px;padding:0 8px;align-items:center;justify-content:center;gap:5px;border:1px solid rgba(71,223,0,.42);border-radius:9px;background:rgba(71,223,0,.08);color:#fff;font:900 .72rem/1 Manrope,Arial,sans-serif;letter-spacing:.04em;cursor:pointer}
+  .site-header .language-switcher .mobile-app-install.is-installable,
+  .site-header .language-switcher .mobile-app-install.is-installed{display:inline-flex!important}
   .site-header .language-switcher .mobile-app-install span:first-child{color:#47df00;font-size:.82rem}
   .site-header .language-switcher .mobile-app-install.is-installed{border-color:rgba(71,223,0,.25);background:rgba(71,223,0,.04);color:#aeb9b1;cursor:default}
   .mobile-nav-toggle{grid-column:3;grid-row:1;display:inline-grid;place-items:center;width:44px;height:44px;padding:0;border:1px solid rgba(71,223,0,.42);border-radius:12px;background:rgba(255,255,255,.035);color:#fff;cursor:pointer}
