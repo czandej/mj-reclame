@@ -48,3 +48,87 @@
   .mobile-nav-toggle{width:42px;height:42px}
   .mj-bg-home .hero-main img{height:215px!important}
 }
+
+/* MJ Reclame — v9 odciążenie podstron usług i katalogu odzieży na telefonach. Desktop bez zmian. */
+.mobile-side-menu-toggle,.mobile-panel-toggle,.mobile-how-toggle,.mobile-inquiry-toggle,.mobile-sales-filter-wrap,.mobile-variant-toggle,.mobile-variant-select-wrap{display:none}
+
+@media (max-width:760px){
+  /* Lewe menu usług: jeden kompaktowy pasek zamiast kafelków. */
+  .sidebar{gap:10px!important}
+  .sidebar .mobile-side-menu-box{padding:10px!important;border-radius:16px!important}
+  .sidebar .mobile-side-menu-box>h3{display:none!important}
+  .mobile-side-menu-toggle,.mobile-panel-toggle,.mobile-how-toggle,.mobile-inquiry-toggle,.mobile-variant-toggle{display:flex;width:100%;min-height:46px;padding:0 14px;align-items:center;justify-content:space-between;gap:12px;border:1px solid rgba(71,223,0,.34);border-radius:13px;background:rgba(71,223,0,.065);color:#fff;font:800 .9rem/1.2 Manrope,Arial,sans-serif;cursor:pointer;text-align:left}
+  .mobile-toggle-arrow{color:#47df00;font-size:1.08rem;transition:transform .18s ease;flex:0 0 auto}
+  .mobile-side-menu-open>.mobile-side-menu-toggle .mobile-toggle-arrow,.mobile-panel-open>.mobile-panel-toggle .mobile-toggle-arrow,.mobile-how-open>.mobile-how-toggle .mobile-toggle-arrow,.mobile-inquiry-open>.mobile-inquiry-toggle .mobile-toggle-arrow,.mobile-variant-open .mobile-variant-toggle .mobile-toggle-arrow{transform:rotate(180deg)}
+  .mobile-side-menu-box:not(.mobile-side-menu-open) .side-menu{display:none!important}
+  .mobile-side-menu-box.mobile-side-menu-open .side-menu{display:grid!important;margin-top:9px!important}
+  .sidebar .mobile-side-secondary{display:none!important}
+
+  /* Odzież: skrócony początek strony i zwijane informacje pomocnicze. */
+  .sales-apparel{margin-top:28px!important}
+  .sales-hero{padding:18px!important;border-radius:22px!important;gap:14px!important}
+  .sales-hero h2{font-size:clamp(1.75rem,8vw,2.35rem)!important;margin-bottom:10px!important}
+  .sales-hero>div:first-child>p:not(.sales-kicker){font-size:.94rem!important;line-height:1.5!important}
+  .sales-how{padding:10px!important;border-radius:16px!important}
+  .sales-how>h3{display:none!important}
+  .sales-how:not(.mobile-how-open) .mobile-how-body{display:none!important}
+  .sales-how.mobile-how-open .mobile-how-body{display:block!important;margin:10px 4px 4px!important;padding-left:20px!important}
+
+  .apparel-info-grid{gap:10px!important;margin:14px 0 18px!important}
+  .palette-panel,.sizes-panel{padding:10px!important;border-radius:16px!important}
+  .palette-panel .panel-head,.sizes-panel .panel-head{display:none!important}
+  .mobile-panel-open .mobile-panel-body{display:block!important}
+  .mobile-panel-collapsed:not(.mobile-panel-open) .mobile-panel-body{display:none!important}
+  .mobile-panel-open .palette-grid{display:flex!important;margin-top:10px!important;max-height:250px!important}
+  .mobile-panel-open .size-tabs{display:grid!important;margin-top:10px!important}
+  .mobile-panel-open .size-note{display:block!important;margin:10px 4px 3px!important}
+  .size-table{min-width:520px!important;font-size:.82rem!important}
+  .size-table-box summary{padding:11px 13px!important}
+
+  /* Katalog: kategoria jako select, mniej pionowych elementów. */
+  .copy-card .sales-toolbar{padding:11px!important;border-radius:16px!important;gap:10px!important;margin:16px 0 14px!important}
+  .sales-toolbar-in-content>div:first-child>span{display:none!important}
+  .sales-toolbar-in-content .sales-filters{display:none!important}
+  .mobile-sales-filter-wrap{display:grid;gap:6px;margin-bottom:0}
+  .mobile-sales-filter-caption,.mobile-variant-select-caption{display:block!important;margin:0!important;color:#98a69f!important;font-size:.68rem!important;font-weight:950!important;text-transform:uppercase!important;letter-spacing:.08em!important}
+  .mobile-sales-filter-select,.mobile-variant-select{width:100%;height:44px;border:1px solid rgba(71,223,0,.28);border-radius:12px;background:#0c1410;color:#fff;padding:0 38px 0 12px;font:800 .92rem/1 Manrope,Arial,sans-serif;outline:none}
+  .sales-search{height:44px!important;border-radius:12px!important;font-size:16px!important}
+  .sales-count{font-size:.8rem!important;margin:6px 2px 0!important}
+
+  /* Zbiorcze zapytanie: jedna linia dopóki niczego nie trzeba oglądać. */
+  .dtf-inquiry-box{padding:10px!important;margin:12px 0 14px!important;border-radius:16px!important}
+  .dtf-inquiry-box>.dtf-inquiry-head{display:none!important}
+  .dtf-inquiry-box:not(.mobile-inquiry-open)>.dtf-empty,.dtf-inquiry-box:not(.mobile-inquiry-open)>.dtf-table-wrap,.dtf-inquiry-box:not(.mobile-inquiry-open)>.dtf-actions,.dtf-inquiry-box:not(.mobile-inquiry-open)>.dtf-note{display:none!important}
+  .dtf-inquiry-box.mobile-inquiry-open>.dtf-empty,.dtf-inquiry-box.mobile-inquiry-open>.dtf-actions,.dtf-inquiry-box.mobile-inquiry-open>.dtf-note{margin-top:10px!important}
+  .dtf-inquiry-box.mobile-inquiry-open>.dtf-table-wrap:not([hidden]){display:block!important;margin-top:10px!important}
+  .dtf-actions{gap:8px!important}
+
+  /* Karty produktów: kompaktowy widok + rozwijany konfigurator. */
+  .copy-card .sales-grid{gap:12px!important}
+  .copy-card .sales-product{border-radius:18px!important}
+  .copy-card .sales-photo,.copy-card .sales-photo-wrap,.sales-photo,.sales-photo-wrap{height:230px!important;min-height:230px!important}
+  .copy-card .sales-photo{padding:12px!important}
+  .copy-card .sales-body{padding:12px!important;gap:8px!important}
+  .copy-card .sales-body h3{font-size:1.05rem!important}
+  .copy-card .sales-fast{grid-template-columns:1fr 1fr!important;gap:6px!important}
+  .copy-card .sales-fast div{padding:7px 8px!important}
+  .mobile-variant-toggle{margin-top:2px;background:rgba(255,255,255,.035);border-color:rgba(71,223,0,.28)}
+  .sales-product.mobile-variant-collapsed:not(.mobile-variant-open) .sales-select-block,.sales-product.mobile-variant-collapsed:not(.mobile-variant-open) .sales-limit,.sales-product.mobile-variant-collapsed:not(.mobile-variant-open) .selected-summary,.sales-product.mobile-variant-collapsed:not(.mobile-variant-open) .sales-details,.sales-product.mobile-variant-collapsed:not(.mobile-variant-open) .sales-order-btn,.sales-product.mobile-variant-collapsed:not(.mobile-variant-open) .single-inquiry-link{display:none!important}
+  .sales-product.mobile-variant-open .sales-select-block,.sales-product.mobile-variant-open .sales-limit,.sales-product.mobile-variant-open .selected-summary,.sales-product.mobile-variant-open .sales-details,.sales-product.mobile-variant-open .sales-order-btn,.sales-product.mobile-variant-open .single-inquiry-link{display:block}
+  .sales-product.mobile-variant-open .sales-order-btn{display:flex!important}
+  .sales-product.mobile-variant-open .single-inquiry-link{display:inline-flex!important}
+  .mobile-variant-select-wrap{display:grid;gap:6px}
+  .sales-product .sales-sizes,.sales-product .sales-colors{display:none!important}
+  .sales-product .sales-select-block>.sales-label{display:none!important}
+  .sales-product.mobile-variant-open .sales-select-block{margin-top:2px}
+  .sales-product.mobile-variant-open .sales-qty{width:100%!important;height:44px!important;border-radius:12px!important;font-size:16px!important}
+  .sales-product.mobile-variant-open .sales-limit{padding:9px!important;border-radius:12px!important}
+  .sales-product.mobile-variant-open .selected-summary{padding:8px 10px!important;border-radius:11px!important;font-size:.8rem!important}
+  .sales-product.mobile-variant-open .sales-details{padding:9px!important;border-radius:12px!important}
+  .sales-product.mobile-variant-open .sales-order-btn{min-height:44px!important}
+}
+
+@media (max-width:430px){
+  .copy-card .sales-photo,.copy-card .sales-photo-wrap,.sales-photo,.sales-photo-wrap{height:215px!important;min-height:215px!important}
+  .mobile-side-menu-toggle,.mobile-panel-toggle,.mobile-how-toggle,.mobile-inquiry-toggle,.mobile-variant-toggle{min-height:44px;padding:0 12px;font-size:.86rem}
+}
