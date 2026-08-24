@@ -49,12 +49,12 @@ body {
 
 @media (max-width: 780px) {
   .visual {
-    width: 1448px;
-    max-width: none;
+    width: 100%;
+    max-width: 100%;
   }
 
   body {
-    overflow-x: auto;
+    overflow-x: hidden;
   }
 }
 

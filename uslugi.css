@@ -39,8 +39,8 @@ body {
 }
 @media (max-width: 780px) {
   .visual {
-    width: 1122px;
-    max-width: none;
+    width: 100%;
+    max-width: 100%;
   }
-  body { overflow-x: auto; }
+  body { overflow-x: hidden; }
 }
