@@ -103,14 +103,43 @@ function initProductVariants(){
   var photoOpen=card.querySelector('[data-open-product]');if(photoOpen)photoOpen.addEventListener('click',function(){if(isMobile()){card.classList.add('mobile-variant-open');b.setAttribute('aria-expanded','true')}});
 
   body.querySelectorAll('.sales-select-block').forEach(function(block){
-   var buttons=Array.from(block.querySelectorAll('.product-size,.product-color'));if(!buttons.length||block.querySelector('.mobile-variant-select-wrap'))return;
+   var buttons=Array.from(block.querySelectorAll('.product-size,.product-color'));if(!buttons.length)return;
    var isColor=!!block.querySelector('.product-color'), label=block.querySelector('.sales-label');
-   var wrap=document.createElement('label');wrap.className='mobile-variant-select-wrap';
-   var caption=document.createElement('span');caption.className='mobile-variant-select-caption';caption.textContent=isColor?(isNl()?'Kleur':'Kolor'):(isNl()?'Maat':'Rozmiar');
-   var select=document.createElement('select');select.className='mobile-variant-select '+(isColor?'mobile-color-select':'mobile-size-select');
-   buttons.forEach(function(btn){var o=document.createElement('option');o.value=isColor?(btn.dataset.colorCode||''):(btn.dataset.size||btn.textContent.trim());o.textContent=isColor?((isNl()?'Kleur ':'Kolor ')+(btn.dataset.colorCode||btn.textContent.trim())):btn.textContent.trim();if(btn.classList.contains('is-selected'))o.selected=true;select.appendChild(o)});
-   wrap.appendChild(caption);wrap.appendChild(select);if(label)label.insertAdjacentElement('afterend',wrap);else block.insertBefore(wrap,block.firstChild);
-   select.addEventListener('change',function(){var target=buttons.find(function(btn){return (isColor?(btn.dataset.colorCode||''):(btn.dataset.size||btn.textContent.trim()))===select.value});if(target){target.click();select.value=isColor?(target.dataset.colorCode||''):(target.dataset.size||target.textContent.trim())}});
+   if(isColor){
+    if(block.querySelector('.mobile-color-picker-wrap'))return;
+    var wrap=document.createElement('div');wrap.className='mobile-color-picker-wrap';
+    var caption=document.createElement('span');caption.className='mobile-variant-select-caption';caption.textContent=isNl()?'Kleur':'Kolor';
+    var toggle=document.createElement('button');toggle.type='button';toggle.className='mobile-color-picker-toggle';toggle.setAttribute('aria-expanded','false');
+    var menu=document.createElement('div');menu.className='mobile-color-picker-menu';
+    function swatchMarkup(btn){
+      var sw=(btn.style&&btn.style.getPropertyValue('--swatch'))||'';
+      return '<span class="mobile-color-preview"><span class="mobile-color-swatch" style="--swatch:'+sw.replace(/"/g,'&quot;')+'"></span><span class="mobile-color-code">'+(btn.dataset.colorCode||btn.textContent.trim())+'</span></span>';
+    }
+    function selectedBtn(){return buttons.find(function(btn){return btn.classList.contains('is-selected')})||buttons[0]}
+    function sync(){
+      var active=selectedBtn();
+      toggle.innerHTML=swatchMarkup(active)+'<span class="mobile-toggle-arrow" aria-hidden="true">▾</span>';
+      menu.querySelectorAll('.mobile-color-picker-item').forEach(function(item){item.classList.toggle('is-selected',item.dataset.value===(active.dataset.colorCode||''))});
+    }
+    buttons.forEach(function(btn){
+      var item=document.createElement('button');item.type='button';item.className='mobile-color-picker-item';item.dataset.value=btn.dataset.colorCode||'';item.innerHTML=swatchMarkup(btn);
+      item.addEventListener('click',function(){btn.click();wrap.classList.remove('is-open');toggle.setAttribute('aria-expanded','false');sync()});
+      menu.appendChild(item);
+      btn.addEventListener('click',sync);
+    });
+    toggle.addEventListener('click',function(e){e.preventDefault();var open=!wrap.classList.contains('is-open');wrap.classList.toggle('is-open',open);toggle.setAttribute('aria-expanded',open?'true':'false')});
+    document.addEventListener('click',function(e){if(!wrap.contains(e.target)){wrap.classList.remove('is-open');toggle.setAttribute('aria-expanded','false')}});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape'){wrap.classList.remove('is-open');toggle.setAttribute('aria-expanded','false')}});
+    wrap.appendChild(caption);wrap.appendChild(toggle);wrap.appendChild(menu);if(label)label.insertAdjacentElement('afterend',wrap);else block.insertBefore(wrap,block.firstChild);sync();
+   } else {
+    if(block.querySelector('.mobile-variant-select-wrap'))return;
+    var wrap=document.createElement('label');wrap.className='mobile-variant-select-wrap';
+    var caption=document.createElement('span');caption.className='mobile-variant-select-caption';caption.textContent=isNl()?'Maat':'Rozmiar';
+    var select=document.createElement('select');select.className='mobile-variant-select mobile-size-select';
+    buttons.forEach(function(btn){var o=document.createElement('option');o.value=btn.dataset.size||btn.textContent.trim();o.textContent=btn.textContent.trim();if(btn.classList.contains('is-selected'))o.selected=true;select.appendChild(o)});
+    wrap.appendChild(caption);wrap.appendChild(select);if(label)label.insertAdjacentElement('afterend',wrap);else block.insertBefore(wrap,block.firstChild);
+    select.addEventListener('change',function(){var target=buttons.find(function(btn){return (btn.dataset.size||btn.textContent.trim())===select.value});if(target){target.click();select.value=target.dataset.size||target.textContent.trim()}});
+   }
   });
  });
 }

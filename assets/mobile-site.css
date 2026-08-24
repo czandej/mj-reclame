@@ -92,6 +92,15 @@
   .mobile-sales-filter-wrap{display:grid;gap:6px;margin-bottom:0}
   .mobile-sales-filter-caption,.mobile-variant-select-caption{display:block!important;margin:0!important;color:#98a69f!important;font-size:.68rem!important;font-weight:950!important;text-transform:uppercase!important;letter-spacing:.08em!important}
   .mobile-sales-filter-select,.mobile-variant-select{width:100%;height:44px;border:1px solid rgba(71,223,0,.28);border-radius:12px;background:#0c1410;color:#fff;padding:0 38px 0 12px;font:800 .92rem/1 Manrope,Arial,sans-serif;outline:none}
+.mobile-color-picker-wrap{display:grid;gap:6px}
+  .mobile-color-picker-toggle{display:flex;width:100%;min-height:44px;padding:0 12px;align-items:center;justify-content:space-between;gap:12px;border:1px solid rgba(71,223,0,.28);border-radius:12px;background:#0c1410;color:#fff;font:800 .92rem/1 Manrope,Arial,sans-serif;text-align:left;cursor:pointer}
+  .mobile-color-preview{display:inline-flex;align-items:center;gap:10px;min-width:0}
+  .mobile-color-swatch{display:inline-block;width:18px;height:18px;border-radius:999px;border:1px solid rgba(255,255,255,.3);background:var(--swatch);background-image:var(--swatch);background-size:cover;background-position:center;background-repeat:no-repeat;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+  .mobile-color-code{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mobile-color-picker-menu{display:none;grid-template-columns:1fr 1fr;gap:8px}
+  .mobile-color-picker-wrap.is-open .mobile-color-picker-menu{display:grid!important}
+  .mobile-color-picker-item{display:flex;min-height:42px;padding:0 10px;align-items:center;justify-content:flex-start;gap:10px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.03);color:#fff;font:700 .86rem/1 Manrope,Arial,sans-serif;text-align:left;cursor:pointer}
+  .mobile-color-picker-item.is-selected{border-color:rgba(71,223,0,.45);background:rgba(71,223,0,.08)}
   .sales-search{height:44px!important;border-radius:12px!important;font-size:16px!important}
   .sales-count{font-size:.8rem!important;margin:6px 2px 0!important}
 
