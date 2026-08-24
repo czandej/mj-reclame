@@ -103,8 +103,20 @@ function initProductVariants(){
   var photoOpen=card.querySelector('[data-open-product]');if(photoOpen)photoOpen.addEventListener('click',function(){if(isMobile()){card.classList.add('mobile-variant-open');b.setAttribute('aria-expanded','true')}});
 
   body.querySelectorAll('.sales-select-block').forEach(function(block){
-   var buttons=Array.from(block.querySelectorAll('.product-size,.product-color'));if(!buttons.length)return;
-   var isColor=!!block.querySelector('.product-color'), label=block.querySelector('.sales-label');
+   var buttons=Array.from(block.querySelectorAll('.product-size,.product-color'));
+   var qtyInput=block.querySelector('[data-qty]');
+   var label=block.querySelector('.sales-label');
+   if(qtyInput && !block.querySelector('.mobile-qty-wrap')){
+    var qwrap=document.createElement('label');qwrap.className='mobile-qty-wrap';
+    var qcaption=document.createElement('span');qcaption.className='mobile-variant-select-caption';qcaption.textContent=isNl()?'Aantal':'Ilość';
+    qtyInput.setAttribute('aria-label',isNl()?'Kies aantal':'Wybierz ilość');
+    qtyInput.setAttribute('inputmode','numeric');
+    qwrap.appendChild(qcaption);
+    if(label)label.insertAdjacentElement('afterend',qwrap);else block.insertBefore(qwrap,qtyInput);
+    qwrap.appendChild(qtyInput);
+   }
+   if(!buttons.length)return;
+   var isColor=!!block.querySelector('.product-color');
    if(isColor){
     if(block.querySelector('.mobile-color-picker-wrap'))return;
     var wrap=document.createElement('div');wrap.className='mobile-color-picker-wrap';

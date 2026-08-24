@@ -50,7 +50,7 @@
 }
 
 /* MJ Reclame — v9 odciążenie podstron usług i katalogu odzieży na telefonach. Desktop bez zmian. */
-.mobile-side-menu-toggle,.mobile-panel-toggle,.mobile-how-toggle,.mobile-inquiry-toggle,.mobile-sales-filter-wrap,.mobile-variant-toggle,.mobile-variant-select-wrap{display:none}
+.mobile-side-menu-toggle,.mobile-panel-toggle,.mobile-how-toggle,.mobile-inquiry-toggle,.mobile-sales-filter-wrap,.mobile-variant-toggle,.mobile-variant-select-wrap,.mobile-qty-wrap{display:none}
 
 @media (max-width:760px){
   /* Lewe menu usług: jeden kompaktowy pasek zamiast kafelków. */
@@ -127,9 +127,11 @@
   .sales-product.mobile-variant-open .sales-order-btn{display:flex!important}
   .sales-product.mobile-variant-open .single-inquiry-link{display:inline-flex!important}
   .mobile-variant-select-wrap{display:grid;gap:6px}
+  .mobile-qty-wrap{display:grid;gap:6px}
   .sales-product .sales-sizes,.sales-product .sales-colors{display:none!important}
   .sales-product .sales-select-block>.sales-label{display:none!important}
   .sales-product.mobile-variant-open .sales-select-block{margin-top:2px}
+  .sales-product.mobile-variant-open .mobile-qty-wrap .sales-qty{width:100%!important;height:44px!important;border-radius:12px!important;font-size:16px!important}
   .sales-product.mobile-variant-open .sales-qty{width:100%!important;height:44px!important;border-radius:12px!important;font-size:16px!important}
   .sales-product.mobile-variant-open .sales-limit{padding:9px!important;border-radius:12px!important}
   .sales-product.mobile-variant-open .selected-summary{padding:8px 10px!important;border-radius:11px!important;font-size:.8rem!important}
@@ -215,4 +217,54 @@
   html,body{min-height:100dvh!important;max-width:100vw!important;overflow-x:hidden!important}
   .site-header,.topbar{top:0!important}
   body{padding-bottom:env(safe-area-inset-bottom,0px)}
+}
+
+@media (max-width: 760px) {
+  .hero,
+  .creator-hero,
+  .creator-app-hero,
+  .privacy-hero,
+  .subhero,
+  .company-hero {
+    padding: 16px 0 14px !important;
+  }
+
+  .hero-card,
+  .creator-app-hero-card,
+  .creator-hero-visual {
+    display: none !important;
+  }
+
+  .hero-grid,
+  .creator-hero-grid,
+  .creator-app-hero-grid,
+  .privacy-hero-grid,
+  .subhero-grid,
+  .company-hero-grid {
+    grid-template-columns: 1fr !important;
+    min-height: 0 !important;
+    gap: 10px !important;
+    padding: 8px 0 !important;
+  }
+}
+
+@media (max-width: 680px) {
+  .hero,
+  .creator-hero,
+  .creator-app-hero,
+  .privacy-hero,
+  .subhero,
+  .company-hero {
+    padding: 14px 0 12px !important;
+  }
+
+  .hero-grid,
+  .creator-hero-grid,
+  .creator-app-hero-grid,
+  .privacy-hero-grid,
+  .subhero-grid,
+  .company-hero-grid {
+    gap: 8px !important;
+    padding: 6px 0 !important;
+  }
 }
