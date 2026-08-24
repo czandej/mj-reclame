@@ -58,7 +58,7 @@ a { color: inherit; }
     linear-gradient(110deg,#050505 0%,#090a09 42%,#101410 100%);
   border-bottom:1px solid rgba(71,223,0,.14);
 }
-.hero::before { content:""; position:absolute; right:-110px; top:110px; width:500px; height:240px; background:linear-gradient(180deg,var(--green-2),var(--green)); opacity:.9; transform:rotate(-11deg); clip-path:polygon(0 20%,94% 0,100% 82%,10% 100%); }
+.hero::before { display:none !important; content:none !important; }
 .hero::after { content:""; position:absolute; left:-40px; top:62px; width:220px; height:150px; background:rgba(71,223,0,.08); clip-path:polygon(0 18%,100% 0,88% 100%,14% 74%); }
 .hero-grid { position:relative; z-index:1; min-height:700px; display:grid; grid-template-columns:.90fr 1.10fr; gap:48px; align-items:center; padding:68px 0 74px; }
 .breadcrumb { margin:0 0 18px; color:#bcc5bd; font-size:.92rem; }

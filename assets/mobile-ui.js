@@ -4,6 +4,40 @@ var MOBILE_MAX=760;
 function isMobile(){return window.innerWidth<=MOBILE_MAX}
 function isNl(){return document.documentElement.lang==='nl'}
 
+var deferredInstallPrompt=null;
+var installButtons=[];
+function isStandalone(){return (window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||window.navigator.standalone===true}
+function refreshInstallButtons(){
+ installButtons.forEach(function(button){
+  var installed=isStandalone();
+  button.classList.toggle('is-installed',installed);
+  button.disabled=installed;
+  button.setAttribute('aria-label',installed?(isNl()?'MJ Reclame-app is geïnstalleerd':'Aplikacja MJ Reclame jest zainstalowana'):(isNl()?'Installeer MJ Reclame-app':'Zainstaluj aplikację MJ Reclame'));
+  button.innerHTML='<span aria-hidden="true">'+(installed?'✓':'▣')+'</span><span>APP</span>';
+ });
+}
+window.addEventListener('beforeinstallprompt',function(event){event.preventDefault();deferredInstallPrompt=event;refreshInstallButtons()});
+window.addEventListener('appinstalled',function(){deferredInstallPrompt=null;refreshInstallButtons()});
+function initAppInstallButton(){
+ document.querySelectorAll('.language-switcher').forEach(function(switcher){
+  if(switcher.querySelector('.mobile-app-install'))return;
+  var button=document.createElement('button');button.type='button';button.className='mobile-app-install';
+  button.addEventListener('click',async function(){
+   if(isStandalone())return;
+   if(deferredInstallPrompt){
+    deferredInstallPrompt.prompt();
+    try{await deferredInstallPrompt.userChoice}catch(e){}
+    deferredInstallPrompt=null;refreshInstallButtons();return;
+   }
+   var ios=/iphone|ipad|ipod/i.test(navigator.userAgent||'');
+   var message=ios?(isNl()?'Tik in Safari op Delen en kies Zet op beginscherm.':'W Safari wybierz Udostępnij, a następnie Dodaj do ekranu początkowego.'):(isNl()?'Open het browsermenu en kies App installeren of Toevoegen aan startscherm.':'Otwórz menu przeglądarki i wybierz Zainstaluj aplikację lub Dodaj do ekranu głównego.');
+   window.alert(message);
+  });
+  switcher.appendChild(button);installButtons.push(button);
+ });
+ refreshInstallButtons();
+}
+
 function initHeader(){
  document.querySelectorAll('.site-header').forEach(function(header){
   var inner=header.querySelector('.header-inner'),nav=header.querySelector('.main-nav'),quote=header.querySelector('.quote');
@@ -156,6 +190,6 @@ function initProductVariants(){
  });
 }
 
-function init(){initHeader();initCategories();initServices();initSidebarMenus();initApparelInfo();initInquiry();initSalesFilterSelect();initProductVariants()}
+function init(){initAppInstallButton();initHeader();initCategories();initServices();initSidebarMenus();initApparelInfo();initInquiry();initSalesFilterSelect();initProductVariants()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
