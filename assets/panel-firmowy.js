@@ -406,40 +406,77 @@
     els.quoteClientResults.hidden = false;
   }
 
+  function quoteClientMatches(c, term){
+    const needle = String(term || "").toLocaleLowerCase("pl-PL");
+    if(!needle) return true;
+    return [
+      c?.name,
+      c?.company_name,
+      c?.email,
+      c?.phone,
+      c?.vat_number,
+      c?.kvk_number,
+      c?.address,
+      c?.city,
+      c?.postal_code,
+      c?.country
+    ].some(v => String(v || "").toLocaleLowerCase("pl-PL").includes(needle));
+  }
+
+  function mergeQuoteClientRows(...groups){
+    const seen = new Set();
+    const out = [];
+    for(const group of groups){
+      for(const c of (group || [])){
+        if(!c?.id || seen.has(c.id)) continue;
+        seen.add(c.id);
+        out.push(c);
+        if(out.length >= 20) return out;
+      }
+    }
+    return out;
+  }
+
   async function searchQuoteClients(value=""){
     if(!state.sb || !els.quoteClientResults) return;
     const token = ++state.quoteClientSearchToken;
     const term = safeQuoteClientSearchTerm(value);
-    els.quoteClientResults.innerHTML = '<div class="quote-client-result-empty">Szukam klientów…</div>';
-    els.quoteClientResults.hidden = false;
 
-    let query = state.sb
-      .from("company_clients")
-      .select("id,name,company_name,email,phone,vat_number,kvk_number,status,created_at")
-      .order("created_at", {ascending:false})
-      .limit(20);
+    // v20: panel już ma kartotekę company_clients w state.clients.
+    // Najpierw pokazujemy wyniki lokalne — dzięki temu klient widoczny w kartotece
+    // jest natychmiast dostępny również w Wyceny / Oferty.
+    const localRows = (state.clients || []).filter(c => quoteClientMatches(c, term)).slice(0,20);
+    state.quoteClientSearchResults = localRows;
+    renderQuoteClientResults(localRows, term);
 
-    if(term){
-      const like = `%${term}%`;
-      query = query.or([
-        `name.ilike.${like}`,
-        `company_name.ilike.${like}`,
-        `email.ilike.${like}`,
-        `phone.ilike.${like}`,
-        `vat_number.ilike.${like}`,
-        `kvk_number.ilike.${like}`
-      ].join(","));
-    }
+    // Przy pustym polu lokalna kartoteka jest wystarczająca.
+    if(!term || localRows.length >= 20) return;
 
-    const { data, error } = await query;
+    // Uzupełnienie z Supabase: proste, niezależne zapytania są bardziej odporne
+    // niż jedno złożone OR i pozwalają programowi rosnąć wraz z bazą klientów.
+    const like = `%${term}%`;
+    const fields = ["name", "company_name", "email", "phone"];
+    const responses = await Promise.all(fields.map(field =>
+      state.sb
+        .from("company_clients")
+        .select("*")
+        .ilike(field, like)
+        .order("created_at", {ascending:false})
+        .limit(20)
+    ));
+
     if(token !== state.quoteClientSearchToken) return;
-    if(error){
-      els.quoteClientResults.innerHTML = `<div class="quote-client-result-empty error">Nie udało się wyszukać klientów: ${esc(error.message)}</div>`;
+
+    const remoteRows = responses.flatMap(r => r.error ? [] : (r.data || []));
+    const merged = mergeQuoteClientRows(localRows, remoteRows);
+    state.quoteClientSearchResults = merged;
+    renderQuoteClientResults(merged, term);
+
+    if(!merged.length && responses.every(r => r.error)){
+      const firstError = responses.find(r => r.error)?.error;
+      els.quoteClientResults.innerHTML = `<div class="quote-client-result-empty error">Nie udało się wyszukać klientów: ${esc(firstError?.message || "błąd połączenia z bazą")}</div>`;
       els.quoteClientResults.hidden = false;
-      return;
     }
-    state.quoteClientSearchResults = data || [];
-    renderQuoteClientResults(state.quoteClientSearchResults, term);
   }
 
   function scheduleQuoteClientSearch(){

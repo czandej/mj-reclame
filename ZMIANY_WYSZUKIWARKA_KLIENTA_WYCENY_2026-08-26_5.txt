@@ -1,0 +1,8 @@
+MJ Reclame — v20 — poprawka wyszukiwarki klienta w Wyceny / Oferty
+
+- wyszukiwarka najpierw przeszukuje kartotekę klientów już załadowaną do panelu,
+- klient widoczny w zakładce Klienci jest dzięki temu od razu dostępny w wycenie/ofercie,
+- zachowane wyszukiwanie po nazwie, firmie, e-mailu, telefonie, VAT/KvK i danych adresowych w załadowanej kartotece,
+- wyniki są dodatkowo uzupełniane prostymi zapytaniami do Supabase po nazwie, firmie, e-mailu i telefonie,
+- maksymalnie 20 wyników, bez przewijania pełnej listy klientów,
+- pozostałe moduły programu bez zmian.
