@@ -304,6 +304,26 @@
       ? `<div class="full"><span>Powiązany klient</span><strong>${esc(clientDisplayName(linkedClient))}${linkedClient.email ? ` • ${esc(linkedClient.email)}` : ""}</strong></div>`
       : `<div class="full"><span>Powiązany klient</span><strong>Brak — utwórz lub powiąż klienta z tego zapytania.</strong></div>`;
 
+    const linkedQuotes = state.quotes
+      .filter(q => q.inquiry_id === i.id)
+      .sort((a,b) => String(b.created_at || "").localeCompare(String(a.created_at || "")));
+    const linkedQuoteRows = linkedQuotes.length
+      ? linkedQuotes.map(q => {
+          const totals = quoteTotals(q.id);
+          return `<tr>
+            <td><strong>${esc(q.quote_number || "—")}</strong><br><span class="muted">${esc(q.quote_type || "Wycena")}</span></td>
+            <td class="nowrap">${q.issue_date ? datePl(q.issue_date) : "—"}</td>
+            <td><span class="status-pill ${quoteStatusClass(q.status || "Robocza")}">${esc(q.status || "Robocza")}</span></td>
+            <td class="amount">${money(totals.gross)}</td>
+            <td class="row-actions"><button type="button" class="tiny secondary" data-quote-view="${esc(q.id)}">Otwórz</button></td>
+          </tr>`;
+        }).join("")
+      : `<tr><td colspan="5" class="empty">Brak wyceny lub oferty powiązanej z tym zapytaniem.</td></tr>`;
+    const primaryQuoteAction = linkedQuotes.length
+      ? `<button type="button" class="primary" data-quote-view="${esc(linkedQuotes[0].id)}">Otwórz wycenę / ofertę</button>
+         <button type="button" class="secondary" data-quote-from-inquiry="${esc(i.id)}">+ Dodaj kolejną wycenę / ofertę</button>`
+      : `<button type="button" class="primary" data-quote-from-inquiry="${esc(i.id)}">+ Utwórz wycenę / ofertę</button>`;
+
     els.inquiryPreviewContent.innerHTML = `
       <div class="inquiry-summary-grid">
         <div><span>Data</span><strong>${datePl(i.created_at)}</strong></div>
@@ -320,11 +340,18 @@
         <div class="full"><span>Wiadomość</span><div class="inquiry-message">${message}</div></div>
         <div class="full"><span>Załączniki (${Number(i.attachment_count || 0)})</span>${files}</div>
       </div>
+      <h4 class="project-services-heading">Wyceny / oferty powiązane z tym zapytaniem</h4>
+      <div class="table-wrap client-quotes-table">
+        <table>
+          <thead><tr><th>Dokument</th><th>Data</th><th>Status</th><th>Brutto</th><th>Akcje</th></tr></thead>
+          <tbody>${linkedQuoteRows}</tbody>
+        </table>
+      </div>
       <div class="form-buttons inquiry-preview-actions">
         ${linkedClient
           ? `<button type="button" class="secondary" data-client-view="${esc(linkedClient.id)}">Karta klienta</button>`
           : `<button type="button" class="secondary" data-client-from-inquiry="${esc(i.id)}">+ Utwórz / powiąż klienta</button>`}
-        <button type="button" class="primary" data-quote-from-inquiry="${esc(i.id)}">+ Utwórz wycenę / ofertę</button>
+        ${primaryQuoteAction}
       </div>`;
     els.inquiryPreviewCard.hidden = false;
   }
