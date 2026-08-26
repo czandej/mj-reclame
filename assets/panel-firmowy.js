@@ -1522,7 +1522,13 @@
       if(quoteFromInquiry){ openQuoteFormForNew(quoteFromInquiry.dataset.quoteFromInquiry); return; }
 
       const quoteView = e.target.closest("[data-quote-view]");
-      if(quoteView){ renderQuotePreview(quoteView.dataset.quoteView); return; }
+      if(quoteView){
+        setView("quotes");
+        els.quoteFormCard.hidden = true;
+        renderQuotePreview(quoteView.dataset.quoteView);
+        requestAnimationFrame(() => els.quotePreviewCard?.scrollIntoView({ behavior: "smooth", block: "start" }));
+        return;
+      }
 
       const quoteEdit = e.target.closest("[data-quote-edit]");
       if(quoteEdit){ openQuoteFormForEdit(quoteEdit.dataset.quoteEdit); return; }

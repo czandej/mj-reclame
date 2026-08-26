@@ -1,0 +1,8 @@
+MJ Reclame — v23
+
+Poprawka: otwieranie istniejącej wyceny/oferty z karty Zapytania o wycenę.
+
+- kliknięcie „Otwórz” przełącza panel do modułu Wyceny / Oferty,
+- pokazuje podgląd wskazanego dokumentu,
+- przewija ekran do podglądu dokumentu,
+- nie zmienia struktury Supabase i nie wymaga SQL.
