@@ -2,6 +2,8 @@ import tls from "node:tls";
 import crypto from "node:crypto";
 
 const DEFAULT_TO = "info@reclamemj.nl";
+const DEFAULT_SUPABASE_URL = "https://cvcdpdgerlcxsvaehpwq.supabase.co";
+const DEFAULT_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_e43wXDRguXD8r1ztkwyB8g_kc2PmgpY";
 
 function sanitizeHeader(value = "") {
   return String(value)
@@ -382,6 +384,51 @@ async function sendMail({ to, replyTo, subject, text, attachments }) {
   }
 }
 
+
+async function saveInquiryToSupabase(fields, files) {
+  const supabaseUrl = String(process.env.SUPABASE_URL || DEFAULT_SUPABASE_URL).replace(/\/$/, "");
+  const publishableKey = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY || DEFAULT_SUPABASE_PUBLISHABLE_KEY;
+  const attachmentNames = (files || [])
+    .filter(file => file && file.filename && file.content && file.content.length > 0)
+    .slice(0, 5)
+    .map(file => sanitizeHeader(file.filename));
+
+  const payload = {
+    source: "website_contact_form",
+    form_name: sanitizeHeader(getField(fields, ["form-name", "form_name"], "kontakt-mj-reclame")),
+    language: detectLang(fields),
+    name: sanitizeText(getField(fields, ["name", "naam"], "")).slice(0, 300),
+    email: sanitizeHeader(getField(fields, ["email"], "")).slice(0, 320),
+    phone: sanitizeText(getField(fields, ["phone"], "")).slice(0, 100) || null,
+    service: sanitizeText(getField(fields, ["service"], "")).slice(0, 300) || null,
+    quantity: sanitizeText(getField(fields, ["quantity"], "")).slice(0, 300) || null,
+    deadline: sanitizeText(getField(fields, ["deadline"], "")).slice(0, 300) || null,
+    message: sanitizeText(getField(fields, ["message", "wiadomosc", "bericht"], "")) || null,
+    product_inquiry: sanitizeText(getField(fields, ["product_inquiry"], "")).slice(0, 300) || null,
+    product_code: sanitizeText(getField(fields, ["product_code"], "")).slice(0, 120) || null,
+    product_color: sanitizeText(getField(fields, ["product_color"], "")).slice(0, 160) || null,
+    product_size: sanitizeText(getField(fields, ["product_size"], "")).slice(0, 120) || null,
+    product_quantity: sanitizeText(getField(fields, ["product_quantity"], "")).slice(0, 120) || null,
+    attachment_count: attachmentNames.length,
+    attachment_names: attachmentNames
+  };
+
+  const response = await fetch(`${supabaseUrl}/rest/v1/company_inquiries`, {
+    method: "POST",
+    headers: {
+      "apikey": publishableKey,
+      "Content-Type": "application/json",
+      "Prefer": "return=minimal"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(`Supabase ${response.status}: ${details.slice(0, 500)}`);
+  }
+}
+
 function successPath(fields) {
   return detectLang(fields) === "nl" ? "/nl/dziekujemy" : "/pl/dziekujemy";
 }
@@ -423,6 +470,13 @@ export async function handler(event) {
       text: buildClientText(fields, files, lang),
       attachments: [],
     });
+
+    try {
+      await saveInquiryToSupabase(fields, files);
+    } catch (inquiryError) {
+      // Zapis do panelu jest kanałem dodatkowym. Nie może zablokować wysyłki e-mail.
+      console.error("MJ inquiry Supabase save error:", inquiryError);
+    }
 
     return {
       statusCode: 302,

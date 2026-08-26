@@ -1,0 +1,10 @@
+MJ Reclame — v16 Zapytania z formularza
+
+Zmiana obejmuje wyłącznie dodatkową ewidencję zapytań w panelu firmowym.
+
+1. E-maile do MJ Reclame i autoresponder klienta pozostają bez zmian.
+2. Po udanym wysłaniu e-maili funkcja contact-dtf zapisuje kopię danych formularza w company_inquiries.
+3. Awaria zapisu w Supabase NIE blokuje wysyłki e-mail.
+4. Załączniki nadal są przesyłane e-mailem; w panelu zapisujemy tylko liczbę i nazwy plików (bez duplikowania plików w bazie).
+5. Panel ma nową zakładkę Zapytania, wyszukiwarkę, filtry, podgląd i zmianę statusu.
+6. Przed testem zapisu uruchom plik SUPABASE_SQL_PANEL_ZAPYTANIA_2026-08-26_1.sql w Supabase SQL Editor.

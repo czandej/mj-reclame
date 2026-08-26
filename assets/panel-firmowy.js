@@ -5,6 +5,7 @@
     sb:null,
     user:null,
     profile:null,
+    inquiries:[],
     clients:[],
     projects:[],
     orders:[],
@@ -89,8 +90,14 @@
   }
 
   async function loadAll(){
-    await Promise.all([loadClients(), loadProjects(), loadOrders(), loadInvoices()]);
+    await Promise.all([loadInquiries(), loadClients(), loadProjects(), loadOrders(), loadInvoices()]);
     renderAll();
+  }
+
+  async function loadInquiries(){
+    const { data, error } = await state.sb.from("company_inquiries").select("*").order("created_at", {ascending:false});
+    if(error){ notify("Nie udało się załadować zapytań: " + error.message, true); state.inquiries=[]; return; }
+    state.inquiries = data || [];
   }
 
   async function loadClients(){
@@ -118,6 +125,7 @@
   }
 
   function renderAll(){
+    renderInquiries();
     renderClientOptions();
     renderProjectOptions();
     renderClients();
@@ -126,6 +134,81 @@
     renderInvoices();
     renderDashboard();
     syncOrderClientFromProject();
+  }
+
+  function inquiryStatusClass(status){
+    if(["Odrzucone"].includes(status)) return "status-danger";
+    if(["Nowe","Do wyceny"].includes(status)) return "status-warn";
+    return "";
+  }
+
+  function filteredInquiries(){
+    const query = (els.inquirySearch?.value || "").toLowerCase().trim();
+    const filter = els.inquiryStatusFilter?.value || "open";
+    let rows = state.inquiries;
+
+    if(filter === "open") rows = rows.filter(i => !["Zamknięte","Odrzucone"].includes(i.status || "Nowe"));
+    else if(filter !== "all") rows = rows.filter(i => (i.status || "Nowe") === filter);
+
+    if(query){
+      rows = rows.filter(i => [
+        i.name, i.email, i.phone, i.service, i.quantity, i.deadline, i.message,
+        i.product_inquiry, i.product_code, i.product_color, i.product_size, i.product_quantity,
+        ...(Array.isArray(i.attachment_names) ? i.attachment_names : [])
+      ].some(v => String(v || "").toLowerCase().includes(query)));
+    }
+    return rows;
+  }
+
+  function renderInquiries(){
+    if(!els.inquiriesTable) return;
+    const rows = filteredInquiries();
+    if(!rows.length){ els.inquiriesTable.innerHTML = `<tr><td colspan="6" class="empty">Brak zapytań dla wybranego filtra.</td></tr>`; return; }
+
+    els.inquiriesTable.innerHTML = rows.map(i => {
+      const details = [i.quantity ? `Ilość: ${esc(i.quantity)}` : "", i.deadline ? `Termin: ${esc(i.deadline)}` : ""].filter(Boolean).join("<br>") || "—";
+      return `<tr>
+        <td class="nowrap">${datePl(i.created_at)}<br><span class="muted">${esc((i.language || "pl").toUpperCase())}</span></td>
+        <td><strong>${esc(i.name || "—")}</strong><br>${i.email ? `<a href="mailto:${esc(i.email)}">${esc(i.email)}</a>` : "—"}<br><span class="muted">${esc(i.phone || "")}</span></td>
+        <td><strong>${esc(i.service || i.product_inquiry || "Inne")}</strong></td>
+        <td>${details}<br><span class="muted">Załączniki: ${Number(i.attachment_count || 0)}</span></td>
+        <td>${statusSelect("inquiry", i.id, i.status || "Nowe", ["Nowe","W kontakcie","Do wyceny","Wycenione","Zamknięte","Odrzucone"])}</td>
+        <td class="row-actions"><button type="button" class="tiny secondary" data-inquiry-view="${esc(i.id)}">Podgląd</button></td>
+      </tr>`;
+    }).join("");
+  }
+
+  function renderInquiryPreview(id){
+    const i = state.inquiries.find(item => item.id === id);
+    if(!i){ notify("Nie znaleziono zapytania.", true); return; }
+    const files = Array.isArray(i.attachment_names) && i.attachment_names.length
+      ? `<ul class="inquiry-files">${i.attachment_names.map(name => `<li>${esc(name)}</li>`).join("")}</ul>`
+      : "Brak załączników.";
+    const product = [
+      i.product_inquiry ? `Produkt: ${esc(i.product_inquiry)}` : "",
+      i.product_code ? `Kod: ${esc(i.product_code)}` : "",
+      i.product_color ? `Kolor: ${esc(i.product_color)}` : "",
+      i.product_size ? `Rozmiar: ${esc(i.product_size)}` : "",
+      i.product_quantity ? `Ilość produktu: ${esc(i.product_quantity)}` : ""
+    ].filter(Boolean).join("<br>") || "—";
+    const message = esc(i.message || "—").replace(/\n/g, "<br>");
+
+    els.inquiryPreviewContent.innerHTML = `
+      <div class="inquiry-summary-grid">
+        <div><span>Data</span><strong>${datePl(i.created_at)}</strong></div>
+        <div><span>Status</span><strong>${esc(i.status || "Nowe")}</strong></div>
+        <div><span>Język</span><strong>${esc((i.language || "pl").toUpperCase())}</strong></div>
+        <div><span>Klient</span><strong>${esc(i.name || "—")}</strong></div>
+        <div><span>E-mail</span><strong>${i.email ? `<a href="mailto:${esc(i.email)}">${esc(i.email)}</a>` : "—"}</strong></div>
+        <div><span>Telefon</span><strong>${esc(i.phone || "—")}</strong></div>
+        <div><span>Usługa</span><strong>${esc(i.service || "—")}</strong></div>
+        <div><span>Ilość / nakład</span><strong>${esc(i.quantity || "—")}</strong></div>
+        <div><span>Termin</span><strong>${esc(i.deadline || "—")}</strong></div>
+        <div class="full"><span>Dane produktu z katalogu</span><strong>${product}</strong></div>
+        <div class="full"><span>Wiadomość</span><div class="inquiry-message">${message}</div></div>
+        <div class="full"><span>Załączniki (${Number(i.attachment_count || 0)})</span>${files}</div>
+      </div>`;
+    els.inquiryPreviewCard.hidden = false;
   }
 
   function clientDisplayName(c){
@@ -365,15 +448,20 @@
   }
 
   function statusSelect(type, id, value, options){
-    const cls = type === "project" ? projectStatusClass(value) : statusesDanger.has(value) ? "status-danger" : statusesWarn.has(value) ? "status-warn" : "";
+    const cls = type === "project" ? projectStatusClass(value) : type === "inquiry" ? inquiryStatusClass(value) : statusesDanger.has(value) ? "status-danger" : statusesWarn.has(value) ? "status-warn" : "";
     return `<select class="table-select ${cls}" data-status-type="${type}" data-id="${esc(id)}">${options.map(o => `<option ${o===value?"selected":""}>${esc(o)}</option>`).join("")}</select>`;
   }
 
   function renderDashboard(){
+    els.statNewInquiries.textContent = state.inquiries.filter(i => (i.status || "Nowe") === "Nowe").length;
     els.statActiveProjects.textContent = state.projects.filter(p => activeProjectStatuses.has(p.status || "Nowy")).length;
     els.statActiveClients.textContent = state.clients.filter(c => (c.status || "active") === "active").length;
     els.statOpenInvoices.textContent = state.invoices.filter(f => ["Nieopłacona","Po terminie"].includes(f.status || "")).length;
     els.statProductionOrders.textContent = state.orders.filter(o => ["W trakcie","Zaakceptowane","W produkcji"].includes(o.status || "")).length;
+
+    els.recentInquiries.innerHTML = state.inquiries.slice(0,5).map(i => {
+      return `<div class="mini-item"><div><strong>${esc(i.name || "Zapytanie")}</strong><small>${esc(i.service || "Inne")} • ${datePl(i.created_at)}</small></div><span class="status-pill ${inquiryStatusClass(i.status || "Nowe")}">${esc(i.status || "Nowe")}</span></div>`;
+    }).join("") || "Brak zapytań.";
 
     els.recentProjects.innerHTML = state.projects.slice(0,5).map(p => {
       const clientName = p.company_clients?.name || p.company_clients?.company_name || "—";
@@ -687,11 +775,12 @@
     const type = select.dataset.statusType;
     const id = select.dataset.id;
     const status = select.value;
-    const table = type === "order" ? "company_orders" : type === "project" ? "company_projects" : "company_invoices";
+    const table = type === "order" ? "company_orders" : type === "project" ? "company_projects" : type === "inquiry" ? "company_inquiries" : "company_invoices";
     const { error } = await state.sb.from(table).update({ status }).eq("id", id);
     if(error){ notify("Nie zapisano statusu: " + error.message, true); return; }
     if(type === "order") await loadOrders();
     else if(type === "project") await loadProjects();
+    else if(type === "inquiry") await loadInquiries();
     else await loadInvoices();
     renderAll();
     notify("Status został zaktualizowany.");
@@ -714,6 +803,8 @@
     els.projectForm.addEventListener("submit", saveProject);
     els.orderForm.addEventListener("submit", addOrder);
     els.invoiceForm.addEventListener("submit", addInvoice);
+    els.inquirySearch.addEventListener("input", renderInquiries);
+    els.inquiryStatusFilter.addEventListener("change", renderInquiries);
     els.clientSearch.addEventListener("input", renderClients);
     els.clientStatusFilter.addEventListener("change", renderClients);
     els.projectSearch.addEventListener("input", renderProjects);
@@ -722,6 +813,7 @@
     els.projectNewButton.addEventListener("click", () => openProjectFormForNew());
     els.clientCancelButton.addEventListener("click", () => { resetClientForm(); els.clientFormCard.hidden = true; });
     els.projectCancelButton.addEventListener("click", () => { resetProjectForm(); els.projectFormCard.hidden = true; });
+    els.inquiryPreviewClose.addEventListener("click", () => { els.inquiryPreviewCard.hidden = true; });
     els.clientPreviewClose.addEventListener("click", () => { els.clientPreviewCard.hidden = true; });
     els.projectPreviewClose.addEventListener("click", () => { els.projectPreviewCard.hidden = true; });
     els.orderProject.addEventListener("change", syncOrderClientFromProject);
@@ -733,6 +825,9 @@
     });
 
     document.addEventListener("click", e => {
+      const inquiryView = e.target.closest("[data-inquiry-view]");
+      if(inquiryView){ renderInquiryPreview(inquiryView.dataset.inquiryView); return; }
+
       const clientView = e.target.closest("[data-client-view]");
       if(clientView){ renderClientPreview(clientView.dataset.clientView); return; }
 
@@ -771,11 +866,12 @@
       auth: $("auth-section"), locked: $("locked-section"), app: $("app-section"), user: $("panel-user-status"), message: $("panel-message"),
       logout: $("panel-logout"), loginForm: $("panel-login-form"), loginEmail: $("panel-login-email"), loginPassword: $("panel-login-password"), authMessage: $("panel-auth-message"),
       refresh: $("refresh-all"), clientForm: $("client-form"), projectForm: $("project-form"), orderForm: $("order-form"), invoiceForm: $("invoice-form"),
+      inquirySearch: $("inquiry-search"), inquiryStatusFilter: $("inquiry-status-filter"), inquiriesTable: $("inquiries-table"), inquiryPreviewCard: $("inquiry-preview-card"), inquiryPreviewContent: $("inquiry-preview-content"), inquiryPreviewClose: $("inquiry-preview-close"),
       clientSearch: $("client-search"), clientStatusFilter: $("client-status-filter"), projectSearch: $("project-search"), projectStatusFilter: $("project-status-filter"),
       clientsTable: $("clients-table"), projectsTable: $("projects-table"), ordersTable: $("orders-table"), invoicesTable: $("invoices-table"),
       projectClient: $("project-client"), orderProject: $("order-project"), orderClient: $("order-client"), invoiceClient: $("invoice-client"),
-      statActiveProjects: $("stat-active-projects"), statActiveClients: $("stat-active-clients"), statOpenInvoices: $("stat-open-invoices"), statProductionOrders: $("stat-production-orders"),
-      recentProjects: $("recent-projects"), recentInvoices: $("recent-invoices"),
+      statNewInquiries: $("stat-new-inquiries"), statActiveProjects: $("stat-active-projects"), statActiveClients: $("stat-active-clients"), statOpenInvoices: $("stat-open-invoices"), statProductionOrders: $("stat-production-orders"),
+      recentInquiries: $("recent-inquiries"), recentProjects: $("recent-projects"), recentInvoices: $("recent-invoices"),
       clientFormCard: $("client-form-card"), clientFormTitle: $("client-form-title"), clientFormMode: $("client-form-mode"), clientSubmitButton: $("client-submit-button"), clientCancelButton: $("client-cancel-button"), clientNewButton: $("client-new-button"), clientPreviewCard: $("client-preview-card"), clientPreviewContent: $("client-preview-content"), clientPreviewClose: $("client-preview-close"),
       projectFormCard: $("project-form-card"), projectFormTitle: $("project-form-title"), projectFormMode: $("project-form-mode"), projectSubmitButton: $("project-submit-button"), projectCancelButton: $("project-cancel-button"), projectNewButton: $("project-new-button"), projectPreviewCard: $("project-preview-card"), projectPreviewContent: $("project-preview-content"), projectPreviewClose: $("project-preview-close"),
       orderFormCard: $("order-form-card")
