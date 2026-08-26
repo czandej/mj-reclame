@@ -23,7 +23,7 @@
       <div class="panel-badge">Panel firmowy</div>
       <nav class="panel-nav" aria-label="Menu panelu firmowego">
         <button class="is-active" data-view="dashboard">Pulpit</button>
-        <button data-view="inquiries">Zapytania</button>
+        <button data-view="inquiries">Zapytania o wycenę</button>
         <button data-view="clients">Klienci</button>
         <button data-view="projects">Projekty</button>
         <button data-view="orders">Usługi / zlecenia</button>
@@ -80,7 +80,7 @@
           </div>
 
           <div class="stats-grid">
-            <article class="stat-card"><span id="stat-new-inquiries">0</span><p>Nowe zapytania</p></article>
+            <article class="stat-card"><span id="stat-new-inquiries">0</span><p>Nowe zapytania o wycenę</p></article>
             <article class="stat-card"><span id="stat-active-projects">0</span><p>Aktywne projekty</p></article>
             <article class="stat-card"><span id="stat-active-clients">0</span><p>Klienci aktywni</p></article>
             <article class="stat-card"><span id="stat-open-invoices">0</span><p>Faktury nieopłacone</p></article>
@@ -89,7 +89,7 @@
 
           <div class="dashboard-grid">
             <article class="panel-card inner">
-              <h3>Najnowsze zapytania</h3>
+              <h3>Najnowsze zapytania o wycenę</h3>
               <div class="mini-list" id="recent-inquiries">Brak danych.</div>
             </article>
             <article class="panel-card inner">
@@ -107,14 +107,14 @@
         <section class="panel-view" data-panel-view="inquiries">
           <div class="panel-actions-row">
             <div>
-              <p class="panel-kicker">Formularze strony</p>
-              <h2>Zapytania</h2>
+              <p class="panel-kicker">Formularze strony i kontakt bezpośredni</p>
+              <h2>Zapytania o wycenę</h2>
             </div>
           </div>
 
           <article class="panel-card inner inquiry-preview-card" id="inquiry-preview-card" hidden>
             <div class="panel-actions-row compact">
-              <h3>Szczegóły zapytania</h3>
+              <h3>Szczegóły zapytania o wycenę</h3>
               <button class="ghost" id="inquiry-preview-close" type="button">Zamknij</button>
             </div>
             <div id="inquiry-preview-content"></div>
@@ -122,13 +122,14 @@
 
           <div class="table-tools wide-tools">
             <input id="inquiry-search" placeholder="Szukaj po nazwie, e-mailu, telefonie, usłudze lub treści…">
-            <select id="inquiry-status-filter" aria-label="Filtr statusu zapytania">
+            <select id="inquiry-status-filter" aria-label="Filtr statusu zapytania o wycenę">
               <option value="open">Otwarte</option>
               <option value="all">Wszystkie</option>
               <option value="Nowe">Nowe</option>
               <option value="W kontakcie">W kontakcie</option>
-              <option value="Do wyceny">Do wyceny</option>
-              <option value="Wycenione">Wycenione</option>
+              <option value="Przygotowanie wyceny">Przygotowanie wyceny</option>
+              <option value="Wycena wysłana">Wycena wysłana</option>
+              <option value="Zaakceptowane">Zaakceptowane</option>
               <option value="Zamknięte">Zamknięte</option>
               <option value="Odrzucone">Odrzucone</option>
             </select>

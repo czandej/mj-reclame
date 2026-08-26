@@ -138,7 +138,7 @@
 
   function inquiryStatusClass(status){
     if(["Odrzucone"].includes(status)) return "status-danger";
-    if(["Nowe","Do wyceny"].includes(status)) return "status-warn";
+    if(["Nowe","Przygotowanie wyceny"].includes(status)) return "status-warn";
     return "";
   }
 
@@ -147,7 +147,7 @@
     const filter = els.inquiryStatusFilter?.value || "open";
     let rows = state.inquiries;
 
-    if(filter === "open") rows = rows.filter(i => !["Zamknięte","Odrzucone"].includes(i.status || "Nowe"));
+    if(filter === "open") rows = rows.filter(i => !["Zaakceptowane","Zamknięte","Odrzucone"].includes(i.status || "Nowe"));
     else if(filter !== "all") rows = rows.filter(i => (i.status || "Nowe") === filter);
 
     if(query){
@@ -163,7 +163,7 @@
   function renderInquiries(){
     if(!els.inquiriesTable) return;
     const rows = filteredInquiries();
-    if(!rows.length){ els.inquiriesTable.innerHTML = `<tr><td colspan="6" class="empty">Brak zapytań dla wybranego filtra.</td></tr>`; return; }
+    if(!rows.length){ els.inquiriesTable.innerHTML = `<tr><td colspan="6" class="empty">Brak zapytań o wycenę dla wybranego filtra.</td></tr>`; return; }
 
     els.inquiriesTable.innerHTML = rows.map(i => {
       const details = [i.quantity ? `Ilość: ${esc(i.quantity)}` : "", i.deadline ? `Termin: ${esc(i.deadline)}` : ""].filter(Boolean).join("<br>") || "—";
@@ -172,7 +172,7 @@
         <td><strong>${esc(i.name || "—")}</strong><br>${i.email ? `<a href="mailto:${esc(i.email)}">${esc(i.email)}</a>` : "—"}<br><span class="muted">${esc(i.phone || "")}</span></td>
         <td><strong>${esc(i.service || i.product_inquiry || "Inne")}</strong></td>
         <td>${details}<br><span class="muted">Załączniki: ${Number(i.attachment_count || 0)}</span></td>
-        <td>${statusSelect("inquiry", i.id, i.status || "Nowe", ["Nowe","W kontakcie","Do wyceny","Wycenione","Zamknięte","Odrzucone"])}</td>
+        <td>${statusSelect("inquiry", i.id, i.status || "Nowe", ["Nowe","W kontakcie","Przygotowanie wyceny","Wycena wysłana","Zaakceptowane","Zamknięte","Odrzucone"])}</td>
         <td class="row-actions"><button type="button" class="tiny secondary" data-inquiry-view="${esc(i.id)}">Podgląd</button></td>
       </tr>`;
     }).join("");
@@ -180,7 +180,7 @@
 
   function renderInquiryPreview(id){
     const i = state.inquiries.find(item => item.id === id);
-    if(!i){ notify("Nie znaleziono zapytania.", true); return; }
+    if(!i){ notify("Nie znaleziono zapytania o wycenę.", true); return; }
     const files = Array.isArray(i.attachment_names) && i.attachment_names.length
       ? `<ul class="inquiry-files">${i.attachment_names.map(name => `<li>${esc(name)}</li>`).join("")}</ul>`
       : "Brak załączników.";
@@ -461,7 +461,7 @@
 
     els.recentInquiries.innerHTML = state.inquiries.slice(0,5).map(i => {
       return `<div class="mini-item"><div><strong>${esc(i.name || "Zapytanie")}</strong><small>${esc(i.service || "Inne")} • ${datePl(i.created_at)}</small></div><span class="status-pill ${inquiryStatusClass(i.status || "Nowe")}">${esc(i.status || "Nowe")}</span></div>`;
-    }).join("") || "Brak zapytań.";
+    }).join("") || "Brak zapytań o wycenę.";
 
     els.recentProjects.innerHTML = state.projects.slice(0,5).map(p => {
       const clientName = p.company_clients?.name || p.company_clients?.company_name || "—";
