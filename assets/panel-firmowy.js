@@ -12,6 +12,10 @@
     projects:[],
     orders:[],
     invoices:[],
+    quoteClientSearchToken:0,
+    quoteClientSearchTimer:null,
+    quoteClientSearchResults:[],
+    returnToQuoteAfterClient:false,
     editingClientId:null,
     editingProjectId:null,
     editingQuoteId:null
@@ -338,6 +342,126 @@
     return c?.name || c?.company_name || c?.email || "Klient";
   }
 
+  function quoteClientDetails(c){
+    return [
+      c?.company_name && c.company_name !== clientDisplayName(c) ? c.company_name : null,
+      c?.email,
+      c?.phone,
+      c?.vat_number ? `VAT: ${c.vat_number}` : null,
+      c?.kvk_number ? `KvK: ${c.kvk_number}` : null,
+      (c?.status || "active") !== "active" ? "archiwalny" : null
+    ].filter(Boolean);
+  }
+
+  function setQuoteClientSelection(c){
+    if(!els.quoteClient) return;
+    els.quoteClient.value = c?.id || "";
+    if(!c){
+      if(els.quoteClientSelected){
+        els.quoteClientSelected.hidden = true;
+        els.quoteClientSelected.innerHTML = "";
+      }
+      return;
+    }
+    const details = quoteClientDetails(c);
+    if(els.quoteClientSearch) els.quoteClientSearch.value = clientDisplayName(c);
+    if(els.quoteClientSelected){
+      els.quoteClientSelected.innerHTML = `<strong>${esc(clientDisplayName(c))}</strong>${details.length ? `<span>${details.map(esc).join(" • ")}</span>` : ""}`;
+      els.quoteClientSelected.hidden = false;
+    }
+    if(els.quoteClientResults) els.quoteClientResults.hidden = true;
+  }
+
+  function clearQuoteClientSelection(clearSearch=true){
+    if(els.quoteClient) els.quoteClient.value = "";
+    if(els.quoteClientSelected){
+      els.quoteClientSelected.hidden = true;
+      els.quoteClientSelected.innerHTML = "";
+    }
+    if(clearSearch && els.quoteClientSearch) els.quoteClientSearch.value = "";
+  }
+
+  function safeQuoteClientSearchTerm(value){
+    return String(value || "")
+      .trim()
+      .replace(/[^\p{L}\p{N}@.+_\-\s]/gu, " ")
+      .replace(/\s+/g, " ")
+      .slice(0, 100);
+  }
+
+  function renderQuoteClientResults(rows, query=""){
+    if(!els.quoteClientResults) return;
+    if(!rows.length){
+      els.quoteClientResults.innerHTML = `<div class="quote-client-result-empty">Nie znaleziono klienta${query ? ` dla „${esc(query)}”` : ""}. Możesz dodać nowego klienta.</div>`;
+      els.quoteClientResults.hidden = false;
+      return;
+    }
+    els.quoteClientResults.innerHTML = rows.map(c => {
+      const details = quoteClientDetails(c);
+      return `<button type="button" class="quote-client-result" role="option" data-quote-client-id="${esc(c.id)}">
+        <strong>${esc(clientDisplayName(c))}</strong>
+        <span>${details.length ? details.map(esc).join(" • ") : "Brak dodatkowych danych"}</span>
+      </button>`;
+    }).join("");
+    els.quoteClientResults.hidden = false;
+  }
+
+  async function searchQuoteClients(value=""){
+    if(!state.sb || !els.quoteClientResults) return;
+    const token = ++state.quoteClientSearchToken;
+    const term = safeQuoteClientSearchTerm(value);
+    els.quoteClientResults.innerHTML = '<div class="quote-client-result-empty">Szukam klientów…</div>';
+    els.quoteClientResults.hidden = false;
+
+    let query = state.sb
+      .from("company_clients")
+      .select("id,name,company_name,email,phone,vat_number,kvk_number,status,created_at")
+      .order("created_at", {ascending:false})
+      .limit(20);
+
+    if(term){
+      const like = `%${term}%`;
+      query = query.or([
+        `name.ilike.${like}`,
+        `company_name.ilike.${like}`,
+        `email.ilike.${like}`,
+        `phone.ilike.${like}`,
+        `vat_number.ilike.${like}`,
+        `kvk_number.ilike.${like}`
+      ].join(","));
+    }
+
+    const { data, error } = await query;
+    if(token !== state.quoteClientSearchToken) return;
+    if(error){
+      els.quoteClientResults.innerHTML = `<div class="quote-client-result-empty error">Nie udało się wyszukać klientów: ${esc(error.message)}</div>`;
+      els.quoteClientResults.hidden = false;
+      return;
+    }
+    state.quoteClientSearchResults = data || [];
+    renderQuoteClientResults(state.quoteClientSearchResults, term);
+  }
+
+  function scheduleQuoteClientSearch(){
+    clearTimeout(state.quoteClientSearchTimer);
+    state.quoteClientSearchTimer = setTimeout(() => searchQuoteClients(els.quoteClientSearch?.value || ""), 220);
+  }
+
+  function openClientFormFromQuote(){
+    state.returnToQuoteAfterClient = true;
+    const inquiry = state.inquiries.find(i => i.id === (els.quoteInquiry?.value || ""));
+    const typed = (els.quoteClientSearch?.value || "").trim();
+    openClientFormForNew(true);
+    if(inquiry){
+      $("client-name").value = inquiry.name || typed;
+      $("client-email").value = inquiry.email || "";
+      $("client-phone").value = inquiry.phone || "";
+    } else if(typed){
+      $("client-name").value = typed;
+    }
+    setView("clients");
+  }
+
   function projectDisplayName(p){
     return p?.title || "Projekt";
   }
@@ -349,13 +473,11 @@
       return sa - sb || clientDisplayName(a).localeCompare(clientDisplayName(b), "pl");
     });
     const html = rows.map(c => `<option value="${esc(c.id)}">${esc(clientDisplayName(c))}${(c.status || "active") !== "active" ? " — archiwalny" : ""}</option>`).join("");
-    [els.projectClient, els.invoiceClient, els.quoteClient].forEach(select => {
+    [els.projectClient, els.invoiceClient].forEach(select => {
       if(!select) return;
       const current = select.value;
-      const placeholder = select === els.quoteClient ? '<option value="">Wybierz klienta…</option>' : '';
-      select.innerHTML = rows.length ? placeholder + html : '<option value="">Najpierw dodaj klienta</option>';
+      select.innerHTML = rows.length ? html : '<option value="">Najpierw dodaj klienta</option>';
       if(rows.some(c => c.id === current)) select.value = current;
-      else if(select === els.quoteClient) select.value = "";
     });
   }
 
@@ -649,7 +771,8 @@
     els.clientSubmitButton.textContent = "Zapisz klienta";
   }
 
-  function openClientFormForNew(){
+  function openClientFormForNew(fromQuote=false){
+    if(!fromQuote) state.returnToQuoteAfterClient = false;
     resetClientForm();
     els.clientFormCard.hidden = false;
     els.clientPreviewCard.hidden = true;
@@ -684,15 +807,21 @@
     const payload = clientPayload();
     if(!payload.name){ notify("Podaj nazwę klienta.", true); return; }
 
-    if(state.editingClientId){
-      const { error } = await state.sb.from("company_clients").update(payload).eq("id", state.editingClientId);
+    const wasEditing = Boolean(state.editingClientId);
+    const returnToQuote = state.returnToQuoteAfterClient && !wasEditing;
+    let savedClient = null;
+
+    if(wasEditing){
+      const { data, error } = await state.sb.from("company_clients").update(payload).eq("id", state.editingClientId).select("*").single();
       if(error) return notify("Nie zapisano zmian klienta: " + error.message, true);
+      savedClient = data || null;
       notify("Zmiany klienta zostały zapisane.");
     } else {
       payload.created_by = state.user.id;
-      const { error } = await state.sb.from("company_clients").insert(payload);
+      const { data, error } = await state.sb.from("company_clients").insert(payload).select("*").single();
       if(error) return notify("Nie zapisano klienta: " + error.message, true);
-      notify("Klient został zapisany.");
+      savedClient = data || null;
+      notify(returnToQuote ? "Klient został zapisany i wybrany w wycenie/ofercie." : "Klient został zapisany.");
     }
 
     resetClientForm();
@@ -702,6 +831,13 @@
     await loadOrders();
     await loadInvoices();
     renderAll();
+
+    if(returnToQuote && savedClient){
+      state.returnToQuoteAfterClient = false;
+      setView("quotes");
+      els.quoteFormCard.hidden = false;
+      setQuoteClientSelection(savedClient);
+    }
   }
 
   async function updateClientStatus(id, status){
@@ -954,7 +1090,8 @@
     $("quote-date").value = todayISO();
     $("quote-valid-until").value = addDaysISO(todayISO(),14);
     $("quote-status").value = "Robocza";
-    renderClientOptions();
+    clearQuoteClientSelection(true);
+    if(els.quoteClientResults){ els.quoteClientResults.hidden = true; els.quoteClientResults.innerHTML = ""; }
     renderQuoteInquiryOptions();
     $("quote-number").value = proposeQuoteNumber("Wycena");
     els.quoteItemsBody.innerHTML = "";
@@ -966,14 +1103,22 @@
 
   function openQuoteFormForNew(inquiryId=null, clientId=null){
     resetQuoteForm();
-    if(clientId && state.clients.some(c => c.id === clientId)) els.quoteClient.value = clientId;
+    if(clientId){
+      const selected = state.clients.find(c => c.id === clientId);
+      if(selected) setQuoteClientSelection(selected);
+    }
     if(inquiryId){
       const i = state.inquiries.find(item => item.id === inquiryId);
       if(i){
         els.quoteInquiry.value = inquiryId;
         const email = String(i.email || "").trim().toLowerCase();
         const matched = email ? state.clients.find(c => String(c.email || "").trim().toLowerCase() === email) : null;
-        if(matched) els.quoteClient.value = matched.id;
+        if(matched){
+          setQuoteClientSelection(matched);
+        } else if(els.quoteClientSearch){
+          els.quoteClientSearch.value = i.email || i.name || "";
+          scheduleQuoteClientSearch();
+        }
         const first = els.quoteItemsBody.querySelector(".quote-item-description");
         if(first) first.value = i.service || i.product_inquiry || "";
       }
@@ -981,19 +1126,20 @@
     els.quoteFormCard.hidden = false;
     els.quotePreviewCard.hidden = true;
     setView("quotes");
-    $("quote-number").focus();
+    if(clientId || inquiryId) $("quote-number").focus(); else els.quoteClientSearch?.focus();
   }
 
   function openQuoteFormForEdit(id){
     const q = state.quotes.find(item => item.id === id);
     if(!q){ notify("Nie znaleziono wyceny/oferty do edycji.", true); return; }
     state.editingQuoteId = id;
-    renderClientOptions();
+    clearQuoteClientSelection(true);
     renderQuoteInquiryOptions();
     $("quote-id").value = q.id;
     $("quote-type").value = q.quote_type || "Wycena";
     $("quote-number").value = q.quote_number || "";
-    els.quoteClient.value = q.client_id || "";
+    const selectedClient = state.clients.find(c => c.id === q.client_id) || (q.company_clients ? {id:q.client_id, ...q.company_clients} : null);
+    if(selectedClient) setQuoteClientSelection(selectedClient);
     els.quoteInquiry.value = q.inquiry_id || "";
     $("quote-date").value = q.issue_date || todayISO();
     $("quote-valid-until").value = q.valid_until || "";
@@ -1157,10 +1303,27 @@
     els.clientStatusFilter.addEventListener("change", renderClients);
     els.projectSearch.addEventListener("input", renderProjects);
     els.projectStatusFilter.addEventListener("change", renderProjects);
-    els.clientNewButton.addEventListener("click", openClientFormForNew);
+    els.clientNewButton.addEventListener("click", () => openClientFormForNew(false));
     els.quoteNewButton.addEventListener("click", () => openQuoteFormForNew());
+    els.quoteClientSearch.addEventListener("focus", () => searchQuoteClients(els.quoteClientSearch.value));
+    els.quoteClientSearch.addEventListener("input", () => {
+      if(els.quoteClient.value) clearQuoteClientSelection(false);
+      scheduleQuoteClientSearch();
+    });
+    els.quoteClientClear.addEventListener("click", () => {
+      clearQuoteClientSelection(true);
+      searchQuoteClients("");
+      els.quoteClientSearch.focus();
+    });
+    els.quoteClientAdd.addEventListener("click", openClientFormFromQuote);
     els.projectNewButton.addEventListener("click", () => openProjectFormForNew());
-    els.clientCancelButton.addEventListener("click", () => { resetClientForm(); els.clientFormCard.hidden = true; });
+    els.clientCancelButton.addEventListener("click", () => {
+      const returnToQuote = state.returnToQuoteAfterClient;
+      state.returnToQuoteAfterClient = false;
+      resetClientForm();
+      els.clientFormCard.hidden = true;
+      if(returnToQuote){ setView("quotes"); els.quoteFormCard.hidden = false; }
+    });
     els.quoteCancelButton.addEventListener("click", () => { resetQuoteForm(); els.quoteFormCard.hidden = true; });
     els.projectCancelButton.addEventListener("click", () => { resetProjectForm(); els.projectFormCard.hidden = true; });
     els.inquiryPreviewClose.addEventListener("click", () => { els.inquiryPreviewCard.hidden = true; });
@@ -1204,6 +1367,21 @@
         return;
       }
 
+      const quoteClientResult = e.target.closest("[data-quote-client-id]");
+      if(quoteClientResult){
+        const id = quoteClientResult.dataset.quoteClientId;
+        const selected = state.quoteClientSearchResults.find(c => c.id === id) || state.clients.find(c => c.id === id);
+        if(selected){
+          setQuoteClientSelection(selected);
+        } else {
+          const label = quoteClientResult.querySelector("strong")?.textContent || "Klient";
+          setQuoteClientSelection({id, name:label});
+        }
+        return;
+      }
+
+      if(els.quoteClientResults && !e.target.closest(".quote-client-picker")) els.quoteClientResults.hidden = true;
+
       const clientView = e.target.closest("[data-client-view]");
       if(clientView){ renderClientPreview(clientView.dataset.clientView); return; }
 
@@ -1246,7 +1424,7 @@
       logout: $("panel-logout"), loginForm: $("panel-login-form"), loginEmail: $("panel-login-email"), loginPassword: $("panel-login-password"), authMessage: $("panel-auth-message"),
       refresh: $("refresh-all"), clientForm: $("client-form"), projectForm: $("project-form"), orderForm: $("order-form"), quoteForm: $("quote-form"), invoiceForm: $("invoice-form"),
       inquirySearch: $("inquiry-search"), inquiryStatusFilter: $("inquiry-status-filter"), inquiriesTable: $("inquiries-table"), inquiryPreviewCard: $("inquiry-preview-card"), inquiryPreviewContent: $("inquiry-preview-content"), inquiryPreviewClose: $("inquiry-preview-close"),
-      quoteSearch: $("quote-search"), quoteStatusFilter: $("quote-status-filter"), quotesTable: $("quotes-table"), quoteClient: $("quote-client"), quoteInquiry: $("quote-inquiry"), quoteFormCard: $("quote-form-card"), quoteFormTitle: $("quote-form-title"), quoteFormMode: $("quote-form-mode"), quoteSubmitButton: $("quote-submit-button"), quoteCancelButton: $("quote-cancel-button"), quoteNewButton: $("quote-new-button"), quoteItemsBody: $("quote-items-body"), quoteAddItem: $("quote-add-item"), quoteTotalNet: $("quote-total-net"), quoteTotalVat: $("quote-total-vat"), quoteTotalGross: $("quote-total-gross"), quotePreviewCard: $("quote-preview-card"), quotePreviewContent: $("quote-preview-content"), quotePreviewClose: $("quote-preview-close"),
+      quoteSearch: $("quote-search"), quoteStatusFilter: $("quote-status-filter"), quotesTable: $("quotes-table"), quoteClient: $("quote-client"), quoteClientSearch: $("quote-client-search"), quoteClientClear: $("quote-client-clear"), quoteClientAdd: $("quote-client-add"), quoteClientSelected: $("quote-client-selected"), quoteClientResults: $("quote-client-results"), quoteInquiry: $("quote-inquiry"), quoteFormCard: $("quote-form-card"), quoteFormTitle: $("quote-form-title"), quoteFormMode: $("quote-form-mode"), quoteSubmitButton: $("quote-submit-button"), quoteCancelButton: $("quote-cancel-button"), quoteNewButton: $("quote-new-button"), quoteItemsBody: $("quote-items-body"), quoteAddItem: $("quote-add-item"), quoteTotalNet: $("quote-total-net"), quoteTotalVat: $("quote-total-vat"), quoteTotalGross: $("quote-total-gross"), quotePreviewCard: $("quote-preview-card"), quotePreviewContent: $("quote-preview-content"), quotePreviewClose: $("quote-preview-close"),
       clientSearch: $("client-search"), clientStatusFilter: $("client-status-filter"), projectSearch: $("project-search"), projectStatusFilter: $("project-status-filter"),
       clientsTable: $("clients-table"), projectsTable: $("projects-table"), ordersTable: $("orders-table"), invoicesTable: $("invoices-table"),
       projectClient: $("project-client"), orderProject: $("order-project"), orderClient: $("order-client"), invoiceClient: $("invoice-client"),

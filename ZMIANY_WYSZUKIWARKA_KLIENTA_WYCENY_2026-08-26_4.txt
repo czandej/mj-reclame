@@ -1,0 +1,13 @@
+MJ Reclame — v19 — wyszukiwarka klienta w module Wyceny / Oferty
+
+Zakres jednej zmiany:
+- zwykła lista klienta w formularzu Wyceny / Oferty została zastąpiona wyszukiwarką Supabase,
+- wyszukiwanie po: nazwie/imieniu, firmie, e-mailu, telefonie, VAT i KvK,
+- maksymalnie 20 wyników na zapytanie, bez ładowania całej listy do pola wyboru,
+- widoczne dane rozróżniające klientów i oznaczenie klienta archiwalnego,
+- możliwość wyczyszczenia wyboru,
+- przycisk + Dodaj klienta; po zapisaniu nowego klienta program wraca do otwartej wyceny i wybiera go automatycznie,
+- przy tworzeniu wyceny z zapytania nadal działa automatyczne dopasowanie klienta po e-mailu,
+- brak zmian w strukturze bazy danych — nie trzeba wykonywać nowego SQL.
+
+Pozostałe moduły pozostają bez zmian.

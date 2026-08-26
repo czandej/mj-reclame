@@ -158,7 +158,20 @@
                 <select id="quote-type"><option value="Wycena">Wycena</option><option value="Oferta">Oferta</option></select>
               </label>
               <label>Numer dokumentu<input id="quote-number" required placeholder="WYC/2026/001"></label>
-              <label>Klient<select id="quote-client" required></select></label>
+              <div class="full quote-client-field">
+                <label for="quote-client-search">Klient</label>
+                <input id="quote-client" type="hidden">
+                <div class="quote-client-picker">
+                  <div class="quote-client-search-row">
+                    <input id="quote-client-search" type="search" autocomplete="off" placeholder="Szukaj: imię/nazwa, firma, e-mail, telefon, VAT lub KvK…" aria-autocomplete="list" aria-controls="quote-client-results">
+                    <button class="ghost" id="quote-client-clear" type="button">Wyczyść</button>
+                    <button class="secondary" id="quote-client-add" type="button">+ Dodaj klienta</button>
+                  </div>
+                  <div class="quote-client-selected" id="quote-client-selected" hidden></div>
+                  <div class="quote-client-results" id="quote-client-results" role="listbox" hidden></div>
+                  <p class="muted small-note quote-client-help">Wpisz fragment danych klienta. Program przeszukuje bazę Supabase i pokazuje maksymalnie 20 pasujących rekordów.</p>
+                </div>
+              </div>
               <label>Powiązane zapytanie o wycenę<select id="quote-inquiry"><option value="">Bez powiązanego zapytania</option></select></label>
               <label>Data dokumentu<input id="quote-date" type="date" required></label>
               <label>Ważna do<input id="quote-valid-until" type="date"></label>
