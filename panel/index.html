@@ -24,6 +24,7 @@
       <nav class="panel-nav" aria-label="Menu panelu firmowego">
         <button class="is-active" data-view="dashboard">Pulpit</button>
         <button data-view="inquiries">Zapytania o wycenę</button>
+        <button data-view="quotes">Wyceny / Oferty</button>
         <button data-view="clients">Klienci</button>
         <button data-view="projects">Projekty</button>
         <button data-view="orders">Usługi / zlecenia</button>
@@ -135,6 +136,98 @@
             </select>
           </div>
           <div class="table-wrap"><table><thead><tr><th>Data</th><th>Klient</th><th>Temat</th><th>Szczegóły</th><th>Status</th><th>Akcje</th></tr></thead><tbody id="inquiries-table"></tbody></table></div>
+        </section>
+
+        <section class="panel-view" data-panel-view="quotes">
+          <div class="panel-actions-row">
+            <div>
+              <p class="panel-kicker">Dokument handlowy przed realizacją</p>
+              <h2>Wyceny / Oferty</h2>
+            </div>
+            <button class="primary" id="quote-new-button" type="button">+ Nowa wycena / oferta</button>
+          </div>
+
+          <article class="panel-card inner form-card" id="quote-form-card" hidden>
+            <div class="panel-actions-row compact">
+              <h3 id="quote-form-title">Nowa wycena / oferta</h3>
+              <span class="muted small-note" id="quote-form-mode">Tryb: dodawanie</span>
+            </div>
+            <form id="quote-form" class="panel-form grid-form">
+              <input id="quote-id" type="hidden">
+              <label>Rodzaj dokumentu
+                <select id="quote-type"><option value="Wycena">Wycena</option><option value="Oferta">Oferta</option></select>
+              </label>
+              <label>Numer dokumentu<input id="quote-number" required placeholder="WYC/2026/001"></label>
+              <label>Klient<select id="quote-client" required></select></label>
+              <label>Powiązane zapytanie o wycenę<select id="quote-inquiry"><option value="">Bez powiązanego zapytania</option></select></label>
+              <label>Data dokumentu<input id="quote-date" type="date" required></label>
+              <label>Ważna do<input id="quote-valid-until" type="date"></label>
+              <label>Status
+                <select id="quote-status">
+                  <option>Robocza</option>
+                  <option>Gotowa</option>
+                  <option>Wysłana</option>
+                  <option>Zaakceptowana</option>
+                  <option>Odrzucona</option>
+                  <option>Wygasła</option>
+                  <option>Anulowana</option>
+                </select>
+              </label>
+              <label>Przewidywany termin realizacji<input id="quote-lead-time" placeholder="np. 7–10 dni roboczych"></label>
+
+              <div class="full quote-items-block">
+                <div class="panel-actions-row compact quote-items-heading">
+                  <div>
+                    <h3>Pozycje wyceny / oferty</h3>
+                    <p class="muted small-note">Każda pozycja zapisuje ilość, jednostkę, cenę netto i stawkę VAT.</p>
+                  </div>
+                  <button class="ghost" id="quote-add-item" type="button">+ Dodaj pozycję</button>
+                </div>
+                <div class="table-wrap quote-items-wrap">
+                  <table class="quote-items-table">
+                    <thead><tr><th>Opis</th><th>Ilość</th><th>Jednostka</th><th>Cena netto €</th><th>VAT %</th><th>Netto</th><th>Brutto</th><th></th></tr></thead>
+                    <tbody id="quote-items-body"></tbody>
+                  </table>
+                </div>
+                <div class="quote-totals" aria-live="polite">
+                  <div><span>Netto</span><strong id="quote-total-net">0,00 €</strong></div>
+                  <div><span>VAT</span><strong id="quote-total-vat">0,00 €</strong></div>
+                  <div><span>Brutto</span><strong id="quote-total-gross">0,00 €</strong></div>
+                </div>
+              </div>
+
+              <label class="full">Warunki / informacje dla klienta<textarea id="quote-terms" placeholder="Np. ważność wyceny, warunki realizacji, dostawy lub płatności"></textarea></label>
+              <label class="full">Notatki wewnętrzne<textarea id="quote-notes"></textarea></label>
+              <div class="form-buttons full">
+                <button class="primary" id="quote-submit-button" type="submit">Zapisz wycenę / ofertę</button>
+                <button class="ghost" id="quote-cancel-button" type="button">Anuluj</button>
+              </div>
+            </form>
+          </article>
+
+          <article class="panel-card inner quote-preview-card" id="quote-preview-card" hidden>
+            <div class="panel-actions-row compact">
+              <h3>Szczegóły wyceny / oferty</h3>
+              <button class="ghost" id="quote-preview-close" type="button">Zamknij</button>
+            </div>
+            <div id="quote-preview-content"></div>
+          </article>
+
+          <div class="table-tools wide-tools">
+            <input id="quote-search" placeholder="Szukaj po numerze, kliencie, pozycji, statusie…">
+            <select id="quote-status-filter" aria-label="Filtr statusu wyceny lub oferty">
+              <option value="open">Otwarte</option>
+              <option value="all">Wszystkie</option>
+              <option value="Robocza">Robocza</option>
+              <option value="Gotowa">Gotowa</option>
+              <option value="Wysłana">Wysłana</option>
+              <option value="Zaakceptowana">Zaakceptowana</option>
+              <option value="Odrzucona">Odrzucona</option>
+              <option value="Wygasła">Wygasła</option>
+              <option value="Anulowana">Anulowana</option>
+            </select>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>Numer</th><th>Klient</th><th>Data</th><th>Ważna do</th><th>Status</th><th>Brutto</th><th>Powiązanie</th><th>Akcje</th></tr></thead><tbody id="quotes-table"></tbody></table></div>
         </section>
 
         <section class="panel-view" data-panel-view="clients">
@@ -312,6 +405,7 @@
               <li>Dane klientów zapisują się w tabeli <code>company_clients</code> i pozostają widoczne po odświeżeniu strony.</li>
               <li>Projekty główne zapisują się w tabeli <code>company_projects</code>.</li>
               <li>Usługi/zlecenia zapisują się w tabeli <code>company_orders</code> i są łączone z projektem przez <code>project_id</code>.</li>
+              <li>Wyceny i oferty zapisują się w tabelach <code>company_quotes</code> i <code>company_quote_items</code>, z powiązaniem do klienta oraz opcjonalnie do zapytania o wycenę.</li>
               <li>Faktury zapisują się w tabeli <code>company_invoices</code>.</li>
               <li>Dostęp do danych mają tylko konta z rolą <code>admin</code> w tabeli <code>profiles</code>.</li>
             </ul>

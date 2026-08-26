@@ -1,0 +1,18 @@
+MJ Reclame — etap 3: Wyceny / Oferty
+
+Zakres jednej zmiany:
+- dodano zakładkę „Wyceny / Oferty” w panelu firmowym,
+- dokument jest obowiązkowo powiązany z klientem,
+- dokument może być opcjonalnie powiązany z „Zapytaniem o wycenę”,
+- z podglądu zapytania można rozpocząć nową wycenę/ofertę,
+- jeśli e-mail zapytania odpowiada istniejącemu klientowi, klient jest automatycznie podpowiadany,
+- dodano numer dokumentu, rodzaj Wycena/Oferta, datę, ważność, status, termin realizacji, warunki i notatki,
+- dodano dowolną liczbę pozycji dokumentu: opis, ilość, jednostka, cena netto i VAT,
+- wartości netto, VAT i brutto są liczone automatycznie,
+- można zapisać dokument, otworzyć podgląd i ponownie go edytować,
+- zmiana statusu wyceny synchronizuje status powiązanego zapytania (np. Wysłana -> Wycena wysłana),
+- faktury, projekty i usługi/zlecenia nie są w tym etapie przebudowywane,
+- nie ma jeszcze generowania PDF ani tworzenia faktury z wyceny — to kolejny etap po testach.
+
+Przed wdrożeniem strony wykonaj w Supabase:
+SUPABASE_SQL_WYCENY_OFERTY_2026-08-26_3.sql

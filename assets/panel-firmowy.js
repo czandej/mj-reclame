@@ -6,16 +6,19 @@
     user:null,
     profile:null,
     inquiries:[],
+    quotes:[],
+    quoteItems:[],
     clients:[],
     projects:[],
     orders:[],
     invoices:[],
     editingClientId:null,
-    editingProjectId:null
+    editingProjectId:null,
+    editingQuoteId:null
   };
 
   const els = {};
-  const statusesWarn = new Set(["Nowe","Nowy","Planowanie","Wstrzymany","Do wyceny","Wycenione","Po terminie"]);
+  const statusesWarn = new Set(["Nowe","Nowy","Planowanie","Wstrzymany","Do wyceny","Wycenione","Po terminie","Robocza","Gotowa","Wygasła"]);
   const statusesDanger = new Set(["Anulowane","Anulowany"]);
   const activeProjectStatuses = new Set(["Nowy","Planowanie","W toku","Wstrzymany"]);
 
@@ -90,7 +93,7 @@
   }
 
   async function loadAll(){
-    await Promise.all([loadInquiries(), loadClients(), loadProjects(), loadOrders(), loadInvoices()]);
+    await Promise.all([loadInquiries(), loadQuotes(), loadQuoteItems(), loadClients(), loadProjects(), loadOrders(), loadInvoices()]);
     renderAll();
   }
 
@@ -98,6 +101,18 @@
     const { data, error } = await state.sb.from("company_inquiries").select("*").order("created_at", {ascending:false});
     if(error){ notify("Nie udało się załadować zapytań: " + error.message, true); state.inquiries=[]; return; }
     state.inquiries = data || [];
+  }
+
+  async function loadQuotes(){
+    const { data, error } = await state.sb.from("company_quotes").select("*, company_clients(name, company_name, email)").order("created_at", {ascending:false});
+    if(error){ notify("Nie udało się załadować wycen/ofert: " + error.message, true); state.quotes=[]; return; }
+    state.quotes = data || [];
+  }
+
+  async function loadQuoteItems(){
+    const { data, error } = await state.sb.from("company_quote_items").select("*").order("position", {ascending:true});
+    if(error){ notify("Nie udało się załadować pozycji wycen/ofert: " + error.message, true); state.quoteItems=[]; return; }
+    state.quoteItems = data || [];
   }
 
   async function loadClients(){
@@ -126,7 +141,9 @@
 
   function renderAll(){
     renderInquiries();
+    renderQuotes();
     renderClientOptions();
+    renderQuoteInquiryOptions();
     renderProjectOptions();
     renderClients();
     renderProjects();
@@ -207,8 +224,114 @@
         <div class="full"><span>Dane produktu z katalogu</span><strong>${product}</strong></div>
         <div class="full"><span>Wiadomość</span><div class="inquiry-message">${message}</div></div>
         <div class="full"><span>Załączniki (${Number(i.attachment_count || 0)})</span>${files}</div>
+      </div>
+      <div class="form-buttons inquiry-preview-actions">
+        <button type="button" class="primary" data-quote-from-inquiry="${esc(i.id)}">+ Utwórz wycenę / ofertę</button>
       </div>`;
     els.inquiryPreviewCard.hidden = false;
+  }
+
+  function quoteStatusClass(status){
+    if(["Odrzucona","Anulowana"].includes(status)) return "status-danger";
+    if(["Robocza","Gotowa","Wygasła"].includes(status)) return "status-warn";
+    return "";
+  }
+
+  function quoteItemsFor(quoteId){
+    return state.quoteItems.filter(item => item.quote_id === quoteId).sort((a,b) => Number(a.position || 0) - Number(b.position || 0));
+  }
+
+  function quoteTotals(quoteId){
+    return quoteItemsFor(quoteId).reduce((acc,item) => {
+      acc.net += Number(item.line_net || 0);
+      acc.vat += Number(item.vat_amount || 0);
+      acc.gross += Number(item.line_gross || 0);
+      return acc;
+    }, {net:0, vat:0, gross:0});
+  }
+
+  function quoteInquiryLabel(inquiryId){
+    const i = state.inquiries.find(item => item.id === inquiryId);
+    if(!i) return "—";
+    const topic = i.service || i.product_inquiry || "Zapytanie";
+    return `${datePl(i.created_at)} • ${i.name || "Klient"} • ${topic}`;
+  }
+
+  function filteredQuotes(){
+    const query = (els.quoteSearch?.value || "").toLowerCase().trim();
+    const filter = els.quoteStatusFilter?.value || "open";
+    let rows = state.quotes;
+    if(filter === "open") rows = rows.filter(q => !["Zaakceptowana","Odrzucona","Anulowana"].includes(q.status || "Robocza"));
+    else if(filter !== "all") rows = rows.filter(q => (q.status || "Robocza") === filter);
+    if(query){
+      rows = rows.filter(q => {
+        const c = q.company_clients || {};
+        const items = quoteItemsFor(q.id).map(item => item.description).join(" ");
+        const inquiry = q.inquiry_id ? quoteInquiryLabel(q.inquiry_id) : "";
+        return [q.quote_number,q.quote_type,q.status,q.lead_time,q.terms,q.notes,c.name,c.company_name,c.email,items,inquiry]
+          .some(v => String(v || "").toLowerCase().includes(query));
+      });
+    }
+    return rows;
+  }
+
+  function renderQuotes(){
+    if(!els.quotesTable) return;
+    const rows = filteredQuotes();
+    if(!rows.length){ els.quotesTable.innerHTML = `<tr><td colspan="8" class="empty">Brak wycen lub ofert dla wybranego filtra.</td></tr>`; return; }
+    els.quotesTable.innerHTML = rows.map(q => {
+      const client = q.company_clients?.name || q.company_clients?.company_name || "—";
+      const total = quoteTotals(q.id);
+      return `<tr>
+        <td><strong>${esc(q.quote_number)}</strong><br><span class="muted">${esc(q.quote_type || "Wycena")}</span></td>
+        <td><strong>${esc(client)}</strong><br><span class="muted">${esc(q.company_clients?.email || "")}</span></td>
+        <td class="nowrap">${q.issue_date ? datePl(q.issue_date) : "—"}</td>
+        <td class="nowrap">${q.valid_until ? datePl(q.valid_until) : "—"}</td>
+        <td>${statusSelect("quote", q.id, q.status || "Robocza", ["Robocza","Gotowa","Wysłana","Zaakceptowana","Odrzucona","Wygasła","Anulowana"])}</td>
+        <td class="amount">${money(total.gross)}</td>
+        <td><span class="muted">${q.inquiry_id ? esc(quoteInquiryLabel(q.inquiry_id)) : "Bez zapytania"}</span></td>
+        <td class="row-actions"><button type="button" class="tiny secondary" data-quote-view="${esc(q.id)}">Podgląd</button><button type="button" class="tiny ghost" data-quote-edit="${esc(q.id)}">Edytuj</button></td>
+      </tr>`;
+    }).join("");
+  }
+
+  function renderQuotePreview(id){
+    const q = state.quotes.find(item => item.id === id);
+    if(!q){ notify("Nie znaleziono wyceny/oferty.", true); return; }
+    const client = q.company_clients?.name || q.company_clients?.company_name || "—";
+    const items = quoteItemsFor(id);
+    const totals = quoteTotals(id);
+    const rows = items.length ? items.map(item => `<tr>
+      <td>${esc(item.description)}</td><td>${esc(item.quantity)}</td><td>${esc(item.unit)}</td><td class="amount">${money(item.unit_net)}</td><td>${esc(item.vat_rate)}%</td><td class="amount">${money(item.line_net)}</td><td class="amount">${money(item.line_gross)}</td>
+    </tr>`).join("") : `<tr><td colspan="7" class="empty">Brak pozycji.</td></tr>`;
+    els.quotePreviewContent.innerHTML = `
+      <div class="quote-summary-grid">
+        <div><span>Numer</span><strong>${esc(q.quote_number)}</strong></div>
+        <div><span>Rodzaj</span><strong>${esc(q.quote_type || "Wycena")}</strong></div>
+        <div><span>Status</span><strong>${esc(q.status || "Robocza")}</strong></div>
+        <div><span>Klient</span><strong>${esc(client)}</strong></div>
+        <div><span>Data</span><strong>${datePl(q.issue_date)}</strong></div>
+        <div><span>Ważna do</span><strong>${datePl(q.valid_until)}</strong></div>
+        <div class="full"><span>Powiązane zapytanie</span><strong>${q.inquiry_id ? esc(quoteInquiryLabel(q.inquiry_id)) : "Bez powiązanego zapytania"}</strong></div>
+        <div><span>Termin realizacji</span><strong>${esc(q.lead_time || "—")}</strong></div>
+        <div><span>Netto</span><strong>${money(totals.net)}</strong></div>
+        <div><span>VAT</span><strong>${money(totals.vat)}</strong></div>
+        <div><span>Brutto</span><strong>${money(totals.gross)}</strong></div>
+        <div class="full"><span>Warunki / informacje dla klienta</span><div class="inquiry-message">${esc(q.terms || "—").replace(/\n/g,"<br>")}</div></div>
+        <div class="full"><span>Notatki wewnętrzne</span><div class="inquiry-message">${esc(q.notes || "—").replace(/\n/g,"<br>")}</div></div>
+      </div>
+      <h4 class="project-services-heading">Pozycje dokumentu</h4>
+      <div class="table-wrap quote-preview-items"><table><thead><tr><th>Opis</th><th>Ilość</th><th>Jedn.</th><th>Cena netto</th><th>VAT</th><th>Netto</th><th>Brutto</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="form-buttons quote-preview-actions"><button type="button" class="primary" data-quote-edit="${esc(q.id)}">Edytuj wycenę / ofertę</button></div>`;
+    els.quotePreviewCard.hidden = false;
+  }
+
+  function renderQuoteInquiryOptions(){
+    if(!els.quoteInquiry) return;
+    const current = els.quoteInquiry.value;
+    const html = state.inquiries.map(i => `<option value="${esc(i.id)}">${esc(quoteInquiryLabel(i.id))} • ${esc(i.status || "Nowe")}</option>`).join("");
+    els.quoteInquiry.innerHTML = '<option value="">Bez powiązanego zapytania</option>' + html;
+    if(state.inquiries.some(i => i.id === current)) els.quoteInquiry.value = current;
   }
 
   function clientDisplayName(c){
@@ -226,9 +349,13 @@
       return sa - sb || clientDisplayName(a).localeCompare(clientDisplayName(b), "pl");
     });
     const html = rows.map(c => `<option value="${esc(c.id)}">${esc(clientDisplayName(c))}${(c.status || "active") !== "active" ? " — archiwalny" : ""}</option>`).join("");
-    [els.projectClient, els.invoiceClient].forEach(select => {
+    [els.projectClient, els.invoiceClient, els.quoteClient].forEach(select => {
       if(!select) return;
-      select.innerHTML = html || '<option value="">Najpierw dodaj klienta</option>';
+      const current = select.value;
+      const placeholder = select === els.quoteClient ? '<option value="">Wybierz klienta…</option>' : '';
+      select.innerHTML = rows.length ? placeholder + html : '<option value="">Najpierw dodaj klienta</option>';
+      if(rows.some(c => c.id === current)) select.value = current;
+      else if(select === els.quoteClient) select.value = "";
     });
   }
 
@@ -303,6 +430,11 @@
     if(!c){ notify("Nie znaleziono klienta.", true); return; }
     const address = [c.address, c.postal_code, c.city, c.country].filter(Boolean).join("<br>") || "—";
     const projects = state.projects.filter(p => p.client_id === id);
+    const quotes = state.quotes.filter(q => q.client_id === id);
+    const quoteRows = quotes.length ? quotes.map(q => {
+      const total = quoteTotals(q.id);
+      return `<tr><td><strong>${esc(q.quote_number)}</strong><br><span class="muted">${esc(q.quote_type)}</span></td><td>${datePl(q.issue_date)}</td><td><span class="status-pill ${quoteStatusClass(q.status || "Robocza")}">${esc(q.status || "Robocza")}</span></td><td class="amount">${money(total.gross)}</td><td><button type="button" class="tiny secondary" data-quote-view="${esc(q.id)}">Podgląd</button></td></tr>`;
+    }).join("") : `<tr><td colspan="5" class="empty">Brak wycen/ofert dla tego klienta.</td></tr>`;
     els.clientPreviewContent.innerHTML = `
       <div class="client-card-grid">
         <div><span>Nazwa</span><strong>${esc(c.name || "—")}</strong></div>
@@ -313,14 +445,18 @@
         <div><span>KvK</span><strong>${esc(c.kvk_number || "—")}</strong></div>
         <div><span>Status</span><strong>${clientStatusLabel(c.status)}</strong></div>
         <div><span>Projekty</span><strong>${projects.length}</strong></div>
+        <div><span>Wyceny / oferty</span><strong>${quotes.length}</strong></div>
         <div class="full"><span>Adres</span><strong>${address}</strong></div>
         <div class="full"><span>Notatki</span><strong>${esc(c.notes || "—")}</strong></div>
       </div>
       <div class="form-buttons">
         <button type="button" class="primary" data-client-edit="${esc(c.id)}">Edytuj klienta</button>
+        <button type="button" class="ghost" data-quote-new-for-client="${esc(c.id)}">+ Wycena / oferta</button>
         <button type="button" class="ghost" data-project-new-for-client="${esc(c.id)}">+ Projekt dla klienta</button>
         <a class="ghost link-button" href="mailto:${esc(c.email || "")}" ${c.email ? "" : "aria-disabled='true'"}>Napisz e-mail</a>
-      </div>`;
+      </div>
+      <h4 class="project-services-heading">Wyceny / oferty klienta</h4>
+      <div class="table-wrap client-quotes-table"><table><thead><tr><th>Dokument</th><th>Data</th><th>Status</th><th>Brutto</th><th>Akcje</th></tr></thead><tbody>${quoteRows}</tbody></table></div>`;
     els.clientPreviewCard.hidden = false;
   }
 
@@ -448,7 +584,7 @@
   }
 
   function statusSelect(type, id, value, options){
-    const cls = type === "project" ? projectStatusClass(value) : type === "inquiry" ? inquiryStatusClass(value) : statusesDanger.has(value) ? "status-danger" : statusesWarn.has(value) ? "status-warn" : "";
+    const cls = type === "project" ? projectStatusClass(value) : type === "inquiry" ? inquiryStatusClass(value) : type === "quote" ? quoteStatusClass(value) : statusesDanger.has(value) ? "status-danger" : statusesWarn.has(value) ? "status-warn" : "";
     return `<select class="table-select ${cls}" data-status-type="${type}" data-id="${esc(id)}">${options.map(o => `<option ${o===value?"selected":""}>${esc(o)}</option>`).join("")}</select>`;
   }
 
@@ -733,6 +869,209 @@
     notify(projectId ? "Usługa została przypisana do projektu." : "Usługa została odłączona od projektu.");
   }
 
+  function addDaysISO(dateValue, days){
+    const base = dateValue ? new Date(`${dateValue}T12:00:00`) : new Date();
+    if(Number.isNaN(base.getTime())) return "";
+    base.setDate(base.getDate() + days);
+    return base.toISOString().slice(0,10);
+  }
+
+  function quotePrefix(type){ return type === "Oferta" ? "OF" : "WYC"; }
+
+  function proposeQuoteNumber(type){
+    const year = new Date().getFullYear();
+    const prefix = quotePrefix(type);
+    let max = 0;
+    state.quotes.forEach(q => {
+      const m = String(q.quote_number || "").match(new RegExp(`^${prefix}/${year}/(\\d+)$`, "i"));
+      if(m) max = Math.max(max, Number(m[1] || 0));
+    });
+    return `${prefix}/${year}/${String(max + 1).padStart(3,"0")}`;
+  }
+
+  function quoteItemRowHtml(item={}){
+    const units = ["szt.","kpl.","godz.","str.","egz.","mb","m²","kg","usł."].map(unit => `<option value="${unit}" ${String(item.unit || "szt.")===unit?"selected":""}>${unit}</option>`).join("");
+    const quantity = Number(item.quantity ?? 1) || 1;
+    const unitNet = Number(item.unit_net ?? 0) || 0;
+    const vatRate = Number(item.vat_rate ?? 21);
+    return `<tr class="quote-item-row">
+      <td><input class="quote-item-description" required value="${esc(item.description || "")}" placeholder="np. Koszulka z nadrukiem DTF"></td>
+      <td><input class="quote-item-qty" inputmode="decimal" value="${esc(quantity)}" aria-label="Ilość"></td>
+      <td><select class="quote-item-unit" aria-label="Jednostka">${units}</select></td>
+      <td><input class="quote-item-price" inputmode="decimal" value="${unitNet ? esc(String(unitNet).replace(".",",")) : ""}" placeholder="0,00" aria-label="Cena netto"></td>
+      <td><input class="quote-item-vat" inputmode="decimal" value="${esc(String(vatRate).replace(".",","))}" aria-label="VAT procent"></td>
+      <td class="amount quote-item-net">${money(quantity * unitNet)}</td>
+      <td class="amount quote-item-gross">${money(quantity * unitNet * (1 + vatRate/100))}</td>
+      <td><button type="button" class="tiny danger-btn" data-quote-item-remove>Usuń</button></td>
+    </tr>`;
+  }
+
+  function addQuoteItemRow(item={}){
+    els.quoteItemsBody.insertAdjacentHTML("beforeend", quoteItemRowHtml(item));
+    calculateQuoteForm();
+  }
+
+  function calculateQuoteForm(){
+    let totalNet = 0, totalVat = 0, totalGross = 0;
+    qsa("#quote-items-body .quote-item-row").forEach(row => {
+      const qty = Math.max(0, parseAmount(row.querySelector(".quote-item-qty")?.value));
+      const unitNet = Math.max(0, parseAmount(row.querySelector(".quote-item-price")?.value));
+      const rate = Math.max(0, parseAmount(row.querySelector(".quote-item-vat")?.value));
+      const net = qty * unitNet;
+      const vat = net * rate / 100;
+      const gross = net + vat;
+      row.querySelector(".quote-item-net").textContent = money(net);
+      row.querySelector(".quote-item-gross").textContent = money(gross);
+      totalNet += net; totalVat += vat; totalGross += gross;
+    });
+    els.quoteTotalNet.textContent = money(totalNet);
+    els.quoteTotalVat.textContent = money(totalVat);
+    els.quoteTotalGross.textContent = money(totalGross);
+  }
+
+  function readQuoteItemsFromForm(){
+    const rows = qsa("#quote-items-body .quote-item-row");
+    if(!rows.length) throw new Error("Dodaj przynajmniej jedną pozycję wyceny/oferty.");
+    return rows.map((row,idx) => {
+      const description = row.querySelector(".quote-item-description").value.trim();
+      const quantity = parseAmount(row.querySelector(".quote-item-qty").value);
+      const unit = row.querySelector(".quote-item-unit").value || "szt.";
+      const unitNet = parseAmount(row.querySelector(".quote-item-price").value);
+      const vatRate = parseAmount(row.querySelector(".quote-item-vat").value || "21");
+      if(!description) throw new Error(`Podaj opis pozycji ${idx+1}.`);
+      if(quantity <= 0) throw new Error(`Ilość w pozycji ${idx+1} musi być większa od zera.`);
+      if(unitNet < 0) throw new Error(`Cena w pozycji ${idx+1} nie może być ujemna.`);
+      if(vatRate < 0 || vatRate > 100) throw new Error(`Stawka VAT w pozycji ${idx+1} jest nieprawidłowa.`);
+      return {position:idx+1, description, quantity, unit, unit_net:unitNet, vat_rate:vatRate};
+    });
+  }
+
+  function resetQuoteForm(){
+    state.editingQuoteId = null;
+    els.quoteForm.reset();
+    $("quote-id").value = "";
+    $("quote-type").value = "Wycena";
+    $("quote-date").value = todayISO();
+    $("quote-valid-until").value = addDaysISO(todayISO(),14);
+    $("quote-status").value = "Robocza";
+    renderClientOptions();
+    renderQuoteInquiryOptions();
+    $("quote-number").value = proposeQuoteNumber("Wycena");
+    els.quoteItemsBody.innerHTML = "";
+    addQuoteItemRow();
+    els.quoteFormTitle.textContent = "Nowa wycena / oferta";
+    els.quoteFormMode.textContent = "Tryb: dodawanie";
+    els.quoteSubmitButton.textContent = "Zapisz wycenę / ofertę";
+  }
+
+  function openQuoteFormForNew(inquiryId=null, clientId=null){
+    resetQuoteForm();
+    if(clientId && state.clients.some(c => c.id === clientId)) els.quoteClient.value = clientId;
+    if(inquiryId){
+      const i = state.inquiries.find(item => item.id === inquiryId);
+      if(i){
+        els.quoteInquiry.value = inquiryId;
+        const email = String(i.email || "").trim().toLowerCase();
+        const matched = email ? state.clients.find(c => String(c.email || "").trim().toLowerCase() === email) : null;
+        if(matched) els.quoteClient.value = matched.id;
+        const first = els.quoteItemsBody.querySelector(".quote-item-description");
+        if(first) first.value = i.service || i.product_inquiry || "";
+      }
+    }
+    els.quoteFormCard.hidden = false;
+    els.quotePreviewCard.hidden = true;
+    setView("quotes");
+    $("quote-number").focus();
+  }
+
+  function openQuoteFormForEdit(id){
+    const q = state.quotes.find(item => item.id === id);
+    if(!q){ notify("Nie znaleziono wyceny/oferty do edycji.", true); return; }
+    state.editingQuoteId = id;
+    renderClientOptions();
+    renderQuoteInquiryOptions();
+    $("quote-id").value = q.id;
+    $("quote-type").value = q.quote_type || "Wycena";
+    $("quote-number").value = q.quote_number || "";
+    els.quoteClient.value = q.client_id || "";
+    els.quoteInquiry.value = q.inquiry_id || "";
+    $("quote-date").value = q.issue_date || todayISO();
+    $("quote-valid-until").value = q.valid_until || "";
+    $("quote-status").value = q.status || "Robocza";
+    $("quote-lead-time").value = q.lead_time || "";
+    $("quote-terms").value = q.terms || "";
+    $("quote-notes").value = q.notes || "";
+    els.quoteItemsBody.innerHTML = "";
+    const items = quoteItemsFor(id);
+    if(items.length) items.forEach(addQuoteItemRow); else addQuoteItemRow();
+    els.quoteFormTitle.textContent = `Edycja: ${q.quote_number}`;
+    els.quoteFormMode.textContent = "Tryb: edycja";
+    els.quoteSubmitButton.textContent = "Zapisz zmiany";
+    els.quoteFormCard.hidden = false;
+    els.quotePreviewCard.hidden = true;
+    setView("quotes");
+    $("quote-number").focus();
+  }
+
+  async function syncInquiryFromQuote(quote){
+    if(!quote.inquiry_id) return;
+    const map = {"Robocza":"Przygotowanie wyceny","Gotowa":"Przygotowanie wyceny","Wysłana":"Wycena wysłana","Zaakceptowana":"Zaakceptowane","Odrzucona":"Odrzucone"};
+    const target = map[quote.status];
+    if(!target) return;
+    const { error } = await state.sb.from("company_inquiries").update({status:target}).eq("id",quote.inquiry_id);
+    if(error) console.warn("Nie zsynchronizowano statusu zapytania:", error);
+  }
+
+  async function saveQuote(e){
+    e.preventDefault();
+    let items;
+    try { items = readQuoteItemsFromForm(); }
+    catch(err){ return notify(err.message, true); }
+    const payload = {
+      client_id: els.quoteClient.value || null,
+      inquiry_id: els.quoteInquiry.value || null,
+      quote_type: $("quote-type").value || "Wycena",
+      quote_number: $("quote-number").value.trim(),
+      issue_date: $("quote-date").value || null,
+      valid_until: $("quote-valid-until").value || null,
+      status: $("quote-status").value || "Robocza",
+      lead_time: $("quote-lead-time").value.trim() || null,
+      terms: $("quote-terms").value.trim() || null,
+      notes: $("quote-notes").value.trim() || null
+    };
+    if(!payload.client_id) return notify("Wybierz klienta wyceny/oferty.", true);
+    if(!payload.quote_number) return notify("Podaj numer wyceny/oferty.", true);
+    if(!payload.issue_date) return notify("Podaj datę dokumentu.", true);
+
+    const wasEditing = Boolean(state.editingQuoteId);
+    let quoteId = state.editingQuoteId;
+    if(quoteId){
+      const { error } = await state.sb.from("company_quotes").update(payload).eq("id", quoteId);
+      if(error) return notify("Nie zapisano wyceny/oferty: " + error.message, true);
+      const { error: deleteError } = await state.sb.from("company_quote_items").delete().eq("quote_id",quoteId);
+      if(deleteError) return notify("Nie zapisano nowych pozycji dokumentu: " + deleteError.message, true);
+    } else {
+      payload.created_by = state.user.id;
+      const { data, error } = await state.sb.from("company_quotes").insert(payload).select("id").single();
+      if(error) return notify("Nie zapisano wyceny/oferty: " + error.message, true);
+      quoteId = data.id;
+    }
+
+    const rows = items.map(item => ({...item, quote_id:quoteId}));
+    const { error: itemError } = await state.sb.from("company_quote_items").insert(rows);
+    if(itemError){
+      if(!state.editingQuoteId) await state.sb.from("company_quotes").delete().eq("id",quoteId);
+      return notify("Nie zapisano pozycji wyceny/oferty: " + itemError.message, true);
+    }
+
+    await syncInquiryFromQuote({...payload,id:quoteId});
+    resetQuoteForm();
+    els.quoteFormCard.hidden = true;
+    await Promise.all([loadQuotes(),loadQuoteItems(),loadInquiries()]);
+    renderAll();
+    notify(wasEditing ? "Zmiany wyceny/oferty zostały zapisane." : "Wycena/oferta została zapisana.");
+  }
+
   async function addInvoice(e){
     e.preventDefault();
     const net = parseAmount($("invoice-net").value);
@@ -775,12 +1114,18 @@
     const type = select.dataset.statusType;
     const id = select.dataset.id;
     const status = select.value;
-    const table = type === "order" ? "company_orders" : type === "project" ? "company_projects" : type === "inquiry" ? "company_inquiries" : "company_invoices";
+    const table = type === "order" ? "company_orders" : type === "project" ? "company_projects" : type === "inquiry" ? "company_inquiries" : type === "quote" ? "company_quotes" : "company_invoices";
     const { error } = await state.sb.from(table).update({ status }).eq("id", id);
     if(error){ notify("Nie zapisano statusu: " + error.message, true); return; }
     if(type === "order") await loadOrders();
     else if(type === "project") await loadProjects();
     else if(type === "inquiry") await loadInquiries();
+    else if(type === "quote"){
+      await loadQuotes();
+      const quote = state.quotes.find(q => q.id === id);
+      if(quote) await syncInquiryFromQuote(quote);
+      await loadInquiries();
+    }
     else await loadInvoices();
     renderAll();
     notify("Status został zaktualizowany.");
@@ -802,22 +1147,35 @@
     els.clientForm.addEventListener("submit", saveClient);
     els.projectForm.addEventListener("submit", saveProject);
     els.orderForm.addEventListener("submit", addOrder);
+    els.quoteForm.addEventListener("submit", saveQuote);
     els.invoiceForm.addEventListener("submit", addInvoice);
     els.inquirySearch.addEventListener("input", renderInquiries);
     els.inquiryStatusFilter.addEventListener("change", renderInquiries);
+    els.quoteSearch.addEventListener("input", renderQuotes);
+    els.quoteStatusFilter.addEventListener("change", renderQuotes);
     els.clientSearch.addEventListener("input", renderClients);
     els.clientStatusFilter.addEventListener("change", renderClients);
     els.projectSearch.addEventListener("input", renderProjects);
     els.projectStatusFilter.addEventListener("change", renderProjects);
     els.clientNewButton.addEventListener("click", openClientFormForNew);
+    els.quoteNewButton.addEventListener("click", () => openQuoteFormForNew());
     els.projectNewButton.addEventListener("click", () => openProjectFormForNew());
     els.clientCancelButton.addEventListener("click", () => { resetClientForm(); els.clientFormCard.hidden = true; });
+    els.quoteCancelButton.addEventListener("click", () => { resetQuoteForm(); els.quoteFormCard.hidden = true; });
     els.projectCancelButton.addEventListener("click", () => { resetProjectForm(); els.projectFormCard.hidden = true; });
     els.inquiryPreviewClose.addEventListener("click", () => { els.inquiryPreviewCard.hidden = true; });
+    els.quotePreviewClose.addEventListener("click", () => { els.quotePreviewCard.hidden = true; });
     els.clientPreviewClose.addEventListener("click", () => { els.clientPreviewCard.hidden = true; });
     els.projectPreviewClose.addEventListener("click", () => { els.projectPreviewCard.hidden = true; });
     els.orderProject.addEventListener("change", syncOrderClientFromProject);
+    els.quoteAddItem.addEventListener("click", () => addQuoteItemRow());
+    $("quote-type").addEventListener("change", () => { if(!state.editingQuoteId) $("quote-number").value = proposeQuoteNumber($("quote-type").value); });
+    $("quote-date").addEventListener("change", () => { if(!$("quote-valid-until").value) $("quote-valid-until").value = addDaysISO($("quote-date").value,14); });
     [$("invoice-net"), $("invoice-vat-rate")].forEach(el => el.addEventListener("input", calculateInvoice));
+
+    document.addEventListener("input", e => {
+      if(e.target.closest("#quote-items-body")) calculateQuoteForm();
+    });
 
     document.addEventListener("change", e => {
       if(e.target.matches("select[data-status-type]")){ updateStatus(e.target); return; }
@@ -828,6 +1186,24 @@
       const inquiryView = e.target.closest("[data-inquiry-view]");
       if(inquiryView){ renderInquiryPreview(inquiryView.dataset.inquiryView); return; }
 
+      const quoteFromInquiry = e.target.closest("[data-quote-from-inquiry]");
+      if(quoteFromInquiry){ openQuoteFormForNew(quoteFromInquiry.dataset.quoteFromInquiry); return; }
+
+      const quoteView = e.target.closest("[data-quote-view]");
+      if(quoteView){ renderQuotePreview(quoteView.dataset.quoteView); return; }
+
+      const quoteEdit = e.target.closest("[data-quote-edit]");
+      if(quoteEdit){ openQuoteFormForEdit(quoteEdit.dataset.quoteEdit); return; }
+
+      const quoteRemove = e.target.closest("[data-quote-item-remove]");
+      if(quoteRemove){
+        const row = quoteRemove.closest(".quote-item-row");
+        if(row) row.remove();
+        if(!els.quoteItemsBody.querySelector(".quote-item-row")) addQuoteItemRow();
+        calculateQuoteForm();
+        return;
+      }
+
       const clientView = e.target.closest("[data-client-view]");
       if(clientView){ renderClientPreview(clientView.dataset.clientView); return; }
 
@@ -836,6 +1212,9 @@
 
       const clientToggle = e.target.closest("[data-client-toggle]");
       if(clientToggle){ updateClientStatus(clientToggle.dataset.clientToggle, clientToggle.dataset.targetStatus); return; }
+
+      const quoteForClient = e.target.closest("[data-quote-new-for-client]");
+      if(quoteForClient){ openQuoteFormForNew(null, quoteForClient.dataset.quoteNewForClient); return; }
 
       const projectForClient = e.target.closest("[data-project-new-for-client]");
       if(projectForClient){ openProjectFormForNew(projectForClient.dataset.projectNewForClient); return; }
@@ -865,8 +1244,9 @@
     Object.assign(els, {
       auth: $("auth-section"), locked: $("locked-section"), app: $("app-section"), user: $("panel-user-status"), message: $("panel-message"),
       logout: $("panel-logout"), loginForm: $("panel-login-form"), loginEmail: $("panel-login-email"), loginPassword: $("panel-login-password"), authMessage: $("panel-auth-message"),
-      refresh: $("refresh-all"), clientForm: $("client-form"), projectForm: $("project-form"), orderForm: $("order-form"), invoiceForm: $("invoice-form"),
+      refresh: $("refresh-all"), clientForm: $("client-form"), projectForm: $("project-form"), orderForm: $("order-form"), quoteForm: $("quote-form"), invoiceForm: $("invoice-form"),
       inquirySearch: $("inquiry-search"), inquiryStatusFilter: $("inquiry-status-filter"), inquiriesTable: $("inquiries-table"), inquiryPreviewCard: $("inquiry-preview-card"), inquiryPreviewContent: $("inquiry-preview-content"), inquiryPreviewClose: $("inquiry-preview-close"),
+      quoteSearch: $("quote-search"), quoteStatusFilter: $("quote-status-filter"), quotesTable: $("quotes-table"), quoteClient: $("quote-client"), quoteInquiry: $("quote-inquiry"), quoteFormCard: $("quote-form-card"), quoteFormTitle: $("quote-form-title"), quoteFormMode: $("quote-form-mode"), quoteSubmitButton: $("quote-submit-button"), quoteCancelButton: $("quote-cancel-button"), quoteNewButton: $("quote-new-button"), quoteItemsBody: $("quote-items-body"), quoteAddItem: $("quote-add-item"), quoteTotalNet: $("quote-total-net"), quoteTotalVat: $("quote-total-vat"), quoteTotalGross: $("quote-total-gross"), quotePreviewCard: $("quote-preview-card"), quotePreviewContent: $("quote-preview-content"), quotePreviewClose: $("quote-preview-close"),
       clientSearch: $("client-search"), clientStatusFilter: $("client-status-filter"), projectSearch: $("project-search"), projectStatusFilter: $("project-status-filter"),
       clientsTable: $("clients-table"), projectsTable: $("projects-table"), ordersTable: $("orders-table"), invoicesTable: $("invoices-table"),
       projectClient: $("project-client"), orderProject: $("order-project"), orderClient: $("order-client"), invoiceClient: $("invoice-client"),
@@ -884,6 +1264,8 @@
     bindEvents();
     $("invoice-date").value = todayISO();
     $("project-start-date").value = todayISO();
+    $("quote-date").value = todayISO();
+    $("quote-valid-until").value = addDaysISO(todayISO(),14);
     calculateInvoice();
     await initAuth();
   });

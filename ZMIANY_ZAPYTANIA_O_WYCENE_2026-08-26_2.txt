@@ -1,0 +1,12 @@
+MJ Reclame — 2026-08-26 — etap 2
+
+Zakres jednej zmiany:
+- moduł „Zapytania” został nazwany „Zapytania o wycenę”,
+- dashboard używa nowego nazewnictwa,
+- nowe statusy procesu: Nowe, W kontakcie, Przygotowanie wyceny, Wycena wysłana, Zaakceptowane, Zamknięte, Odrzucone,
+- migracja zachowuje istniejące dane i mapuje stare statusy:
+  Do wyceny -> Przygotowanie wyceny
+  Wycenione -> Wycena wysłana
+- formularze, e-mail i zapis do company_inquiries pozostają bez zmian.
+
+Następny planowany etap po teście: osobny moduł „Wyceny / Oferty” powiązany z klientem i zapytaniem o wycenę.
