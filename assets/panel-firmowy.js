@@ -199,6 +199,91 @@
     }).join("");
   }
 
+  function inquiryLinkedClient(inquiry){
+    if(!inquiry?.client_id) return null;
+    return state.clients.find(c => c.id === inquiry.client_id) || null;
+  }
+
+  function normalizeEmail(value){
+    return String(value || "").trim().toLowerCase();
+  }
+
+  function normalizePhone(value){
+    let digits = String(value || "").replace(/\D/g, "");
+    if(digits.startsWith("0031")) digits = "0" + digits.slice(4);
+    else if(digits.startsWith("31") && digits.length === 11) digits = "0" + digits.slice(2);
+    return digits;
+  }
+
+  function clientMatchesInquiry(inquiry){
+    const email = normalizeEmail(inquiry?.email);
+    const phone = normalizePhone(inquiry?.phone);
+    const byEmail = email ? state.clients.filter(c => normalizeEmail(c.email) === email) : [];
+    if(byEmail.length) return byEmail;
+    const byPhone = phone && phone.replace(/\D/g, "").length >= 6
+      ? state.clients.filter(c => normalizePhone(c.phone) === phone)
+      : [];
+    return byPhone;
+  }
+
+  async function ensureClientForInquiry(id){
+    const inquiry = state.inquiries.find(item => item.id === id);
+    if(!inquiry){ notify("Nie znaleziono zapytania o wycenę.", true); return null; }
+
+    const already = inquiryLinkedClient(inquiry);
+    if(already){
+      notify("Zapytanie jest już powiązane z klientem: " + clientDisplayName(already) + ".");
+      return already;
+    }
+
+    const matches = clientMatchesInquiry(inquiry);
+    if(matches.length > 1){
+      notify("Znaleziono kilku klientów z tym samym e-mailem lub telefonem. Wybierz klienta ręcznie, aby uniknąć błędnego powiązania.", true);
+      setView("clients");
+      if(els.clientSearch) els.clientSearch.value = inquiry.email || inquiry.phone || inquiry.name || "";
+      renderClients();
+      return null;
+    }
+
+    let clientRecord = matches[0] || null;
+    if(clientRecord){
+      const patch = {};
+      if(!clientRecord.email && inquiry.email) patch.email = inquiry.email;
+      if(!clientRecord.phone && inquiry.phone) patch.phone = inquiry.phone;
+      if(Object.keys(patch).length){
+        const { data, error } = await state.sb.from("company_clients").update(patch).eq("id", clientRecord.id).select("*").single();
+        if(error) return notify("Nie udało się uzupełnić danych istniejącego klienta: " + error.message, true), null;
+        clientRecord = data || clientRecord;
+      }
+    } else {
+      const payload = {
+        created_by: state.user.id,
+        name: String(inquiry.name || inquiry.email || "Klient z zapytania").trim(),
+        company_name: null,
+        email: inquiry.email || null,
+        phone: inquiry.phone || null,
+        vat_number: null,
+        kvk_number: null,
+        status: "active",
+        country: "Nederland",
+        address: null,
+        notes: `Utworzono automatycznie z zapytania o wycenę z dnia ${datePl(inquiry.created_at)}.`
+      };
+      const { data, error } = await state.sb.from("company_clients").insert(payload).select("*").single();
+      if(error) return notify("Nie udało się utworzyć klienta z zapytania: " + error.message, true), null;
+      clientRecord = data;
+    }
+
+    const { error: linkError } = await state.sb.from("company_inquiries").update({client_id:clientRecord.id}).eq("id", inquiry.id);
+    if(linkError) return notify("Klient został znaleziony/utworzony, ale nie udało się powiązać go z zapytaniem: " + linkError.message, true), null;
+
+    await Promise.all([loadClients(), loadInquiries()]);
+    renderAll();
+    renderInquiryPreview(id);
+    notify(matches.length ? "Zapytanie zostało powiązane z istniejącym klientem." : "Klient został utworzony i powiązany z zapytaniem.");
+    return state.clients.find(c => c.id === clientRecord.id) || clientRecord;
+  }
+
   function renderInquiryPreview(id){
     const i = state.inquiries.find(item => item.id === id);
     if(!i){ notify("Nie znaleziono zapytania o wycenę.", true); return; }
@@ -214,6 +299,11 @@
     ].filter(Boolean).join("<br>") || "—";
     const message = esc(i.message || "—").replace(/\n/g, "<br>");
 
+    const linkedClient = inquiryLinkedClient(i);
+    const linkedClientInfo = linkedClient
+      ? `<div class="full"><span>Powiązany klient</span><strong>${esc(clientDisplayName(linkedClient))}${linkedClient.email ? ` • ${esc(linkedClient.email)}` : ""}</strong></div>`
+      : `<div class="full"><span>Powiązany klient</span><strong>Brak — utwórz lub powiąż klienta z tego zapytania.</strong></div>`;
+
     els.inquiryPreviewContent.innerHTML = `
       <div class="inquiry-summary-grid">
         <div><span>Data</span><strong>${datePl(i.created_at)}</strong></div>
@@ -222,6 +312,7 @@
         <div><span>Klient</span><strong>${esc(i.name || "—")}</strong></div>
         <div><span>E-mail</span><strong>${i.email ? `<a href="mailto:${esc(i.email)}">${esc(i.email)}</a>` : "—"}</strong></div>
         <div><span>Telefon</span><strong>${esc(i.phone || "—")}</strong></div>
+        ${linkedClientInfo}
         <div><span>Usługa</span><strong>${esc(i.service || "—")}</strong></div>
         <div><span>Ilość / nakład</span><strong>${esc(i.quantity || "—")}</strong></div>
         <div><span>Termin</span><strong>${esc(i.deadline || "—")}</strong></div>
@@ -230,6 +321,9 @@
         <div class="full"><span>Załączniki (${Number(i.attachment_count || 0)})</span>${files}</div>
       </div>
       <div class="form-buttons inquiry-preview-actions">
+        ${linkedClient
+          ? `<button type="button" class="secondary" data-client-view="${esc(linkedClient.id)}">Karta klienta</button>`
+          : `<button type="button" class="secondary" data-client-from-inquiry="${esc(i.id)}">+ Utwórz / powiąż klienta</button>`}
         <button type="button" class="primary" data-quote-from-inquiry="${esc(i.id)}">+ Utwórz wycenę / ofertę</button>
       </div>`;
     els.inquiryPreviewCard.hidden = false;
@@ -589,11 +683,15 @@
     if(!c){ notify("Nie znaleziono klienta.", true); return; }
     const address = [c.address, c.postal_code, c.city, c.country].filter(Boolean).join("<br>") || "—";
     const projects = state.projects.filter(p => p.client_id === id);
+    const inquiries = state.inquiries.filter(i => i.client_id === id);
     const quotes = state.quotes.filter(q => q.client_id === id);
     const quoteRows = quotes.length ? quotes.map(q => {
       const total = quoteTotals(q.id);
       return `<tr><td><strong>${esc(q.quote_number)}</strong><br><span class="muted">${esc(q.quote_type)}</span></td><td>${datePl(q.issue_date)}</td><td><span class="status-pill ${quoteStatusClass(q.status || "Robocza")}">${esc(q.status || "Robocza")}</span></td><td class="amount">${money(total.gross)}</td><td><button type="button" class="tiny secondary" data-quote-view="${esc(q.id)}">Podgląd</button></td></tr>`;
     }).join("") : `<tr><td colspan="5" class="empty">Brak wycen/ofert dla tego klienta.</td></tr>`;
+    const inquiryRows = inquiries.length ? inquiries.map(i => `
+      <tr><td>${datePl(i.created_at)}</td><td>${esc(i.service || i.product_inquiry || "Inne")}</td><td><span class="status-pill ${inquiryStatusClass(i.status || "Nowe")}">${esc(i.status || "Nowe")}</span></td><td><button type="button" class="tiny secondary" data-inquiry-view="${esc(i.id)}">Podgląd</button></td></tr>`).join("")
+      : `<tr><td colspan="4" class="empty">Brak zapytań o wycenę powiązanych z tym klientem.</td></tr>`;
     els.clientPreviewContent.innerHTML = `
       <div class="client-card-grid">
         <div><span>Nazwa</span><strong>${esc(c.name || "—")}</strong></div>
@@ -604,6 +702,7 @@
         <div><span>KvK</span><strong>${esc(c.kvk_number || "—")}</strong></div>
         <div><span>Status</span><strong>${clientStatusLabel(c.status)}</strong></div>
         <div><span>Projekty</span><strong>${projects.length}</strong></div>
+        <div><span>Zapytania o wycenę</span><strong>${inquiries.length}</strong></div>
         <div><span>Wyceny / oferty</span><strong>${quotes.length}</strong></div>
         <div class="full"><span>Adres</span><strong>${address}</strong></div>
         <div class="full"><span>Notatki</span><strong>${esc(c.notes || "—")}</strong></div>
@@ -614,6 +713,8 @@
         <button type="button" class="ghost" data-project-new-for-client="${esc(c.id)}">+ Projekt dla klienta</button>
         <a class="ghost link-button" href="mailto:${esc(c.email || "")}" ${c.email ? "" : "aria-disabled='true'"}>Napisz e-mail</a>
       </div>
+      <h4 class="project-services-heading">Zapytania o wycenę klienta</h4>
+      <div class="table-wrap client-quotes-table"><table><thead><tr><th>Data</th><th>Temat / usługa</th><th>Status</th><th>Akcje</th></tr></thead><tbody>${inquiryRows}</tbody></table></div>
       <h4 class="project-services-heading">Wyceny / oferty klienta</h4>
       <div class="table-wrap client-quotes-table"><table><thead><tr><th>Dokument</th><th>Data</th><th>Status</th><th>Brutto</th><th>Akcje</th></tr></thead><tbody>${quoteRows}</tbody></table></div>`;
     els.clientPreviewCard.hidden = false;
@@ -1148,8 +1249,9 @@
       const i = state.inquiries.find(item => item.id === inquiryId);
       if(i){
         els.quoteInquiry.value = inquiryId;
+        const linked = i.client_id ? state.clients.find(c => c.id === i.client_id) : null;
         const email = String(i.email || "").trim().toLowerCase();
-        const matched = email ? state.clients.find(c => String(c.email || "").trim().toLowerCase() === email) : null;
+        const matched = linked || (email ? state.clients.find(c => String(c.email || "").trim().toLowerCase() === email) : null);
         if(matched){
           setQuoteClientSelection(matched);
         } else if(els.quoteClientSearch){
@@ -1382,9 +1484,12 @@
       if(e.target.matches("select[data-order-project]")){ updateOrderProject(e.target); }
     });
 
-    document.addEventListener("click", e => {
+    document.addEventListener("click", async e => {
       const inquiryView = e.target.closest("[data-inquiry-view]");
-      if(inquiryView){ renderInquiryPreview(inquiryView.dataset.inquiryView); return; }
+      if(inquiryView){ setView("inquiries"); renderInquiryPreview(inquiryView.dataset.inquiryView); return; }
+
+      const clientFromInquiry = e.target.closest("[data-client-from-inquiry]");
+      if(clientFromInquiry){ await ensureClientForInquiry(clientFromInquiry.dataset.clientFromInquiry); return; }
 
       const quoteFromInquiry = e.target.closest("[data-quote-from-inquiry]");
       if(quoteFromInquiry){ openQuoteFormForNew(quoteFromInquiry.dataset.quoteFromInquiry); return; }
@@ -1420,7 +1525,7 @@
       if(els.quoteClientResults && !e.target.closest(".quote-client-picker")) els.quoteClientResults.hidden = true;
 
       const clientView = e.target.closest("[data-client-view]");
-      if(clientView){ renderClientPreview(clientView.dataset.clientView); return; }
+      if(clientView){ setView("clients"); renderClientPreview(clientView.dataset.clientView); return; }
 
       const clientEdit = e.target.closest("[data-client-edit]");
       if(clientEdit){ openClientFormForEdit(clientEdit.dataset.clientEdit); return; }
