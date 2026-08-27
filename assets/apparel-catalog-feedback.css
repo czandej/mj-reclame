@@ -1,0 +1,99 @@
+/* MJ Reclame — izolowane poprawki katalogu. Ładowane TYLKO na podstronie Odzież z nadrukiem. */
+/* === Podgląd 2026-08-27: feedback dodania + pełny kontrast informacji katalogu === */
+body.mj-preview-service .product-section-head h2 {
+  color:#242b27!important;
+  font-family:Manrope,Arial,sans-serif!important;
+  font-size:clamp(1.8rem,3vw,2.75rem)!important;
+  font-weight:850!important;
+  line-height:1.12!important;
+  letter-spacing:-.035em!important;
+  text-transform:none!important;
+}
+body.mj-preview-service .product-section-head .story-lead {
+  color:#56615b!important;
+  opacity:1!important;
+  font-size:1rem!important;
+  line-height:1.65!important;
+}
+body.mj-preview-service .copy-card .selected-summary {
+  background:#f1f8ee!important;
+  color:#26302b!important;
+  border:1px solid #b7d9ad!important;
+  font-weight:800!important;
+  opacity:1!important;
+}
+body.mj-preview-service .copy-card .sales-label,
+body.mj-preview-service .copy-card .sales-fast b {
+  color:#56615b!important;
+  opacity:1!important;
+}
+body.mj-preview-service .copy-card .sales-type,
+body.mj-preview-service .copy-card .sales-fast span {
+  color:#3e4842!important;
+  opacity:1!important;
+}
+
+/* Osobne i jednoznaczne potwierdzenie przy produkcie */
+body.mj-preview-service .sales-add-feedback {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  min-height:0;
+  max-height:0;
+  margin:0;
+  padding:0 14px;
+  overflow:hidden;
+  opacity:0;
+  transform:translateY(-4px);
+  border:1px solid transparent;
+  border-radius:12px;
+  background:#eefbe8;
+  color:#176e00;
+  font-weight:900;
+  font-size:.9rem;
+  line-height:1.25;
+  transition:opacity .18s ease,transform .18s ease,max-height .18s ease,margin .18s ease,padding .18s ease;
+}
+body.mj-preview-service .sales-add-feedback.is-visible {
+  max-height:64px;
+  margin-top:8px;
+  padding:10px 14px;
+  opacity:1;
+  transform:translateY(0);
+  border-color:#82d96b;
+}
+
+/* Globalny komunikat pozostaje widoczny nawet gdy klient patrzy wyżej na kartę */
+.mj-inquiry-toast {
+  position:fixed;
+  z-index:99999;
+  left:50%;
+  bottom:26px;
+  transform:translate(-50%,18px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:min(420px,calc(100vw - 32px));
+  max-width:calc(100vw - 32px);
+  padding:14px 22px;
+  border:1px solid #71cb58;
+  border-radius:14px;
+  background:#effce9;
+  color:#145f00;
+  box-shadow:0 14px 40px rgba(31,65,21,.20);
+  font-family:Manrope,Arial,sans-serif;
+  font-size:1rem;
+  font-weight:900;
+  text-align:center;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .18s ease,transform .18s ease;
+}
+.mj-inquiry-toast.is-visible {
+  opacity:1;
+  transform:translate(-50%,0);
+}
+@media (max-width:720px) {
+  .mj-inquiry-toast { bottom:16px; padding:13px 16px; font-size:.94rem; }
+}

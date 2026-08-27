@@ -1,9 +1,13 @@
-const CACHE_VERSION = 'mj-reclame-pwa-v16-20260826-1';
+const CACHE_VERSION = 'mj-reclame-pwa-v17-20260827-1';
 const CORE = [
   '/',
   '/offline.html',
   '/site.webmanifest',
   '/assets/logo-mj-reclame.png',
+  '/assets/logo-mj-reclame-transparent.png',
+  '/dynamic-background.css',
+  '/assets/cookie-consent.css',
+  '/assets/cookie-consent.js',
   '/assets/mobile-site.css',
   '/assets/mobile-ui.js',
   '/assets/canonical-domain.js',

@@ -143,7 +143,7 @@ function initProductVariants(){
    var buttons=Array.from(block.querySelectorAll('.product-size,.product-color'));
    var qtyInput=block.querySelector('[data-qty]');
    var label=block.querySelector('.sales-label');
-   if(qtyInput && !block.querySelector('.mobile-qty-wrap')){
+   if(qtyInput && isMobile() && !block.querySelector('.mobile-qty-wrap')){
     var qwrap=document.createElement('label');qwrap.className='mobile-qty-wrap';
     var qcaption=document.createElement('span');qcaption.className='mobile-variant-select-caption';qcaption.textContent=isNl()?'Aantal':'Ilość';
     qtyInput.setAttribute('aria-label',isNl()?'Kies aantal':'Wybierz ilość');

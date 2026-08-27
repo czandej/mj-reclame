@@ -15,6 +15,7 @@
   const totalItems = document.querySelector("[data-dtf-total-items]");
   const clearBtn = document.querySelector("[data-dtf-clear]");
   const sendBtn = document.querySelector("[data-dtf-send]");
+  let feedbackToast = null;
 
   const storageKey = "mjDtfInquiryItems";
   let active = "all";
@@ -30,7 +31,7 @@
       empty: "Lista jest pusta. Wybierz produkt, rozmiar, kolor i ilość, a potem kliknij „Dodaj do zapytania”.",
       added: "Dodano do zapytania",
       updated: "Zaktualizowano zapytanie",
-      sendBase: "/pl/kontakt.html",
+      sendBase: "kontakt.html",
       inquiryHeader: "Proszę o wycenę odzieży do druku DTF:",
       graphicsLine: "Grafikę / logo do nadruku DTF dołączam w załączniku albo prześlę po kontakcie.",
       message: (code, name, size, color, qty) => `Interesuje mnie produkt ${code}: ${name}. Rozmiar: ${size || ""}. Kolor: ${color || ""}. Ilość: ${qty || ""}. Nadruk: proszę o wycenę nadruku DTF.`
@@ -43,7 +44,7 @@
       empty: "De lijst is leeg. Kies product, maat, kleur en aantal en klik daarna op “Toevoegen aan aanvraag”.",
       added: "Toegevoegd aan aanvraag",
       updated: "Aanvraag bijgewerkt",
-      sendBase: "/nl/kontakt.html",
+      sendBase: "kontakt.html",
       inquiryHeader: "Graag ontvang ik een offerte voor kleding met DTF-bedrukking:",
       graphicsLine: "Het ontwerp / logo voor DTF-bedrukking voeg ik toe als bijlage of stuur ik na contact door.",
       message: (code, name, size, color, qty) => `Ik ben geïnteresseerd in product ${code}: ${name}. Maat: ${size || ""}. Kleur: ${color || ""}. Aantal: ${qty || ""}. Bedrukking: graag offerte voor DTF-print.`
@@ -176,6 +177,40 @@
       inquiryBox.classList.add("is-highlighted");
       setTimeout(() => inquiryBox.classList.remove("is-highlighted"), 700);
     }
+  }
+
+  function showAddedFeedback(card){
+    let inline = card.querySelector("[data-add-feedback]");
+    if(!inline){
+      inline = document.createElement("div");
+      inline.className = "sales-add-feedback";
+      inline.setAttribute("data-add-feedback", "");
+      inline.setAttribute("role", "status");
+      inline.setAttribute("aria-live", "polite");
+      const addBtn = card.querySelector("[data-add-to-inquiry]");
+      if(addBtn) addBtn.insertAdjacentElement("afterend", inline);
+      else card.appendChild(inline);
+    }
+    inline.textContent = `✓ ${labels.added}`;
+    inline.classList.remove("is-visible");
+    void inline.offsetWidth;
+    inline.classList.add("is-visible");
+    window.clearTimeout(inline._mjTimer);
+    inline._mjTimer = window.setTimeout(() => inline.classList.remove("is-visible"), 4200);
+
+    if(!feedbackToast){
+      feedbackToast = document.createElement("div");
+      feedbackToast.className = "mj-inquiry-toast";
+      feedbackToast.setAttribute("role", "status");
+      feedbackToast.setAttribute("aria-live", "polite");
+      document.body.appendChild(feedbackToast);
+    }
+    feedbackToast.textContent = `✓ ${labels.added}`;
+    feedbackToast.classList.remove("is-visible");
+    void feedbackToast.offsetWidth;
+    feedbackToast.classList.add("is-visible");
+    window.clearTimeout(feedbackToast._mjTimer);
+    feedbackToast._mjTimer = window.setTimeout(() => feedbackToast.classList.remove("is-visible"), 3200);
   }
 
   function escapeSvgText(value){
@@ -376,6 +411,10 @@
       firstColor.dataset.colorCode = normalizeColorCode(firstColor.dataset.colorCode || "");
       updatePhoto(card, firstColor.dataset.colorCode || "");
     }
+    // Domyślna ilość produktu zawsze startuje od 1.
+    // Jawne ustawienie w JS zapobiega przywróceniu starej wartości przez przeglądarkę.
+    const initialQty = card.querySelector("[data-qty]");
+    if(initialQty) initialQty.value = "1";
     updateLink(card);
 
     card.querySelectorAll(".product-size").forEach(btn => {
@@ -398,11 +437,41 @@
     });
 
     const qty = card.querySelector("[data-qty]");
-    if(qty) qty.addEventListener("input", () => updateLink(card));
+    if(qty) {
+      // Pole ilości ma być bezproblemowo edytowalne także w lokalnym podglądzie
+      // i na urządzeniach mobilnych. Zaznaczamy wartość po wejściu do pola,
+      // przepuszczamy wyłącznie cyfry i nie nadpisujemy wartości podczas pisania.
+      qty.addEventListener("focus", () => {
+        requestAnimationFrame(() => {
+          try { qty.select(); } catch(e) {}
+        });
+      });
+      qty.addEventListener("input", () => {
+        const clean = String(qty.value || "").replace(/\D+/g, "").slice(0, 6);
+        if(qty.value !== clean) qty.value = clean;
+        updateLink(card);
+      });
+      qty.addEventListener("blur", () => {
+        if(!String(qty.value || "").trim()) qty.value = "1";
+        updateLink(card);
+      });
+    }
 
     const addBtn = card.querySelector("[data-add-to-inquiry]");
     if(addBtn) {
-      addBtn.addEventListener("click", () => addToInquiry(card));
+      const originalLabel = addBtn.textContent.trim();
+      addBtn.setAttribute("aria-live", "polite");
+      addBtn.addEventListener("click", () => {
+        addToInquiry(card);
+        showAddedFeedback(card);
+        addBtn.textContent = `✓ ${labels.added}`;
+        addBtn.classList.add("is-added");
+        window.clearTimeout(addBtn._mjAddedTimer);
+        addBtn._mjAddedTimer = window.setTimeout(() => {
+          addBtn.textContent = originalLabel;
+          addBtn.classList.remove("is-added");
+        }, 2200);
+      });
     }
 
     const open = card.querySelector("[data-open-product]");
