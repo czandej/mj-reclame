@@ -33,6 +33,20 @@
   function parseAmount(value){ return Number(String(value || "0").replace(/\s/g, "").replace(",", ".")) || 0; }
   function money(value){ return new Intl.NumberFormat("nl-NL", {style:"currency", currency:"EUR"}).format(Number(value || 0)); }
   function datePl(value){ if(!value) return "—"; const d = new Date(value); return Number.isNaN(d.getTime()) ? esc(value) : d.toLocaleDateString("pl-PL"); }
+  function round2(value){ return Math.round((Number(value || 0) + Number.EPSILON) * 100) / 100; }
+  function formatLeadTime(value){
+    const raw = String(value ?? "").trim();
+    if(!raw) return "—";
+    if(/^\d+$/.test(raw)) return `${raw} ${Number(raw) === 1 ? "dzień" : "dni"}`;
+    if(/^\d+[.,]\d+$/.test(raw)) return `${raw.replace(".", ",")} dni`;
+    return raw;
+  }
+  function shippingValues(record){
+    const net = Math.max(0, Number(record?.shipping_net || 0));
+    const rate = Math.max(0, Number(record?.shipping_vat_rate ?? 21));
+    const vat = round2(net * rate / 100);
+    return {net:round2(net), rate, vat, gross:round2(net + vat)};
+  }
   function todayISO(){ const d = new Date(); return d.toISOString().slice(0,10); }
   function notify(text, error=false){
     if(!els.message) return;
@@ -407,12 +421,26 @@
   }
 
   function quoteTotals(quoteId){
-    return quoteItemsFor(quoteId).reduce((acc,item) => {
+    const itemTotals = quoteItemsFor(quoteId).reduce((acc,item) => {
       acc.net += Number(item.line_net || 0);
       acc.vat += Number(item.vat_amount || 0);
       acc.gross += Number(item.line_gross || 0);
       return acc;
     }, {net:0, vat:0, gross:0});
+    const quote = state.quotes.find(q => q.id === quoteId) || null;
+    const shipping = shippingValues(quote);
+    return {
+      net:round2(itemTotals.net + shipping.net),
+      vat:round2(itemTotals.vat + shipping.vat),
+      gross:round2(itemTotals.gross + shipping.gross),
+      itemsNet:round2(itemTotals.net),
+      itemsVat:round2(itemTotals.vat),
+      itemsGross:round2(itemTotals.gross),
+      shippingNet:shipping.net,
+      shippingVat:shipping.vat,
+      shippingGross:shipping.gross,
+      shippingVatRate:shipping.rate
+    };
   }
 
   function quoteInquiryLabel(inquiryId){
@@ -505,9 +533,12 @@
     const typeLabel = q.quote_type || "Wycena";
     const acceptanceLabel = typeLabel === "Oferta" ? "oferty" : "wyceny";
     const terms = esc(quoteDocumentTerms(q)).replace(/\n/g,"<br>");
-    const lead = esc(q.lead_time || "Do ustalenia");
+    const leadValue = formatLeadTime(q.lead_time);
+    const lead = esc(leadValue === "—" ? "Do ustalenia" : leadValue);
     const valid = q.valid_until ? datePl(q.valid_until) : "Do ustalenia";
     const subject = esc(quoteSubject(q));
+    const shipping = shippingValues(q);
+    const shippingLine = `<div class="shipping-line"><strong>Koszty przesyłki</strong><span>Netto: ${money(shipping.net)}</span><span>VAT ${esc(shipping.rate)}%: ${money(shipping.vat)}</span><span>Brutto: ${money(shipping.gross)}</span></div>`;
 
     return `<!doctype html>
 <html lang="pl">
@@ -526,6 +557,7 @@
   .meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.box{border:1px solid #dce6dc;border-radius:12px;padding:10px;background:#fbfdfb}.box h2{margin:0 0 7px;color:#2b8c11;font-size:11px;text-transform:uppercase;letter-spacing:.7px}.box strong{font-size:15px}.box p{margin:3px 0 0;font-size:11.5px}.meta-list{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:12.5px}.meta-list span:nth-child(odd){color:#647064;font-weight:800}
   .subject{margin:0 0 10px;border-left:4px solid #47df00;padding:8px 12px;background:#f6fbf4;border-radius:0 10px 10px 0;font-size:13px}.subject b{display:block;margin-bottom:2px}
   table{width:100%;border-collapse:collapse;font-size:10.8px}thead th{background:#101810;color:#fff;padding:7px 6px;text-align:left}tbody td{border-bottom:1px solid #e2e9e2;padding:7px 6px;vertical-align:top}.lp{width:28px;text-align:center}.desc{width:36%}.num{text-align:right;white-space:nowrap}.empty-doc{text-align:center;color:#667266;padding:20px}
+  .shipping-line{display:flex;justify-content:flex-end;gap:12px;align-items:center;flex-wrap:wrap;margin:8px 0 0;padding:7px 10px;border:1px solid #dce6dc;border-radius:10px;background:#fbfdfb;font-size:10.5px}.shipping-line strong{color:#2b8c11}.shipping-line span{white-space:nowrap;color:#526052;font-weight:700}
   .totals{width:300px;margin:9px 0 0 auto;border:1px solid #dce6dc;border-radius:12px;overflow:hidden}.totals div{display:grid;grid-template-columns:1fr auto;gap:12px;padding:7px 10px;border-bottom:1px solid #e4ece4;font-size:12px}.totals div:last-child{border:0;background:#effbea;font-size:15px;font-weight:900}.totals span:first-child{color:#5c685c;font-weight:800}.totals div:last-child span{color:#174b0c}
   .conditions{display:flex;flex-wrap:wrap;gap:9px;margin-top:11px}.conditions>.box{flex:1 1 calc(50% - 5px)}.conditions .wide{flex-basis:100%}.conditions h3{margin:0 0 5px;font-size:11px;color:#2b8c11;text-transform:uppercase;letter-spacing:.6px}.conditions p{margin:0;font-size:11.5px}
   .accept{margin-top:11px;border:1px solid #a7cfa1;border-radius:12px;padding:12px;background:#f7fcf5}.accept h3{margin:0 0 6px;font-size:13px}.accept p{margin:0 0 9px;font-size:10.8px}.signature{display:grid;grid-template-columns:1fr 1.3fr 1fr;gap:14px}.line{border-top:1px solid #7b877b;padding-top:3px;color:#697469;font-size:9px;margin-top:16px;text-align:center}
@@ -554,6 +586,7 @@
   <div class="subject"><b>Dotyczy</b>${subject}</div>
 
   <table aria-label="Pozycje wyceny"><thead><tr><th>Lp.</th><th>Produkt / usługa</th><th class="num">Ilość</th><th class="num">Cena netto</th><th class="num">VAT</th><th class="num">Netto</th><th class="num">Brutto</th></tr></thead><tbody>${itemRows}</tbody></table>
+  ${shippingLine}
 
   <div class="totals"><div><span>Razem netto</span><strong>${money(totals.net)}</strong></div><div><span>VAT</span><strong>${money(totals.vat)}</strong></div><div><span>RAZEM BRUTTO</span><strong>${money(totals.gross)}</strong></div></div>
 
@@ -587,6 +620,7 @@
     const client = q.company_clients?.name || q.company_clients?.company_name || "—";
     const items = quoteItemsFor(id);
     const totals = quoteTotals(id);
+    const shipping = shippingValues(q);
     const linkedOrder = orderForQuote(id);
     const accepted = (q.status || "Robocza") === "Zaakceptowana";
     const orderAction = linkedOrder
@@ -606,7 +640,8 @@
         <div><span>Data</span><strong>${datePl(q.issue_date)}</strong></div>
         <div><span>Ważna do</span><strong>${datePl(q.valid_until)}</strong></div>
         <div class="full"><span>Powiązane zapytanie</span><strong>${q.inquiry_id ? esc(quoteInquiryLabel(q.inquiry_id)) : "Bez powiązanego zapytania"}</strong></div>
-        <div><span>Termin realizacji</span><strong>${esc(q.lead_time || "—")}</strong></div>
+        <div><span>Termin realizacji</span><strong>${esc(formatLeadTime(q.lead_time))}</strong></div>
+        <div><span>Koszty przesyłki</span><strong>${money(shipping.net)} netto • VAT ${esc(shipping.rate)}% • ${money(shipping.gross)} brutto</strong></div>
         <div><span>Netto</span><strong>${money(totals.net)}</strong></div>
         <div><span>VAT</span><strong>${money(totals.vat)}</strong></div>
         <div><span>Brutto</span><strong>${money(totals.gross)}</strong></div>
@@ -983,7 +1018,7 @@
       <td>${esc(o.service_type || "—")}</td>
       <td><strong>${esc(o.title || "—")}</strong></td>
       <td><span class="status-pill ${statusesDanger.has(o.status) ? "status-danger" : statusesWarn.has(o.status) ? "status-warn" : ""}">${esc(o.status || "Nowe")}</span></td>
-      <td class="nowrap">${o.deadline ? datePl(o.deadline) : "—"}</td>
+      <td class="nowrap">${o.lead_time ? esc(formatLeadTime(o.lead_time)) : (o.deadline ? datePl(o.deadline) : "—")}</td>
       <td class="amount">${Number(o.amount_gross || 0) ? money(o.amount_gross) : "—"}</td>
     </tr>`).join("") || '<tr><td colspan="5" class="empty">Ten projekt nie ma jeszcze usług/zleceń.</td></tr>';
 
@@ -1026,7 +1061,7 @@
         <td>${esc(o.service_type || "—")}</td>
         <td><strong>${esc(o.title || "—")}</strong>${sourceQuote ? `<br><button type="button" class="tiny ghost" data-quote-view="${esc(sourceQuote.id)}">${esc(sourceQuote.quote_number)}</button>` : ""}</td>
         <td>${statusSelect("order", o.id, o.status || "Nowe", ["Nowe","W trakcie","Do wyceny","Wycenione","Zaakceptowane","W produkcji","Gotowe","Zakończone","Anulowane"])}</td>
-        <td class="nowrap">${o.deadline ? datePl(o.deadline) : "—"}</td>
+        <td class="nowrap">${o.lead_time ? esc(formatLeadTime(o.lead_time)) : (o.deadline ? datePl(o.deadline) : "—")}</td>
         <td class="amount">${gross ? money(gross) : "—"}</td>
         <td><button type="button" class="tiny secondary" data-order-focus="${esc(o.id)}">Podgląd</button></td>
       </tr>`;
@@ -1040,6 +1075,7 @@
     const project = o.project_id ? state.projects.find(p => p.id === o.project_id) : null;
     const sourceQuote = quoteForOrder(o);
     const inquiry = o.inquiry_id ? state.inquiries.find(i => i.id === o.inquiry_id) : null;
+    const shipping = shippingValues(o);
     const items = orderItemsFor(id);
     const itemRows = items.length ? items.map(item => `<tr><td>${esc(item.description)}</td><td>${esc(item.quantity)}</td><td>${esc(item.unit)}</td><td class="amount">${money(item.unit_net)}</td><td>${esc(item.vat_rate)}%</td><td class="amount">${money(item.line_net)}</td><td class="amount">${money(item.line_gross)}</td></tr>`).join("") : `<tr><td colspan="7" class="empty">Brak zapisanych pozycji zlecenia.</td></tr>`;
     els.orderPreviewContent.innerHTML = `
@@ -1050,7 +1086,8 @@
         <div><span>Projekt</span><strong>${esc(project?.title || o.company_projects?.title || "Bez projektu")}</strong></div>
         <div><span>Źródło</span><strong>${sourceQuote ? esc(sourceQuote.quote_number) : "Wpis ręczny"}</strong></div>
         <div><span>Zapytanie</span><strong>${inquiry ? esc(quoteInquiryLabel(inquiry.id)) : "—"}</strong></div>
-        <div><span>Termin realizacji</span><strong>${esc(o.lead_time || (o.deadline ? datePl(o.deadline) : "—"))}</strong></div>
+        <div><span>Termin realizacji</span><strong>${o.lead_time ? esc(formatLeadTime(o.lead_time)) : (o.deadline ? datePl(o.deadline) : "—")}</strong></div>
+        <div><span>Koszty przesyłki</span><strong>${money(shipping.net)} netto • VAT ${esc(shipping.rate)}% • ${money(shipping.gross)} brutto</strong></div>
         <div><span>Netto</span><strong>${money(o.amount_net || 0)}</strong></div>
         <div><span>VAT</span><strong>${money(o.vat_amount || 0)}</strong></div>
         <div><span>Brutto</span><strong>${money(o.amount_gross || 0)}</strong></div>
@@ -1421,6 +1458,8 @@
       deadline: null,
       lead_time: quote.lead_time || null,
       terms: quote.terms || null,
+      shipping_net: Number(quote.shipping_net || 0),
+      shipping_vat_rate: Number(quote.shipping_vat_rate ?? 21),
       amount_net: totals.net,
       vat_rate: Number(effectiveVat.toFixed(3)),
       vat_amount: totals.vat,
@@ -1546,6 +1585,14 @@
       row.querySelector(".quote-item-gross").textContent = money(gross);
       totalNet += net; totalVat += vat; totalGross += gross;
     });
+    const shippingNet = Math.max(0, parseAmount(els.quoteShippingNet?.value));
+    const shippingRate = Math.max(0, parseAmount(els.quoteShippingVatRate?.value || "21"));
+    const shippingVat = round2(shippingNet * shippingRate / 100);
+    const shippingGross = round2(shippingNet + shippingVat);
+    totalNet = round2(totalNet + shippingNet);
+    totalVat = round2(totalVat + shippingVat);
+    totalGross = round2(totalGross + shippingGross);
+    if(els.quoteShippingGross) els.quoteShippingGross.textContent = money(shippingGross);
     els.quoteTotalNet.textContent = money(totalNet);
     els.quoteTotalVat.textContent = money(totalVat);
     els.quoteTotalGross.textContent = money(totalGross);
@@ -1576,6 +1623,8 @@
     $("quote-date").value = todayISO();
     $("quote-valid-until").value = addDaysISO(todayISO(),14);
     $("quote-status").value = "Robocza";
+    els.quoteShippingNet.value = "0,00";
+    els.quoteShippingVatRate.value = "21";
     clearQuoteClientSelection(true);
     if(els.quoteClientResults){ els.quoteClientResults.hidden = true; els.quoteClientResults.innerHTML = ""; }
     renderQuoteInquiryOptions();
@@ -1632,6 +1681,8 @@
     $("quote-valid-until").value = q.valid_until || "";
     $("quote-status").value = q.status || "Robocza";
     $("quote-lead-time").value = q.lead_time || "";
+    els.quoteShippingNet.value = String(Number(q.shipping_net || 0).toFixed(2)).replace(".", ",");
+    els.quoteShippingVatRate.value = String(Number(q.shipping_vat_rate ?? 21)).replace(".", ",");
     $("quote-terms").value = q.terms || "";
     $("quote-notes").value = q.notes || "";
     els.quoteItemsBody.innerHTML = "";
@@ -1644,6 +1695,35 @@
     els.quotePreviewCard.hidden = true;
     setView("quotes");
     $("quote-number").focus();
+  }
+
+  async function syncShippingToAcceptedOrder(quoteId, shippingNet, shippingVatRate){
+    const order = orderForQuote(quoteId);
+    if(!order || order.source !== "quote" || (order.status || "") !== "Zaakceptowane") return false;
+    const itemTotals = orderItemsFor(order.id).reduce((acc,item) => {
+      acc.net += Number(item.line_net || 0);
+      acc.vat += Number(item.vat_amount || 0);
+      acc.gross += Number(item.line_gross || 0);
+      return acc;
+    }, {net:0, vat:0, gross:0});
+    const shipping = shippingValues({shipping_net:shippingNet, shipping_vat_rate:shippingVatRate});
+    const totalNet = round2(itemTotals.net + shipping.net);
+    const totalVat = round2(itemTotals.vat + shipping.vat);
+    const totalGross = round2(itemTotals.gross + shipping.gross);
+    const effectiveVat = totalNet > 0 ? (totalVat / totalNet) * 100 : 0;
+    const { error } = await state.sb.from("company_orders").update({
+      shipping_net: shipping.net,
+      shipping_vat_rate: shipping.rate,
+      amount_net: totalNet,
+      vat_rate: Number(effectiveVat.toFixed(3)),
+      vat_amount: totalVat,
+      amount_gross: totalGross
+    }).eq("id", order.id);
+    if(error){
+      console.warn("Nie zsynchronizowano kosztów przesyłki istniejącego zlecenia:", error);
+      return false;
+    }
+    return true;
   }
 
   async function syncInquiryFromQuote(quote){
@@ -1660,6 +1740,10 @@
     let items;
     try { items = readQuoteItemsFromForm(); }
     catch(err){ return notify(err.message, true); }
+    const shippingNet = parseAmount(els.quoteShippingNet.value);
+    const shippingVatRate = parseAmount(els.quoteShippingVatRate.value || "21");
+    if(shippingNet < 0) return notify("Koszty przesyłki nie mogą być ujemne.", true);
+    if(shippingVatRate < 0 || shippingVatRate > 100) return notify("Stawka VAT przesyłki jest nieprawidłowa.", true);
     const payload = {
       client_id: els.quoteClient.value || null,
       inquiry_id: els.quoteInquiry.value || null,
@@ -1669,6 +1753,8 @@
       valid_until: $("quote-valid-until").value || null,
       status: $("quote-status").value || "Robocza",
       lead_time: $("quote-lead-time").value.trim() || null,
+      shipping_net: round2(shippingNet),
+      shipping_vat_rate: shippingVatRate,
       terms: $("quote-terms").value.trim() || null,
       notes: $("quote-notes").value.trim() || null
     };
@@ -1698,11 +1784,14 @@
     }
 
     await syncInquiryFromQuote({...payload,id:quoteId});
+    const shippingSyncedToOrder = wasEditing ? await syncShippingToAcceptedOrder(quoteId, payload.shipping_net, payload.shipping_vat_rate) : false;
     resetQuoteForm();
     els.quoteFormCard.hidden = true;
-    await Promise.all([loadQuotes(),loadQuoteItems(),loadInquiries()]);
+    await Promise.all([loadQuotes(),loadQuoteItems(),loadInquiries(), ...(shippingSyncedToOrder ? [loadOrders()] : [])]);
     renderAll();
-    notify(wasEditing ? "Zmiany wyceny/oferty zostały zapisane." : "Wycena/oferta została zapisana.");
+    notify(wasEditing
+      ? (shippingSyncedToOrder ? "Zmiany wyceny/oferty zostały zapisane. Koszty przesyłki zaktualizowano również w powiązanym zleceniu." : "Zmiany wyceny/oferty zostały zapisane.")
+      : "Wycena/oferta została zapisana.");
   }
 
   async function addInvoice(e){
@@ -1822,6 +1911,7 @@
     els.quoteAddItem.addEventListener("click", () => addQuoteItemRow());
     $("quote-type").addEventListener("change", () => { if(!state.editingQuoteId) $("quote-number").value = proposeQuoteNumber($("quote-type").value); });
     $("quote-date").addEventListener("change", () => { if(!$("quote-valid-until").value) $("quote-valid-until").value = addDaysISO($("quote-date").value,14); });
+    [els.quoteShippingNet, els.quoteShippingVatRate].forEach(el => el.addEventListener("input", calculateQuoteForm));
     [$("invoice-net"), $("invoice-vat-rate")].forEach(el => el.addEventListener("input", calculateInvoice));
 
     document.addEventListener("input", e => {
@@ -1930,7 +2020,7 @@
       logout: $("panel-logout"), loginForm: $("panel-login-form"), loginEmail: $("panel-login-email"), loginPassword: $("panel-login-password"), authMessage: $("panel-auth-message"),
       refresh: $("refresh-all"), clientForm: $("client-form"), projectForm: $("project-form"), orderForm: $("order-form"), quoteForm: $("quote-form"), invoiceForm: $("invoice-form"),
       inquirySearch: $("inquiry-search"), inquiryStatusFilter: $("inquiry-status-filter"), inquiriesTable: $("inquiries-table"), inquiryPreviewCard: $("inquiry-preview-card"), inquiryPreviewContent: $("inquiry-preview-content"), inquiryPreviewClose: $("inquiry-preview-close"),
-      quoteSearch: $("quote-search"), quoteStatusFilter: $("quote-status-filter"), quotesTable: $("quotes-table"), quoteClient: $("quote-client"), quoteClientSearch: $("quote-client-search"), quoteClientClear: $("quote-client-clear"), quoteClientAdd: $("quote-client-add"), quoteClientSelected: $("quote-client-selected"), quoteClientResults: $("quote-client-results"), quoteInquiry: $("quote-inquiry"), quoteFormCard: $("quote-form-card"), quoteFormTitle: $("quote-form-title"), quoteFormMode: $("quote-form-mode"), quoteSubmitButton: $("quote-submit-button"), quoteCancelButton: $("quote-cancel-button"), quoteNewButton: $("quote-new-button"), quoteItemsBody: $("quote-items-body"), quoteAddItem: $("quote-add-item"), quoteTotalNet: $("quote-total-net"), quoteTotalVat: $("quote-total-vat"), quoteTotalGross: $("quote-total-gross"), quotePreviewCard: $("quote-preview-card"), quotePreviewContent: $("quote-preview-content"), quotePreviewClose: $("quote-preview-close"),
+      quoteSearch: $("quote-search"), quoteStatusFilter: $("quote-status-filter"), quotesTable: $("quotes-table"), quoteClient: $("quote-client"), quoteClientSearch: $("quote-client-search"), quoteClientClear: $("quote-client-clear"), quoteClientAdd: $("quote-client-add"), quoteClientSelected: $("quote-client-selected"), quoteClientResults: $("quote-client-results"), quoteInquiry: $("quote-inquiry"), quoteFormCard: $("quote-form-card"), quoteFormTitle: $("quote-form-title"), quoteFormMode: $("quote-form-mode"), quoteSubmitButton: $("quote-submit-button"), quoteCancelButton: $("quote-cancel-button"), quoteNewButton: $("quote-new-button"), quoteItemsBody: $("quote-items-body"), quoteAddItem: $("quote-add-item"), quoteShippingNet: $("quote-shipping-net"), quoteShippingVatRate: $("quote-shipping-vat-rate"), quoteShippingGross: $("quote-shipping-gross"), quoteTotalNet: $("quote-total-net"), quoteTotalVat: $("quote-total-vat"), quoteTotalGross: $("quote-total-gross"), quotePreviewCard: $("quote-preview-card"), quotePreviewContent: $("quote-preview-content"), quotePreviewClose: $("quote-preview-close"),
       clientSearch: $("client-search"), clientStatusFilter: $("client-status-filter"), projectSearch: $("project-search"), projectStatusFilter: $("project-status-filter"),
       clientsTable: $("clients-table"), projectsTable: $("projects-table"), ordersTable: $("orders-table"), invoicesTable: $("invoices-table"),
       projectClient: $("project-client"), orderProject: $("order-project"), orderClient: $("order-client"), invoiceClient: $("invoice-client"),
