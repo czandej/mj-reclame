@@ -415,9 +415,130 @@
         <td>${statusSelect("quote", q.id, q.status || "Robocza", ["Robocza","Gotowa","Wysłana","Zaakceptowana","Odrzucona","Wygasła","Anulowana"])}</td>
         <td class="amount">${money(total.gross)}</td>
         <td><span class="muted">${q.inquiry_id ? esc(quoteInquiryLabel(q.inquiry_id)) : "Bez zapytania"}</span></td>
-        <td class="row-actions"><button type="button" class="tiny secondary" data-quote-view="${esc(q.id)}">Podgląd</button><button type="button" class="tiny ghost" data-quote-edit="${esc(q.id)}">Edytuj</button></td>
+        <td class="row-actions"><button type="button" class="tiny secondary" data-quote-view="${esc(q.id)}">Podgląd</button><button type="button" class="tiny primary" data-quote-document="${esc(q.id)}">Dokument / PDF</button><button type="button" class="tiny ghost" data-quote-edit="${esc(q.id)}">Edytuj</button></td>
       </tr>`;
     }).join("");
+  }
+
+  function quoteClientRecord(q){
+    return state.clients.find(c => c.id === q.client_id) || q.company_clients || {};
+  }
+
+  function quoteSubject(q){
+    const inquiry = q.inquiry_id ? state.inquiries.find(i => i.id === q.inquiry_id) : null;
+    if(inquiry){
+      const parts = [inquiry.service, inquiry.product_inquiry, inquiry.product_code ? `kod ${inquiry.product_code}` : null].filter(Boolean);
+      if(parts.length) return parts.join(" • ");
+    }
+    const first = quoteItemsFor(q.id)[0];
+    return first?.description || "Zakres zgodny z pozycjami dokumentu";
+  }
+
+  function quoteDocumentTerms(q){
+    return q.terms || "Cena obejmuje zakres prac opisany w dokumencie. Prace dodatkowe lub zmiana zakresu mogą wymagać ponownej kalkulacji. Rozpoczęcie realizacji następuje po akceptacji wyceny oraz, jeżeli dotyczy, zaksięgowaniu ustalonej zaliczki.";
+  }
+
+  function quoteDocumentHtml(id){
+    const q = state.quotes.find(item => item.id === id);
+    if(!q) return null;
+    const c = quoteClientRecord(q);
+    const items = quoteItemsFor(id);
+    const totals = quoteTotals(id);
+    const clientName = c.company_name || c.name || "Klient";
+    const contactName = c.company_name && c.name && c.name !== c.company_name ? c.name : "";
+    const clientAddress = [c.address, [c.postal_code, c.city].filter(Boolean).join(" "), c.country].filter(Boolean).map(esc).join(", ");
+    const clientMeta = [
+      c.email ? `<span>${esc(c.email)}</span>` : "",
+      c.phone ? `<span>${esc(c.phone)}</span>` : "",
+      c.vat_number ? `<span>BTW/VAT: ${esc(c.vat_number)}</span>` : "",
+      c.kvk_number ? `<span>KvK: ${esc(c.kvk_number)}</span>` : ""
+    ].filter(Boolean).join("");
+    const itemRows = items.length ? items.map((item, idx) => `<tr>
+      <td class="lp">${idx + 1}</td>
+      <td class="desc">${esc(item.description)}</td>
+      <td class="num">${esc(item.quantity)} ${esc(item.unit || "")}</td>
+      <td class="num">${money(item.unit_net)}</td>
+      <td class="num">${esc(item.vat_rate)}%</td>
+      <td class="num">${money(item.line_net)}</td>
+      <td class="num">${money(item.line_gross)}</td>
+    </tr>`).join("") : `<tr><td colspan="7" class="empty-doc">Brak pozycji.</td></tr>`;
+    const typeLabel = q.quote_type || "Wycena";
+    const acceptanceLabel = typeLabel === "Oferta" ? "oferty" : "wyceny";
+    const terms = esc(quoteDocumentTerms(q)).replace(/\n/g,"<br>");
+    const lead = esc(q.lead_time || "Do ustalenia");
+    const valid = q.valid_until ? datePl(q.valid_until) : "Do ustalenia";
+    const subject = esc(quoteSubject(q));
+
+    return `<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(typeLabel)} ${esc(q.quote_number)} | MJ Reclame</title>
+<style>
+  *{box-sizing:border-box}html,body{margin:0;padding:0;background:#eef1ee;color:#182018;font-family:"Segoe UI",Arial,sans-serif;line-height:1.4}
+  .toolbar{position:sticky;top:0;z-index:5;display:flex;justify-content:center;gap:10px;padding:12px;background:#101810;box-shadow:0 5px 18px rgba(0,0,0,.18)}
+  .toolbar button{border:0;border-radius:10px;padding:10px 16px;font:800 14px/1 "Segoe UI",Arial,sans-serif;cursor:pointer}.print{background:#47df00;color:#061006}.close{background:#fff;color:#182018}
+  .page{width:210mm;min-height:297mm;margin:18px auto;background:#fff;padding:12mm 14mm 10mm;box-shadow:0 14px 50px rgba(0,0,0,.15)}
+  .head{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;border-bottom:3px solid #47df00;padding-bottom:9px}
+  .brand img{width:125px;height:auto;display:block;margin-bottom:5px}.brand .company{font-size:12px;color:#526052;line-height:1.55}.brand .company strong{color:#182018}.client-meta{display:grid;grid-template-columns:1fr 1fr;gap:2px 10px;margin-top:5px;font-size:10.5px;color:#526052;line-height:1.35}
+  .doc-title{text-align:right}.doc-title .eyebrow{color:#2b8c11;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:1px}.doc-title h1{margin:4px 0 5px;font-size:27px;line-height:1.05}.doc-title .number{font-size:16px;font-weight:900}
+  .meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.box{border:1px solid #dce6dc;border-radius:12px;padding:10px;background:#fbfdfb}.box h2{margin:0 0 7px;color:#2b8c11;font-size:11px;text-transform:uppercase;letter-spacing:.7px}.box strong{font-size:15px}.box p{margin:3px 0 0;font-size:11.5px}.meta-list{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:12.5px}.meta-list span:nth-child(odd){color:#647064;font-weight:800}
+  .subject{margin:0 0 10px;border-left:4px solid #47df00;padding:8px 12px;background:#f6fbf4;border-radius:0 10px 10px 0;font-size:13px}.subject b{display:block;margin-bottom:2px}
+  table{width:100%;border-collapse:collapse;font-size:10.8px}thead th{background:#101810;color:#fff;padding:7px 6px;text-align:left}tbody td{border-bottom:1px solid #e2e9e2;padding:7px 6px;vertical-align:top}.lp{width:28px;text-align:center}.desc{width:36%}.num{text-align:right;white-space:nowrap}.empty-doc{text-align:center;color:#667266;padding:20px}
+  .totals{width:300px;margin:9px 0 0 auto;border:1px solid #dce6dc;border-radius:12px;overflow:hidden}.totals div{display:grid;grid-template-columns:1fr auto;gap:12px;padding:7px 10px;border-bottom:1px solid #e4ece4;font-size:12px}.totals div:last-child{border:0;background:#effbea;font-size:15px;font-weight:900}.totals span:first-child{color:#5c685c;font-weight:800}.totals div:last-child span{color:#174b0c}
+  .conditions{display:flex;flex-wrap:wrap;gap:9px;margin-top:11px}.conditions>.box{flex:1 1 calc(50% - 5px)}.conditions .wide{flex-basis:100%}.conditions h3{margin:0 0 5px;font-size:11px;color:#2b8c11;text-transform:uppercase;letter-spacing:.6px}.conditions p{margin:0;font-size:11.5px}
+  .accept{margin-top:11px;border:1px solid #a7cfa1;border-radius:12px;padding:12px;background:#f7fcf5}.accept h3{margin:0 0 6px;font-size:13px}.accept p{margin:0 0 9px;font-size:10.8px}.signature{display:grid;grid-template-columns:1fr 1.3fr 1fr;gap:14px}.line{border-top:1px solid #7b877b;padding-top:3px;color:#697469;font-size:9px;margin-top:16px;text-align:center}
+  .foot{margin-top:10px;padding-top:6px;border-top:1px solid #e1e8e1;text-align:center;color:#6d786d;font-size:9.5px}
+  @page{size:A4;margin:0}
+  @media print{*{-webkit-print-color-adjust:exact;print-color-adjust:exact}html,body{background:#fff}.toolbar{display:none!important}.page{width:210mm;min-height:297mm;margin:0;box-shadow:none}.totals,.conditions,.accept{break-inside:avoid}.signature{break-inside:avoid}}
+  @media(max-width:800px){.page{width:100%;min-height:0;margin:0;padding:20px 14px}.head,.meta{grid-template-columns:1fr}.doc-title{text-align:left}.conditions{display:block}.conditions>.box{margin-bottom:8px}.totals{width:100%}.signature{grid-template-columns:1fr}.toolbar{position:relative}table{font-size:10px}.page{overflow-x:auto}}
+</style>
+</head>
+<body>
+<div class="toolbar"><button class="print" type="button" onclick="window.print()">Drukuj / zapisz jako PDF</button><button class="close" type="button" onclick="window.close()">Zamknij</button></div>
+<main class="page">
+  <header class="head">
+    <div class="brand">
+      <img src="/assets/logo-mj-reclame-transparent.png" alt="MJ Reclame">
+      <div class="company"><strong>MJ Reclame</strong><br>BTW: NL004692781B08 • KvK: 89116453<br>info@reclamemj.nl • www.reclamemj.nl</div>
+    </div>
+    <div class="doc-title"><div class="eyebrow">Dokument handlowy</div><h1>${esc(typeLabel)}</h1><div class="number">${esc(q.quote_number)}</div></div>
+  </header>
+
+  <section class="meta">
+    <div class="box"><h2>Dla klienta</h2><strong>${esc(clientName)}</strong>${contactName ? `<p>${esc(contactName)}</p>` : ""}${clientAddress ? `<p>${clientAddress}</p>` : ""}<div class="client-meta">${clientMeta || ""}</div></div>
+    <div class="box"><h2>Dane dokumentu</h2><div class="meta-list"><span>Data wystawienia</span><strong>${datePl(q.issue_date)}</strong><span>Ważna do</span><strong>${valid}</strong><span>Termin realizacji</span><strong>${lead}</strong></div></div>
+  </section>
+
+  <div class="subject"><b>Dotyczy</b>${subject}</div>
+
+  <table aria-label="Pozycje wyceny"><thead><tr><th>Lp.</th><th>Produkt / usługa</th><th class="num">Ilość</th><th class="num">Cena netto</th><th class="num">VAT</th><th class="num">Netto</th><th class="num">Brutto</th></tr></thead><tbody>${itemRows}</tbody></table>
+
+  <div class="totals"><div><span>Razem netto</span><strong>${money(totals.net)}</strong></div><div><span>VAT</span><strong>${money(totals.vat)}</strong></div><div><span>RAZEM BRUTTO</span><strong>${money(totals.gross)}</strong></div></div>
+
+  <section class="conditions">
+    <div class="box"><h3>Ważność wyceny</h3><p>${valid}</p></div>
+    <div class="box"><h3>Przewidywany termin realizacji</h3><p>${lead}</p></div>
+    <div class="box wide"><h3>Warunki realizacji / płatności / dostawy</h3><p>${terms}</p></div>
+  </section>
+
+  <section class="accept"><h3>Akceptacja ${acceptanceLabel}</h3><p>Akceptuję dokument nr <strong>${esc(q.quote_number)}</strong> i zlecam realizację zgodnie z przedstawionym zakresem oraz warunkami.</p><div class="signature"><div class="line">Data</div><div class="line">Imię i nazwisko / firma</div><div class="line">Podpis</div></div></section>
+
+  <footer class="foot">MJ Reclame • BTW NL004692781B08 • KvK 89116453 • info@reclamemj.nl • www.reclamemj.nl</footer>
+</main>
+</body>
+</html>`;
+  }
+
+  function openQuoteDocument(id){
+    const html = quoteDocumentHtml(id);
+    if(!html){ notify("Nie znaleziono wyceny/oferty do wygenerowania dokumentu.", true); return; }
+    const popup = window.open("", "_blank");
+    if(!popup){ notify("Przeglądarka zablokowała okno dokumentu. Zezwól na wyskakujące okna dla panelu MJ Reclame.", true); return; }
+    popup.document.open();
+    popup.document.write(html);
+    popup.document.close();
   }
 
   function renderQuotePreview(id){
@@ -447,7 +568,7 @@
       </div>
       <h4 class="project-services-heading">Pozycje dokumentu</h4>
       <div class="table-wrap quote-preview-items"><table><thead><tr><th>Opis</th><th>Ilość</th><th>Jedn.</th><th>Cena netto</th><th>VAT</th><th>Netto</th><th>Brutto</th></tr></thead><tbody>${rows}</tbody></table></div>
-      <div class="form-buttons quote-preview-actions"><button type="button" class="primary" data-quote-edit="${esc(q.id)}">Edytuj wycenę / ofertę</button></div>`;
+      <div class="form-buttons quote-preview-actions"><button type="button" class="primary" data-quote-document="${esc(q.id)}">Dokument dla klienta / PDF</button><button type="button" class="ghost" data-quote-edit="${esc(q.id)}">Edytuj wycenę / ofertę</button></div>`;
     els.quotePreviewCard.hidden = false;
   }
 
@@ -1529,6 +1650,9 @@
         requestAnimationFrame(() => els.quotePreviewCard?.scrollIntoView({ behavior: "smooth", block: "start" }));
         return;
       }
+
+      const quoteDocument = e.target.closest("[data-quote-document]");
+      if(quoteDocument){ openQuoteDocument(quoteDocument.dataset.quoteDocument); return; }
 
       const quoteEdit = e.target.closest("[data-quote-edit]");
       if(quoteEdit){ openQuoteFormForEdit(quoteEdit.dataset.quoteEdit); return; }
