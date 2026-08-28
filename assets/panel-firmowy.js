@@ -11,6 +11,7 @@
     clients:[],
     projects:[],
     orders:[],
+    orderItems:[],
     invoices:[],
     quoteClientSearchToken:0,
     quoteClientSearchTimer:null,
@@ -97,7 +98,7 @@
   }
 
   async function loadAll(){
-    await Promise.all([loadInquiries(), loadQuotes(), loadQuoteItems(), loadClients(), loadProjects(), loadOrders(), loadInvoices()]);
+    await Promise.all([loadInquiries(), loadQuotes(), loadQuoteItems(), loadClients(), loadProjects(), loadOrders(), loadOrderItems(), loadInvoices()]);
     renderAll();
   }
 
@@ -135,6 +136,12 @@
     const { data, error } = await state.sb.from("company_orders").select("*, company_clients(name, company_name, email), company_projects(title, status, client_id)").order("created_at", {ascending:false});
     if(error){ notify("Nie udało się załadować usług/zleceń: " + error.message, true); state.orders=[]; return; }
     state.orders = data || [];
+  }
+
+  async function loadOrderItems(){
+    const { data, error } = await state.sb.from("company_order_items").select("*").order("position", {ascending:true});
+    if(error){ notify("Nie udało się załadować pozycji zleceń: " + error.message, true); state.orderItems=[]; return; }
+    state.orderItems = data || [];
   }
 
   async function loadInvoices(){
@@ -324,6 +331,12 @@
          <button type="button" class="secondary" data-quote-from-inquiry="${esc(i.id)}">+ Dodaj kolejną wycenę / ofertę</button>`
       : `<button type="button" class="primary" data-quote-from-inquiry="${esc(i.id)}">+ Utwórz wycenę / ofertę</button>`;
 
+    const linkedOrders = ordersForInquiry(i.id);
+    const linkedOrderRows = linkedOrders.length ? linkedOrders.map(o => {
+      const sourceQuote = quoteForOrder(o);
+      return `<tr><td>${datePl(o.created_at)}</td><td><strong>${esc(o.title || "Zlecenie")}</strong>${sourceQuote ? `<br><span class="muted">z ${esc(sourceQuote.quote_number)}</span>` : ""}</td><td><span class="status-pill">${esc(o.status || "Nowe")}</span></td><td class="amount">${money(o.amount_gross || 0)}</td><td><button type="button" class="tiny secondary" data-order-focus="${esc(o.id)}">Pokaż</button></td></tr>`;
+    }).join("") : `<tr><td colspan="5" class="empty">Brak zleceń powiązanych z tym zapytaniem.</td></tr>`;
+
     els.inquiryPreviewContent.innerHTML = `
       <div class="inquiry-summary-grid">
         <div><span>Data</span><strong>${datePl(i.created_at)}</strong></div>
@@ -347,6 +360,8 @@
           <tbody>${linkedQuoteRows}</tbody>
         </table>
       </div>
+      <h4 class="project-services-heading">Zlecenia powiązane z tym zapytaniem</h4>
+      <div class="table-wrap client-quotes-table"><table><thead><tr><th>Data</th><th>Zlecenie</th><th>Status</th><th>Brutto</th><th>Akcje</th></tr></thead><tbody>${linkedOrderRows}</tbody></table></div>
       <div class="form-buttons inquiry-preview-actions">
         ${linkedClient
           ? `<button type="button" class="secondary" data-client-view="${esc(linkedClient.id)}">Karta klienta</button>`
@@ -364,6 +379,31 @@
 
   function quoteItemsFor(quoteId){
     return state.quoteItems.filter(item => item.quote_id === quoteId).sort((a,b) => Number(a.position || 0) - Number(b.position || 0));
+  }
+
+  function orderForQuote(quoteId){
+    return state.orders.find(order => order.quote_id === quoteId) || null;
+  }
+
+  function ordersForInquiry(inquiryId){
+    if(!inquiryId) return [];
+    const quoteIds = new Set(state.quotes.filter(q => q.inquiry_id === inquiryId).map(q => q.id));
+    return state.orders.filter(order => order.inquiry_id === inquiryId || (order.quote_id && quoteIds.has(order.quote_id)));
+  }
+
+  function quoteForOrder(order){
+    return order?.quote_id ? state.quotes.find(q => q.id === order.quote_id) || null : null;
+  }
+
+  function orderItemsFor(orderId){
+    return state.orderItems.filter(item => item.order_id === orderId).sort((a,b) => Number(a.position || 0) - Number(b.position || 0));
+  }
+
+  function quoteProjectOptionsHtml(quote){
+    const projects = state.projects
+      .filter(p => p.client_id === quote.client_id && !["Archiwalny","Anulowany"].includes(p.status || ""))
+      .sort((a,b) => String(b.created_at || "").localeCompare(String(a.created_at || "")));
+    return '<option value="">Bez projektu — przypiszę później</option>' + projects.map(p => `<option value="${esc(p.id)}">${esc(p.title)} • ${esc(p.status || "Nowy")}</option>`).join("");
   }
 
   function quoteTotals(quoteId){
@@ -547,6 +587,13 @@
     const client = q.company_clients?.name || q.company_clients?.company_name || "—";
     const items = quoteItemsFor(id);
     const totals = quoteTotals(id);
+    const linkedOrder = orderForQuote(id);
+    const accepted = (q.status || "Robocza") === "Zaakceptowana";
+    const orderAction = linkedOrder
+      ? `<div class="inquiry-message"><strong>Zlecenie zostało utworzone z tej wyceny.</strong><br><span class="muted">${esc(linkedOrder.title || "Zlecenie")} • ${money(linkedOrder.amount_gross || 0)}</span><div class="form-buttons"><button type="button" class="secondary" data-order-focus="${esc(linkedOrder.id)}">Przejdź do zlecenia</button></div></div>`
+      : accepted
+        ? `<div class="inquiry-message"><strong>Wycena zaakceptowana — można utworzyć zlecenie.</strong><br><span class="muted">Wybierz projekt opcjonalnie. Jeśli go nie wybierzesz, zlecenie pozostanie bez projektu i będzie można przypisać je później.</span><label style="display:block;margin-top:10px">Projekt dla zlecenia<select class="table-select" data-quote-order-project="${esc(q.id)}" style="width:100%;margin-top:6px">${quoteProjectOptionsHtml(q)}</select></label><div class="form-buttons"><button type="button" class="primary" data-order-from-quote="${esc(q.id)}">Utwórz zlecenie z wyceny</button></div></div>`
+        : `<div class="inquiry-message"><strong>Zlecenie można utworzyć po zaakceptowaniu wyceny.</strong><br><span class="muted">Zmień status dokumentu na „Zaakceptowana”, gdy klient potwierdzi realizację.</span></div>`;
     const rows = items.length ? items.map(item => `<tr>
       <td>${esc(item.description)}</td><td>${esc(item.quantity)}</td><td>${esc(item.unit)}</td><td class="amount">${money(item.unit_net)}</td><td>${esc(item.vat_rate)}%</td><td class="amount">${money(item.line_net)}</td><td class="amount">${money(item.line_gross)}</td>
     </tr>`).join("") : `<tr><td colspan="7" class="empty">Brak pozycji.</td></tr>`;
@@ -568,6 +615,8 @@
       </div>
       <h4 class="project-services-heading">Pozycje dokumentu</h4>
       <div class="table-wrap quote-preview-items"><table><thead><tr><th>Opis</th><th>Ilość</th><th>Jedn.</th><th>Cena netto</th><th>VAT</th><th>Netto</th><th>Brutto</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <h4 class="project-services-heading">Realizacja / zlecenie</h4>
+      ${orderAction}
       <div class="form-buttons quote-preview-actions"><button type="button" class="primary" data-quote-document="${esc(q.id)}">Dokument dla klienta / PDF</button><button type="button" class="ghost" data-quote-edit="${esc(q.id)}">Edytuj wycenę / ofertę</button></div>`;
     els.quotePreviewCard.hidden = false;
   }
@@ -833,6 +882,7 @@
     const projects = state.projects.filter(p => p.client_id === id);
     const inquiries = state.inquiries.filter(i => i.client_id === id);
     const quotes = state.quotes.filter(q => q.client_id === id);
+    const orders = state.orders.filter(o => o.client_id === id);
     const quoteRows = quotes.length ? quotes.map(q => {
       const total = quoteTotals(q.id);
       return `<tr><td><strong>${esc(q.quote_number)}</strong><br><span class="muted">${esc(q.quote_type)}</span></td><td>${datePl(q.issue_date)}</td><td><span class="status-pill ${quoteStatusClass(q.status || "Robocza")}">${esc(q.status || "Robocza")}</span></td><td class="amount">${money(total.gross)}</td><td><button type="button" class="tiny secondary" data-quote-view="${esc(q.id)}">Podgląd</button></td></tr>`;
@@ -840,6 +890,10 @@
     const inquiryRows = inquiries.length ? inquiries.map(i => `
       <tr><td>${datePl(i.created_at)}</td><td>${esc(i.service || i.product_inquiry || "Inne")}</td><td><span class="status-pill ${inquiryStatusClass(i.status || "Nowe")}">${esc(i.status || "Nowe")}</span></td><td><button type="button" class="tiny secondary" data-inquiry-view="${esc(i.id)}">Podgląd</button></td></tr>`).join("")
       : `<tr><td colspan="4" class="empty">Brak zapytań o wycenę powiązanych z tym klientem.</td></tr>`;
+    const orderRows = orders.length ? orders.map(o => {
+      const sourceQuote = quoteForOrder(o);
+      return `<tr><td>${datePl(o.created_at)}</td><td><strong>${esc(o.title || "Zlecenie")}</strong>${sourceQuote ? `<br><span class="muted">z ${esc(sourceQuote.quote_number)}</span>` : ""}</td><td><span class="status-pill">${esc(o.status || "Nowe")}</span></td><td class="amount">${money(o.amount_gross || 0)}</td><td><button type="button" class="tiny secondary" data-order-focus="${esc(o.id)}">Pokaż</button></td></tr>`;
+    }).join("") : `<tr><td colspan="5" class="empty">Brak usług/zleceń dla tego klienta.</td></tr>`;
     els.clientPreviewContent.innerHTML = `
       <div class="client-card-grid">
         <div><span>Nazwa</span><strong>${esc(c.name || "—")}</strong></div>
@@ -852,6 +906,7 @@
         <div><span>Projekty</span><strong>${projects.length}</strong></div>
         <div><span>Zapytania o wycenę</span><strong>${inquiries.length}</strong></div>
         <div><span>Wyceny / oferty</span><strong>${quotes.length}</strong></div>
+        <div><span>Usługi / zlecenia</span><strong>${orders.length}</strong></div>
         <div class="full"><span>Adres</span><strong>${address}</strong></div>
         <div class="full"><span>Notatki</span><strong>${esc(c.notes || "—")}</strong></div>
       </div>
@@ -864,7 +919,9 @@
       <h4 class="project-services-heading">Zapytania o wycenę klienta</h4>
       <div class="table-wrap client-quotes-table"><table><thead><tr><th>Data</th><th>Temat / usługa</th><th>Status</th><th>Akcje</th></tr></thead><tbody>${inquiryRows}</tbody></table></div>
       <h4 class="project-services-heading">Wyceny / oferty klienta</h4>
-      <div class="table-wrap client-quotes-table"><table><thead><tr><th>Dokument</th><th>Data</th><th>Status</th><th>Brutto</th><th>Akcje</th></tr></thead><tbody>${quoteRows}</tbody></table></div>`;
+      <div class="table-wrap client-quotes-table"><table><thead><tr><th>Dokument</th><th>Data</th><th>Status</th><th>Brutto</th><th>Akcje</th></tr></thead><tbody>${quoteRows}</tbody></table></div>
+      <h4 class="project-services-heading">Usługi / zlecenia klienta</h4>
+      <div class="table-wrap client-quotes-table"><table><thead><tr><th>Data</th><th>Zlecenie</th><th>Status</th><th>Brutto</th><th>Akcje</th></tr></thead><tbody>${orderRows}</tbody></table></div>`;
     els.clientPreviewCard.hidden = false;
   }
 
@@ -957,21 +1014,53 @@
 
   function renderOrders(){
     if(!els.ordersTable) return;
-    if(!state.orders.length){ els.ordersTable.innerHTML = `<tr><td colspan="8" class="empty">Brak usług/zleceń.</td></tr>`; return; }
+    if(!state.orders.length){ els.ordersTable.innerHTML = `<tr><td colspan="9" class="empty">Brak usług/zleceń.</td></tr>`; return; }
     els.ordersTable.innerHTML = state.orders.map(o => {
       const client = o.company_clients?.name || o.company_clients?.company_name || "—";
       const gross = Number(o.amount_gross || 0);
-      return `<tr>
+      const sourceQuote = quoteForOrder(o);
+      return `<tr data-order-row="${esc(o.id)}">
         <td class="nowrap">${datePl(o.created_at)}</td>
         <td><select class="table-select project-link-select" data-order-project="${esc(o.id)}">${projectOptionsHtml(o.project_id, true)}</select></td>
         <td><strong>${esc(client)}</strong><br><span class="muted">${esc(o.company_clients?.email || "")}</span></td>
         <td>${esc(o.service_type || "—")}</td>
-        <td>${esc(o.title || "—")}</td>
+        <td><strong>${esc(o.title || "—")}</strong>${sourceQuote ? `<br><button type="button" class="tiny ghost" data-quote-view="${esc(sourceQuote.id)}">${esc(sourceQuote.quote_number)}</button>` : ""}</td>
         <td>${statusSelect("order", o.id, o.status || "Nowe", ["Nowe","W trakcie","Do wyceny","Wycenione","Zaakceptowane","W produkcji","Gotowe","Zakończone","Anulowane"])}</td>
         <td class="nowrap">${o.deadline ? datePl(o.deadline) : "—"}</td>
         <td class="amount">${gross ? money(gross) : "—"}</td>
+        <td><button type="button" class="tiny secondary" data-order-focus="${esc(o.id)}">Podgląd</button></td>
       </tr>`;
     }).join("");
+  }
+
+  function renderOrderPreview(id){
+    const o = state.orders.find(item => item.id === id);
+    if(!o){ notify("Nie znaleziono zlecenia.", true); return; }
+    const client = state.clients.find(c => c.id === o.client_id);
+    const project = o.project_id ? state.projects.find(p => p.id === o.project_id) : null;
+    const sourceQuote = quoteForOrder(o);
+    const inquiry = o.inquiry_id ? state.inquiries.find(i => i.id === o.inquiry_id) : null;
+    const items = orderItemsFor(id);
+    const itemRows = items.length ? items.map(item => `<tr><td>${esc(item.description)}</td><td>${esc(item.quantity)}</td><td>${esc(item.unit)}</td><td class="amount">${money(item.unit_net)}</td><td>${esc(item.vat_rate)}%</td><td class="amount">${money(item.line_net)}</td><td class="amount">${money(item.line_gross)}</td></tr>`).join("") : `<tr><td colspan="7" class="empty">Brak zapisanych pozycji zlecenia.</td></tr>`;
+    els.orderPreviewContent.innerHTML = `
+      <div class="quote-summary-grid">
+        <div><span>Tytuł</span><strong>${esc(o.title || "—")}</strong></div>
+        <div><span>Status</span><strong>${esc(o.status || "Nowe")}</strong></div>
+        <div><span>Klient</span><strong>${esc(client ? clientDisplayName(client) : (o.company_clients?.name || o.company_clients?.company_name || "—"))}</strong></div>
+        <div><span>Projekt</span><strong>${esc(project?.title || o.company_projects?.title || "Bez projektu")}</strong></div>
+        <div><span>Źródło</span><strong>${sourceQuote ? esc(sourceQuote.quote_number) : "Wpis ręczny"}</strong></div>
+        <div><span>Zapytanie</span><strong>${inquiry ? esc(quoteInquiryLabel(inquiry.id)) : "—"}</strong></div>
+        <div><span>Termin realizacji</span><strong>${esc(o.lead_time || (o.deadline ? datePl(o.deadline) : "—"))}</strong></div>
+        <div><span>Netto</span><strong>${money(o.amount_net || 0)}</strong></div>
+        <div><span>VAT</span><strong>${money(o.vat_amount || 0)}</strong></div>
+        <div><span>Brutto</span><strong>${money(o.amount_gross || 0)}</strong></div>
+        <div class="full"><span>Warunki z zaakceptowanej wyceny</span><div class="inquiry-message">${esc(o.terms || "—").replace(/\n/g,"<br>")}</div></div>
+        <div class="full"><span>Notatki wewnętrzne</span><div class="inquiry-message">${esc(o.notes || "—").replace(/\n/g,"<br>")}</div></div>
+      </div>
+      <h4 class="project-services-heading">Pozycje zlecenia</h4>
+      <div class="table-wrap quote-preview-items"><table><thead><tr><th>Opis</th><th>Ilość</th><th>Jedn.</th><th>Cena netto</th><th>VAT</th><th>Netto</th><th>Brutto</th></tr></thead><tbody>${itemRows}</tbody></table></div>
+      <div class="form-buttons">${sourceQuote ? `<button type="button" class="secondary" data-quote-view="${esc(sourceQuote.id)}">Otwórz wycenę</button>` : ""}${inquiry ? `<button type="button" class="ghost" data-inquiry-view="${esc(inquiry.id)}">Otwórz zapytanie</button>` : ""}${client ? `<button type="button" class="ghost" data-client-view="${esc(client.id)}">Karta klienta</button>` : ""}</div>`;
+    els.orderPreviewCard.hidden = false;
   }
 
   function renderInvoices(){
@@ -1273,6 +1362,117 @@
     await loadOrders();
     renderAll();
     notify("Usługa/zlecenie zostało zapisane w projekcie.");
+  }
+
+  function orderServiceFromQuote(quote){
+    const inquiry = quote?.inquiry_id ? state.inquiries.find(i => i.id === quote.inquiry_id) : null;
+    const source = `${inquiry?.service || ""} ${inquiry?.product_inquiry || ""} ${quoteItemsFor(quote?.id).map(i => i.description || "").join(" ")}`.toLowerCase();
+    if(/dtf|odzie|koszul|shirt|textiel/.test(source)) return "DTF / odzież z nadrukiem";
+    if(/książ|wydawn|boek|publik/.test(source)) return "Wydawnictwo / książka";
+    if(/projekt|grafic|design/.test(source)) return "Projekt graficzny";
+    if(/plakat|ulot|poster|flyer/.test(source)) return "Plakaty / ulotki";
+    if(/baner|banner/.test(source)) return "Baner reklamowy";
+    if(/materiał.*reklam|promoc/.test(source)) return "Materiały reklamowe";
+    if(/e-?book|audiobook/.test(source)) return "E-book / audiobook";
+    if(/druk|print/.test(source)) return "Druk";
+    if(/reklam/.test(source)) return "Reklama";
+    return "Inne";
+  }
+
+  function orderTitleFromQuote(quote){
+    const items = quoteItemsFor(quote.id);
+    const itemText = items.slice(0,2).map(i => i.description).filter(Boolean).join(" + ");
+    const suffix = items.length > 2 ? ` + ${items.length - 2} poz.` : "";
+    return `Realizacja ${quote.quote_number}${itemText ? ` — ${itemText}${suffix}` : ""}`.slice(0,240);
+  }
+
+  async function createOrderFromQuote(quoteId){
+    const quote = state.quotes.find(q => q.id === quoteId);
+    if(!quote) return notify("Nie znaleziono wyceny/oferty.", true);
+    if((quote.status || "Robocza") !== "Zaakceptowana") return notify("Zlecenie można utworzyć dopiero z zaakceptowanej wyceny/oferty.", true);
+
+    const existing = orderForQuote(quoteId);
+    if(existing){ notify("Z tej wyceny zlecenie zostało już utworzone."); focusOrder(existing.id); return; }
+
+    const items = quoteItemsFor(quoteId);
+    if(!items.length) return notify("Wycena nie ma pozycji — nie można utworzyć zlecenia.", true);
+
+    const projectSelect = document.querySelector(`[data-quote-order-project="${CSS.escape(quoteId)}"]`);
+    const projectId = projectSelect?.value || null;
+    if(projectId){
+      const project = state.projects.find(p => p.id === projectId);
+      if(!project || project.client_id !== quote.client_id) return notify("Wybrany projekt nie należy do klienta tej wyceny.", true);
+    }
+
+    if(!window.confirm(`Utworzyć zlecenie z ${quote.quote_number}?\n\nPozycje, ceny i powiązania zostaną skopiowane z zaakceptowanej wyceny.`)) return;
+
+    const totals = quoteTotals(quoteId);
+    const effectiveVat = totals.net > 0 ? (totals.vat / totals.net) * 100 : 0;
+    const payload = {
+      created_by: state.user.id,
+      project_id: projectId,
+      client_id: quote.client_id,
+      quote_id: quote.id,
+      inquiry_id: quote.inquiry_id || null,
+      source: "quote",
+      service_type: orderServiceFromQuote(quote),
+      title: orderTitleFromQuote(quote),
+      status: "Zaakceptowane",
+      deadline: null,
+      lead_time: quote.lead_time || null,
+      terms: quote.terms || null,
+      amount_net: totals.net,
+      vat_rate: Number(effectiveVat.toFixed(3)),
+      vat_amount: totals.vat,
+      amount_gross: totals.gross,
+      notes: quote.notes || null
+    };
+
+    const { data, error } = await state.sb.from("company_orders").insert(payload).select("id").single();
+    if(error){
+      if(error.code === "23505" || /quote_id|unique|duplicate/i.test(error.message || "")){
+        await loadOrders();
+        const duplicate = orderForQuote(quoteId);
+        if(duplicate){ notify("Z tej wyceny zlecenie zostało już utworzone."); focusOrder(duplicate.id); return; }
+      }
+      return notify("Nie utworzono zlecenia z wyceny: " + error.message, true);
+    }
+
+    const orderItems = items.map(item => ({
+      order_id: data.id,
+      source_quote_item_id: item.id,
+      position: Number(item.position || 1),
+      description: item.description,
+      quantity: Number(item.quantity || 1),
+      unit: item.unit || "szt.",
+      unit_net: Number(item.unit_net || 0),
+      vat_rate: Number(item.vat_rate || 0)
+    }));
+    const { error: itemError } = await state.sb.from("company_order_items").insert(orderItems);
+    if(itemError){
+      await state.sb.from("company_orders").delete().eq("id", data.id);
+      return notify("Zlecenie nie zostało zapisane, ponieważ nie udało się skopiować jego pozycji: " + itemError.message, true);
+    }
+
+    if(quote.inquiry_id){
+      await state.sb.from("company_inquiries").update({status:"Zaakceptowane"}).eq("id", quote.inquiry_id);
+    }
+
+    await Promise.all([loadOrders(), loadOrderItems(), loadInquiries()]);
+    renderAll();
+    renderQuotePreview(quoteId);
+    notify("Zlecenie zostało utworzone z zaakceptowanej wyceny.");
+  }
+
+  function focusOrder(orderId){
+    setView("orders");
+    renderOrderPreview(orderId);
+    requestAnimationFrame(() => {
+      const card = els.orderPreviewCard;
+      if(card && !card.hidden) card.scrollIntoView({behavior:"smooth", block:"start"});
+      const row = document.querySelector(`[data-order-row="${CSS.escape(orderId)}"]`);
+      if(row) row.animate?.([{outline:"3px solid rgba(71,223,0,.75)"},{outline:"3px solid transparent"}],{duration:1800,easing:"ease-out"});
+    });
   }
 
   async function updateOrderProject(select){
@@ -1617,6 +1817,7 @@
     els.quotePreviewClose.addEventListener("click", () => { els.quotePreviewCard.hidden = true; });
     els.clientPreviewClose.addEventListener("click", () => { els.clientPreviewCard.hidden = true; });
     els.projectPreviewClose.addEventListener("click", () => { els.projectPreviewCard.hidden = true; });
+    els.orderPreviewClose.addEventListener("click", () => { els.orderPreviewCard.hidden = true; });
     els.orderProject.addEventListener("change", syncOrderClientFromProject);
     els.quoteAddItem.addEventListener("click", () => addQuoteItemRow());
     $("quote-type").addEventListener("change", () => { if(!state.editingQuoteId) $("quote-number").value = proposeQuoteNumber($("quote-type").value); });
@@ -1653,6 +1854,12 @@
 
       const quoteDocument = e.target.closest("[data-quote-document]");
       if(quoteDocument){ openQuoteDocument(quoteDocument.dataset.quoteDocument); return; }
+
+      const orderFromQuote = e.target.closest("[data-order-from-quote]");
+      if(orderFromQuote){ await createOrderFromQuote(orderFromQuote.dataset.orderFromQuote); return; }
+
+      const orderFocus = e.target.closest("[data-order-focus]");
+      if(orderFocus){ focusOrder(orderFocus.dataset.orderFocus); return; }
 
       const quoteEdit = e.target.closest("[data-quote-edit]");
       if(quoteEdit){ openQuoteFormForEdit(quoteEdit.dataset.quoteEdit); return; }
@@ -1731,7 +1938,7 @@
       recentInquiries: $("recent-inquiries"), recentProjects: $("recent-projects"), recentInvoices: $("recent-invoices"),
       clientFormCard: $("client-form-card"), clientFormTitle: $("client-form-title"), clientFormMode: $("client-form-mode"), clientSubmitButton: $("client-submit-button"), clientCancelButton: $("client-cancel-button"), clientNewButton: $("client-new-button"), clientPreviewCard: $("client-preview-card"), clientPreviewContent: $("client-preview-content"), clientPreviewClose: $("client-preview-close"),
       projectFormCard: $("project-form-card"), projectFormTitle: $("project-form-title"), projectFormMode: $("project-form-mode"), projectSubmitButton: $("project-submit-button"), projectCancelButton: $("project-cancel-button"), projectNewButton: $("project-new-button"), projectPreviewCard: $("project-preview-card"), projectPreviewContent: $("project-preview-content"), projectPreviewClose: $("project-preview-close"),
-      orderFormCard: $("order-form-card")
+      orderFormCard: $("order-form-card"), orderPreviewCard: $("order-preview-card"), orderPreviewContent: $("order-preview-content"), orderPreviewClose: $("order-preview-close")
     });
   }
 

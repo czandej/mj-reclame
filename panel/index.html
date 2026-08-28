@@ -12,7 +12,7 @@
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script defer src="/supabase-config.js"></script>
   <script defer src="/assets/canonical-domain.js"></script>
-  <script defer src="/assets/panel-firmowy.js"></script>
+  <script defer src="/assets/panel-firmowy.js?v=27"></script>
 </head>
 <body>
   <div class="panel-shell">
@@ -373,7 +373,15 @@
             </form>
           </article>
 
-          <div class="table-wrap"><table><thead><tr><th>Data</th><th>Projekt</th><th>Klient</th><th>Usługa</th><th>Tytuł</th><th>Status</th><th>Termin</th><th>Kwota</th></tr></thead><tbody id="orders-table"></tbody></table></div>
+          <article class="panel-card inner quote-preview-card" id="order-preview-card" hidden>
+            <div class="panel-actions-row compact">
+              <div><p class="panel-kicker">Podgląd zlecenia</p><h3>Szczegóły realizacji</h3></div>
+              <button class="ghost" id="order-preview-close" type="button">Zamknij</button>
+            </div>
+            <div id="order-preview-content"></div>
+          </article>
+
+          <div class="table-wrap"><table><thead><tr><th>Data</th><th>Projekt</th><th>Klient</th><th>Usługa</th><th>Tytuł</th><th>Status</th><th>Termin</th><th>Kwota</th><th>Akcje</th></tr></thead><tbody id="orders-table"></tbody></table></div>
         </section>
 
         <section class="panel-view" data-panel-view="invoices">
@@ -417,7 +425,7 @@
               <li>Zapytania z formularza zapisują się w tabeli <code>company_inquiries</code>; wysyłka wiadomości e-mail pozostaje bez zmian.</li>
               <li>Dane klientów zapisują się w tabeli <code>company_clients</code> i pozostają widoczne po odświeżeniu strony.</li>
               <li>Projekty główne zapisują się w tabeli <code>company_projects</code>.</li>
-              <li>Usługi/zlecenia zapisują się w tabeli <code>company_orders</code> i są łączone z projektem przez <code>project_id</code>.</li>
+              <li>Usługi/zlecenia zapisują się w tabeli <code>company_orders</code>. Zlecenie utworzone z zaakceptowanej wyceny zachowuje powiązanie z wyceną i zapytaniem, a jego pozycje są zapisywane w <code>company_order_items</code>. Projekt można przypisać od razu albo później.</li>
               <li>Wyceny i oferty zapisują się w tabelach <code>company_quotes</code> i <code>company_quote_items</code>, z powiązaniem do klienta oraz opcjonalnie do zapytania o wycenę.</li>
               <li>Faktury zapisują się w tabeli <code>company_invoices</code>.</li>
               <li>Dostęp do danych mają tylko konta z rolą <code>admin</code> w tabeli <code>profiles</code>.</li>
