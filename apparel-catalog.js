@@ -60,6 +60,17 @@
     return Number.isFinite(n) && n > 0 ? n : 1;
   }
 
+  function formatPrice(value){
+    if(window.MJApparelPricing && typeof window.MJApparelPricing.money === "function") return window.MJApparelPricing.money(value);
+    const n = Number(value || 0);
+    return n.toFixed(2).replace(".", ",") + " €";
+  }
+
+  function grossPrice(value){
+    if(window.MJApparelPricing && typeof window.MJApparelPricing.gross === "function") return window.MJApparelPricing.gross(value);
+    return Number(value || 0) * 1.21;
+  }
+
   function loadInquiry(){
     try {
       const raw = localStorage.getItem(storageKey);
@@ -85,6 +96,23 @@
       lines.push(`   ${lang === "nl" ? "Maat" : "Rozmiar"}: ${item.size}`);
       lines.push(`   ${lang === "nl" ? "Kleur" : "Kolor"}: ${item.color}`);
       lines.push(`   ${lang === "nl" ? "Aantal" : "Ilość"}: ${item.qty}`);
+      if(Array.isArray(item.prints) && item.prints.length){
+        lines.push(`   ${lang === "nl" ? "Bedrukking" : "Nadruk"}: ${item.prints.map(p => p.label).join("; ")}`);
+      } else {
+        lines.push(`   ${lang === "nl" ? "Bedrukking" : "Nadruk"}: ${lang === "nl" ? "zonder bedrukking" : "bez nadruku"}`);
+      }
+      if(Number.isFinite(Number(item.basePrice))){
+        const unitNet = Number(item.unitNet || item.basePrice || 0);
+        const totalNet = Number(item.totalNet || 0);
+        lines.push(`   ${lang === "nl" ? "Prijs vanaf netto" : "Cena od netto"}: ${formatPrice(item.basePrice)}`);
+        lines.push(`   ${lang === "nl" ? "Prijs vanaf bruto" : "Cena od brutto"}: ${formatPrice(Number.isFinite(Number(item.baseGross)) ? item.baseGross : grossPrice(item.basePrice))}`);
+        lines.push(`   ${lang === "nl" ? "Bedrukking netto / stuk" : "Nadruk netto / szt."}: ${formatPrice(item.printPrice || 0)}`);
+        lines.push(`   ${lang === "nl" ? "Bedrukking bruto / stuk" : "Nadruk brutto / szt."}: ${formatPrice(Number.isFinite(Number(item.printGross)) ? item.printGross : grossPrice(item.printPrice || 0))}`);
+        lines.push(`   ${lang === "nl" ? "Prijs netto / stuk" : "Cena netto / szt."}: ${formatPrice(unitNet)}`);
+        lines.push(`   ${lang === "nl" ? "Prijs bruto / stuk" : "Cena brutto / szt."}: ${formatPrice(Number.isFinite(Number(item.unitGross)) ? item.unitGross : grossPrice(unitNet))}`);
+        lines.push(`   ${lang === "nl" ? "Totaal netto" : "Razem netto"}: ${formatPrice(totalNet)}`);
+        lines.push(`   ${lang === "nl" ? "Totaal bruto" : "Razem brutto"}: ${formatPrice(Number.isFinite(Number(item.totalGross)) ? item.totalGross : grossPrice(totalNet))}`);
+      }
       lines.push("");
     });
     const sum = inquiry.reduce((acc, item) => acc + safeQty(item.qty), 0);
@@ -131,7 +159,14 @@
         <td><button class="dtf-remove" type="button" data-remove-index="${index}">${labels.remove}</button></td>
       `;
       tr.querySelector("b").textContent = item.name || "";
-      tr.querySelector("small").textContent = item.code ? `Kod: ${item.code}` : "";
+      const details = [];
+      if(item.code) details.push(`Kod: ${item.code}`);
+      if(Array.isArray(item.prints) && item.prints.length) details.push(item.prints.map(p => p.label).join(" • "));
+      if(Number.isFinite(Number(item.unitNet))){
+        details.push(`${lang === "nl" ? "netto/st." : "netto/szt."} ${formatPrice(item.unitNet)}`);
+        details.push(`${lang === "nl" ? "bruto/st." : "brutto/szt."} ${formatPrice(Number.isFinite(Number(item.unitGross)) ? item.unitGross : grossPrice(item.unitNet))}`);
+      }
+      tr.querySelector("small").textContent = details.join(" · ");
       tr.children[1].textContent = item.size || "";
       tr.querySelector(".dtf-item-color").textContent = item.color || "";
       tr.children[3].textContent = item.qty || "";
@@ -159,14 +194,36 @@
     const size = sizeBtn ? sizeBtn.dataset.size : "";
     const color = normalizeColorCode(colorBtn ? colorBtn.dataset.colorCode : "");
     const qty = safeQty(qtyInput ? qtyInput.value : 1);
-    return { code, name, size, color, qty };
+    const pricing = window.MJApparelPricing && typeof window.MJApparelPricing.getPricing === "function"
+      ? window.MJApparelPricing.getPricing(card, qty)
+      : null;
+    return {
+      code, name, size, color, qty,
+      prints: pricing ? pricing.prints : [],
+      basePrice: pricing ? pricing.basePrice : undefined,
+      baseGross: pricing ? pricing.baseGross : undefined,
+      printPrice: pricing ? pricing.printPrice : undefined,
+      printGross: pricing ? pricing.printGross : undefined,
+      unitNet: pricing ? pricing.unitNet : undefined,
+      unitGross: pricing ? pricing.unitGross : undefined,
+      totalNet: pricing ? pricing.totalNet : undefined,
+      totalGross: pricing ? pricing.totalGross : undefined,
+      customQuote: pricing ? pricing.customQuote : false
+    };
   }
 
   function addToInquiry(card){
     const item = getSelection(card);
-    const existing = inquiry.find(x => x.code === item.code && x.size === item.size && x.color === item.color);
+    const itemPrintKey = (item.prints || []).map(p => p.key).sort().join("|");
+    const existing = inquiry.find(x => x.code === item.code && x.size === item.size && x.color === item.color && ((x.prints || []).map(p => p.key).sort().join("|")) === itemPrintKey);
     if(existing){
       existing.qty = safeQty(existing.qty) + item.qty;
+      if(Number.isFinite(Number(item.unitNet))){
+        existing.unitNet = Number(item.unitNet);
+        existing.unitGross = Number.isFinite(Number(item.unitGross)) ? Number(item.unitGross) : grossPrice(item.unitNet);
+        existing.totalNet = Number(item.unitNet) * existing.qty;
+        existing.totalGross = grossPrice(existing.totalNet);
+      }
     } else {
       inquiry.push(item);
     }
@@ -376,11 +433,22 @@
     const summary = card.querySelector("[data-selected-summary]");
 
     if(summary){
-      summary.textContent = `${labels.chosen}: ${item.size}, ${labels.color} ${item.color}, ${labels.qty} ${item.qty}`;
+      const printLabel = Array.isArray(item.prints) && item.prints.length
+        ? item.prints.map(p => p.label).join(" • ")
+        : (lang === "nl" ? "zonder bedrukking" : "bez nadruku");
+      const priceLabel = Number.isFinite(Number(item.unitNet))
+        ? ` · ${formatPrice(item.unitNet)} ${lang === "nl" ? "netto/st." : "netto/szt."} · ${formatPrice(Number.isFinite(Number(item.unitGross)) ? item.unitGross : grossPrice(item.unitNet))} ${lang === "nl" ? "bruto/st." : "brutto/szt."}`
+        : "";
+      summary.textContent = `${labels.chosen}: ${item.size}, ${labels.color} ${item.color}, ${labels.qty} ${item.qty} · ${lang === "nl" ? "bedrukking" : "nadruk"}: ${printLabel}${priceLabel}`;
     }
 
     if(link){
-      const msg = labels.message(item.code, item.name, item.size, item.color, item.qty);
+      let msg = labels.message(item.code, item.name, item.size, item.color, item.qty);
+      if(Array.isArray(item.prints) && item.prints.length) msg += ` ${lang === "nl" ? "Gekozen bedrukking" : "Wybrane nadruki"}: ${item.prints.map(p => p.label).join("; ")}.`;
+      if(Number.isFinite(Number(item.unitNet))){
+        msg += ` ${lang === "nl" ? "Prijs netto per stuk" : "Cena netto za sztukę"}: ${formatPrice(item.unitNet)}.`;
+        msg += ` ${lang === "nl" ? "Prijs bruto per stuk" : "Cena brutto za sztukę"}: ${formatPrice(Number.isFinite(Number(item.unitGross)) ? item.unitGross : grossPrice(item.unitNet))}.`;
+      }
       const base = card.dataset.contact || labels.sendBase;
       link.href = `${base}?produkt=${encodeURIComponent(item.code)}&rozmiar=${encodeURIComponent(item.size)}&kolor=${encodeURIComponent(item.color)}&ilosc=${encodeURIComponent(item.qty)}&wiadomosc=${encodeURIComponent(msg)}`;
     }
@@ -416,6 +484,7 @@
     const initialQty = card.querySelector("[data-qty]");
     if(initialQty) initialQty.value = "1";
     updateLink(card);
+    card.addEventListener("mj-pricing-change", () => updateLink(card));
 
     card.querySelectorAll(".product-size").forEach(btn => {
       btn.addEventListener("click", () => {

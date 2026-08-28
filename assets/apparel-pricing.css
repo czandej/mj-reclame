@@ -1,0 +1,82 @@
+/* MJ Reclame — cennik odzieży i wybór nadruku DTF. Tylko podstrona odzieży. */
+body.mj-preview-service .pricing-intro{
+  display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);gap:22px;align-items:center;
+  margin:0 0 18px;padding:22px;border:1px solid #dbe4de;border-radius:20px;background:linear-gradient(135deg,#fff 0%,#f7fbf5 100%);box-shadow:0 12px 35px rgba(28,53,34,.07)
+}
+body.mj-preview-service .pricing-intro h3{margin:5px 0 7px;color:#242b27;font-size:clamp(1.25rem,2vw,1.65rem);line-height:1.2}
+body.mj-preview-service .pricing-intro p{margin:0;color:#55625b;line-height:1.55}
+body.mj-preview-service .pricing-kicker{display:inline-flex;padding:5px 9px;border-radius:999px;background:#e8f8e2;color:#187800;font-size:.75rem;font-weight:900;letter-spacing:.08em}
+body.mj-preview-service .pricing-intro ol{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0;padding:0;list-style:none}
+body.mj-preview-service .pricing-intro li{padding:10px 12px;border:1px solid #dbe6dd;border-radius:12px;background:#fff;color:#344039;font-size:.88rem;font-weight:800}
+
+body.mj-preview-service .sales-price-badge{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 10px;padding:9px 11px;border-radius:11px;background:#edf8e9;border:1px solid #c4e0bb;color:#26302b}
+body.mj-preview-service .sales-price-badge span{font-size:.78rem;font-weight:800;color:#5d6862}
+body.mj-preview-service .sales-price-badge strong{font-size:1rem;font-weight:900;color:#176f00;white-space:nowrap}
+
+body.mj-preview-service .print-config{margin:10px 0 0;border:1px solid #d6e0da;border-radius:14px;background:#fff;overflow:hidden}
+body.mj-preview-service .print-config summary{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 13px;cursor:pointer;list-style:none;color:#26302b;font-size:.88rem;font-weight:900}
+body.mj-preview-service .print-config summary::-webkit-details-marker{display:none}
+body.mj-preview-service .print-config summary b{padding:4px 8px;border-radius:999px;background:#eff8ec;color:#237707;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em}
+body.mj-preview-service .print-config[open] summary{border-bottom:1px solid #e1e8e3;background:#fbfdfb}
+body.mj-preview-service .print-config-body{padding:13px}
+body.mj-preview-service .print-hint{margin:0 0 12px;color:#5a665f;font-size:.78rem;line-height:1.5}
+body.mj-preview-service .print-map-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+body.mj-preview-service .print-map-card{position:relative;min-height:170px;padding:8px;border:1px solid #e0e7e2;border-radius:13px;background:#f8fbf8;text-align:center;overflow:hidden}
+body.mj-preview-service .print-map-card>span{position:absolute;z-index:2;top:8px;left:8px;padding:4px 7px;border-radius:8px;background:#27302b;color:#fff;font-size:.63rem;font-weight:900;letter-spacing:.08em}
+body.mj-preview-service .print-map-card svg{display:block;width:100%;height:155px;margin:auto}
+body.mj-preview-service .shirt-shape{fill:#fff;stroke:#748079;stroke-width:3;stroke-linejoin:round}
+body.mj-preview-service .shirt-neck{fill:none;stroke:#47b923;stroke-width:4;stroke-linecap:round}
+body.mj-preview-service .map-dot{fill:#47df00;stroke:#176e00;stroke-width:2}
+body.mj-preview-service .map-area{fill:rgba(71,223,0,.10);stroke:#47b923;stroke-width:2;stroke-dasharray:5 4}
+body.mj-preview-service .map-area-back{fill:rgba(71,223,0,.08)}
+body.mj-preview-service .map-text{font:800 10px Arial,sans-serif;fill:#2a342e}
+body.mj-preview-service .map-center{font:900 11px Arial,sans-serif;fill:#2d6630;text-anchor:middle}
+
+body.mj-preview-service .print-option-columns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+body.mj-preview-service .print-option-columns h4{margin:0 0 7px;color:#4d5a53;font-size:.75rem;text-transform:uppercase;letter-spacing:.055em}
+body.mj-preview-service .print-option{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;margin:0 0 6px;padding:9px 10px;border:1px solid #d4ddd7;border-radius:10px;background:#fff;color:#2d3731;text-align:left;font:inherit;font-size:.76rem;font-weight:750;cursor:pointer;transition:.15s ease}
+body.mj-preview-service .print-option strong{color:#176e00;font-size:.75rem;white-space:nowrap}
+body.mj-preview-service .print-option:hover{border-color:#8bcf75;background:#f7fcf5}
+body.mj-preview-service .print-option.is-selected{border-color:#43b822;background:#edf9e9;box-shadow:0 0 0 2px rgba(71,223,0,.15) inset}
+body.mj-preview-service .print-option.is-selected::before{content:'✓';display:inline-flex;align-items:center;justify-content:center;flex:0 0 20px;height:20px;border-radius:50%;background:#2a9b0b;color:#fff;font-size:.7rem}
+body.mj-preview-service .print-option.is-selected span{flex:1}
+body.mj-preview-service .print-custom-note{margin:8px 0 0;padding:9px 10px;border-radius:10px;background:#fff8e8;border:1px solid #eed8a7;color:#765a16;font-size:.75rem;font-weight:750;line-height:1.4}
+
+body.mj-preview-service .product-price-box{margin:10px 0;padding:12px;border:1px solid #d5dfd8;border-radius:14px;background:#fbfdfb;color:#27312b}
+body.mj-preview-service .price-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0;font-size:.78rem}
+body.mj-preview-service .price-row span{color:#59645e}
+body.mj-preview-service .price-row strong{color:#27312b;font-weight:900;white-space:nowrap}
+body.mj-preview-service .price-unit{margin-top:5px;padding-top:8px;border-top:1px dashed #d7dfda}
+body.mj-preview-service .price-unit strong{color:#176e00}
+body.mj-preview-service .price-total{margin-top:4px;padding:8px 9px;border-radius:10px;background:#eaf8e6;font-size:.86rem}
+body.mj-preview-service .price-total span,body.mj-preview-service .price-total strong{color:#145f00;font-weight:900}
+body.mj-preview-service .price-selected-print{margin:8px 0 5px;color:#5a655f;font-size:.72rem;line-height:1.45}
+body.mj-preview-service .price-selected-print.has-print{color:#2f5233;font-weight:750}
+body.mj-preview-service .product-price-box small{display:block;color:#758079;font-size:.69rem;line-height:1.4}
+
+@media(max-width:900px){
+  body.mj-preview-service .pricing-intro{grid-template-columns:1fr}
+}
+@media(max-width:720px){
+  body.mj-preview-service .pricing-intro{padding:16px;border-radius:16px}
+  body.mj-preview-service .pricing-intro ol{grid-template-columns:1fr}
+  body.mj-preview-service .print-map-row{grid-template-columns:1fr 1fr}
+  body.mj-preview-service .print-map-card{min-height:145px}
+  body.mj-preview-service .print-map-card svg{height:132px}
+  body.mj-preview-service .print-option-columns{grid-template-columns:1fr}
+  body.mj-preview-service .print-option{min-height:42px;font-size:.8rem}
+}
+
+
+/* Cena od + równoległa cena brutto (VAT 21%). */
+body.mj-preview-service .sales-price-badge strong{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+body.mj-preview-service .sales-price-badge strong b{font-size:1rem;font-weight:900;color:#176f00;white-space:nowrap}
+body.mj-preview-service .sales-price-badge strong small{font-size:.7rem;font-weight:800;color:#4f5e55;white-space:nowrap}
+body.mj-preview-service .price-row>span{color:#59645e}
+body.mj-preview-service .price-row strong{display:flex;flex-direction:column;align-items:flex-end;gap:1px;color:#27312b;font-weight:900;white-space:nowrap}
+body.mj-preview-service .price-row strong>span{color:inherit;font-weight:900}
+body.mj-preview-service .price-row strong>small{font-size:.68rem;font-weight:800;color:#69756e;line-height:1.25}
+body.mj-preview-service .price-unit strong>span{color:#176e00}
+body.mj-preview-service .price-unit strong>small{color:#3e6e34}
+body.mj-preview-service .price-total-gross{background:#def4d8}
+body.mj-preview-service .price-total-gross span,body.mj-preview-service .price-total-gross strong{color:#0f5600}
