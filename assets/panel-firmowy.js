@@ -424,7 +424,7 @@
 
   function filteredQuotes(){
     const query = (els.quoteSearch?.value || "").toLowerCase().trim();
-    const filter = els.quoteStatusFilter?.value || "open";
+    const filter = els.quoteStatusFilter?.value || "all";
     let rows = state.quotes;
     if(filter === "open") rows = rows.filter(q => !["Zaakceptowana","Odrzucona","Anulowana"].includes(q.status || "Robocza"));
     else if(filter !== "all") rows = rows.filter(q => (q.status || "Robocza") === filter);
