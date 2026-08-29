@@ -134,7 +134,7 @@ function initProductVariants(){
   if(card.querySelector('.mobile-variant-toggle'))return;
   var body=card.querySelector('.sales-body'),fast=body&&body.querySelector('.sales-fast');if(!body)return;
   card.classList.add('mobile-variant-collapsed');
-  var b=document.createElement('button');b.type='button';b.className='mobile-variant-toggle';b.setAttribute('aria-expanded','false');b.innerHTML='<span>'+(isNl()?'Kies variant':'Wybierz wariant')+'</span><span class="mobile-toggle-arrow" aria-hidden="true">▾</span>';
+  var b=document.createElement('button');b.type='button';b.className='mobile-variant-toggle';b.setAttribute('aria-expanded','false');b.innerHTML='<span>'+(isNl()?'Kies maat en kleur':'Wybierz rozmiar i kolor')+'</span><span class="mobile-toggle-action">'+(isNl()?'uitklappen':'rozwiń')+' <span class="mobile-toggle-arrow" aria-hidden="true">▾</span></span>';
   if(fast)fast.insertAdjacentElement('afterend',b);else body.insertBefore(b,body.firstChild);
   b.addEventListener('click',function(){var open=card.classList.toggle('mobile-variant-open');b.setAttribute('aria-expanded',open?'true':'false')});
   var photoOpen=card.querySelector('[data-open-product]');if(photoOpen)photoOpen.addEventListener('click',function(){if(isMobile()){card.classList.add('mobile-variant-open');b.setAttribute('aria-expanded','true')}});
@@ -145,8 +145,8 @@ function initProductVariants(){
    var label=block.querySelector('.sales-label');
    if(qtyInput && isMobile() && !block.querySelector('.mobile-qty-wrap')){
     var qwrap=document.createElement('label');qwrap.className='mobile-qty-wrap';
-    var qcaption=document.createElement('span');qcaption.className='mobile-variant-select-caption';qcaption.textContent=isNl()?'Aantal':'Ilość';
-    qtyInput.setAttribute('aria-label',isNl()?'Kies aantal':'Wybierz ilość');
+    var qcaption=document.createElement('span');qcaption.className='mobile-variant-select-caption';qcaption.textContent=isNl()?'Aantal stuks':'Ilość sztuk';
+    qtyInput.setAttribute('aria-label',isNl()?'Vul aantal stuks in':'Wpisz ilość sztuk');
     qtyInput.setAttribute('inputmode','numeric');
     qwrap.appendChild(qcaption);
     if(label)label.insertAdjacentElement('afterend',qwrap);else block.insertBefore(qwrap,qtyInput);

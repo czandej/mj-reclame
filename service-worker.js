@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'mj-reclame-pwa-v17-20260827-1';
+const CACHE_VERSION = 'mj-reclame-pwa-v18-20260828-1';
 const CORE = [
   '/',
   '/offline.html',

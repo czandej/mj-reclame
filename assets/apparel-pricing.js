@@ -34,7 +34,7 @@
       front:'PRZÓD', back:'TYŁ', frontGroup:'Przód i rękawy', backGroup:'Tył / inne', custom:'Pozycja niestandardowa wymaga indywidualnej wyceny.',
       pricingTitle:'Jak liczona jest cena?', pricingLead:'Cena końcowa = koszulka bazowa + wybrane nadruki DTF + wysyłka.',
       step1:'1. Wybierz koszulkę', step2:'2. Wybierz miejsca nadruku', step3:'3. Podaj ilość', step4:'4. Wysyłkę doliczymy osobno',
-      noPrint:'bez nadruku', selectedPrint:'Wybrane nadruki'
+      noPrint:'bez nadruku', selectedPrint:'Wybrane nadruki', components:'Składowe ceny / 1 szt.', shirt:'Koszulka', qtyLabel:'Ilość sztuk', individual:'wycena indywidualna'
     },
     nl: {
       base:'Prijs vanaf', net:'netto', gross:'bruto', print:'Bedrukking', one:'1 stuk met gekozen bedrukking', total:'Totaal netto', totalGross:'Totaal bruto', shipping:'Verzendkosten worden apart toegevoegd.',
@@ -42,7 +42,7 @@
       front:'VOORZIJDE', back:'ACHTERZIJDE', frontGroup:'Voorzijde en mouwen', backGroup:'Achterzijde / anders', custom:'Een afwijkende positie wordt individueel geoffreerd.',
       pricingTitle:'Hoe wordt de prijs berekend?', pricingLead:'Eindprijs = basisprijs kleding + gekozen DTF-prints + verzending.',
       step1:'1. Kies kleding', step2:'2. Kies printposities', step3:'3. Vul het aantal in', step4:'4. Verzending apart',
-      noPrint:'zonder bedrukking', selectedPrint:'Gekozen bedrukking'
+      noPrint:'zonder bedrukking', selectedPrint:'Gekozen bedrukking', components:'Prijsopbouw / 1 stuk', shirt:'Kleding', qtyLabel:'Aantal stuks', individual:'individuele offerte'
     }
   }[lang];
 
@@ -147,9 +147,12 @@
     box.className = 'product-price-box';
     box.setAttribute('data-product-price-box','');
     box.innerHTML = `
-      <div class="price-row price-base"><span>${text.base}</span><strong><span data-price-base>${money(base)} ${text.net}</span><small data-price-base-gross>${money(gross(base))} ${text.gross}</small></strong></div>
-      <div class="price-row"><span>${text.print}</span><strong><span data-price-print>${money(0)} ${text.net}</span><small data-price-print-gross>${money(0)} ${text.gross}</small></strong></div>
+      <div class="price-components-title">${text.components}</div>
+      <div class="price-components" data-price-components>
+        <div class="price-component-row price-component-base"><span>${text.shirt} ${code}</span><strong><span>${money(base)} ${text.net}</span><small>${money(gross(base))} ${text.gross}</small></strong></div>
+      </div>
       <div class="price-row price-unit"><span>${text.one}</span><strong><span data-price-unit>${money(base)} ${text.net}</span><small data-price-unit-gross>${money(gross(base))} ${text.gross}</small></strong></div>
+      <div class="price-row price-qty"><span>${text.qtyLabel}</span><strong data-price-qty>1</strong></div>
       <div class="price-row price-total"><span>${text.total}</span><strong data-price-total>${money(base)}</strong></div>
       <div class="price-row price-total price-total-gross"><span>${text.totalGross}</span><strong data-price-total-gross>${money(gross(base))}</strong></div>
       <p class="price-selected-print" data-price-selected-print>${text.selectedPrint}: ${text.noPrint}</p>
@@ -159,24 +162,33 @@
 
   function refreshCard(card){
     const p = getPricing(card);
-    const baseEl = card.querySelector('[data-price-base]');
-    const baseGrossEl = card.querySelector('[data-price-base-gross]');
-    const printEl = card.querySelector('[data-price-print]');
-    const printGrossEl = card.querySelector('[data-price-print-gross]');
+    const componentsEl = card.querySelector('[data-price-components]');
     const unitEl = card.querySelector('[data-price-unit]');
     const unitGrossEl = card.querySelector('[data-price-unit-gross]');
     const totalEl = card.querySelector('[data-price-total]');
     const totalGrossEl = card.querySelector('[data-price-total-gross]');
+    const qtyEl = card.querySelector('[data-price-qty]');
     const printText = card.querySelector('[data-price-selected-print]');
     const customNote = card.querySelector('[data-custom-note]');
-    if(baseEl) baseEl.textContent = `${money(p.basePrice)} ${text.net}`;
-    if(baseGrossEl) baseGrossEl.textContent = `${money(p.baseGross)} ${text.gross}`;
-    if(printEl) printEl.textContent = `${money(p.printPrice)} ${text.net}`;
-    if(printGrossEl) printGrossEl.textContent = `${money(p.printGross)} ${text.gross}`;
+    if(componentsEl){
+      const rows = [`<div class="price-component-row price-component-base"><span>${text.shirt} ${p.code}</span><strong><span>${money(p.basePrice)} ${text.net}</span><small>${money(p.baseGross)} ${text.gross}</small></strong></div>`];
+      p.prints.forEach(print => {
+        if(print.custom){
+          rows.push(`<div class="price-component-row price-component-custom"><span>${print.label}</span><strong><span>${text.individual}</span></strong></div>`);
+        } else {
+          rows.push(`<div class="price-component-row"><span>${print.label}</span><strong><span>${money(print.price)} ${text.net}</span><small>${money(gross(print.price))} ${text.gross}</small></strong></div>`);
+        }
+      });
+      if(!p.prints.length){
+        rows.push(`<div class="price-component-row price-component-empty"><span>${text.print}</span><strong><span>${text.noPrint}</span></strong></div>`);
+      }
+      componentsEl.innerHTML = rows.join('');
+    }
     if(unitEl) unitEl.textContent = `${money(p.unitNet)} ${text.net}`;
     if(unitGrossEl) unitGrossEl.textContent = `${money(p.unitGross)} ${text.gross}`;
     if(totalEl) totalEl.textContent = `${money(p.totalNet)}`;
     if(totalGrossEl) totalGrossEl.textContent = `${money(p.totalGross)}`;
+    if(qtyEl) qtyEl.textContent = String(p.qty);
     if(printText){
       const names = p.prints.length ? p.prints.map(x => x.label).join(' • ') : text.noPrint;
       printText.textContent = `${text.selectedPrint}: ${names}`;

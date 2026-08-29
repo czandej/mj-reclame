@@ -30,6 +30,7 @@
       remove: "Usuń",
       empty: "Lista jest pusta. Wybierz produkt, rozmiar, kolor i ilość, a potem kliknij „Dodaj do zapytania”.",
       added: "Dodano do zapytania",
+      addToInquiry: "Dodaj do zapytania",
       updated: "Zaktualizowano zapytanie",
       sendBase: "kontakt.html",
       inquiryHeader: "Proszę o wycenę odzieży do druku DTF:",
@@ -43,6 +44,7 @@
       remove: "Verwijder",
       empty: "De lijst is leeg. Kies product, maat, kleur en aantal en klik daarna op “Toevoegen aan aanvraag”.",
       added: "Toegevoegd aan aanvraag",
+      addToInquiry: "Toevoegen aan aanvraag",
       updated: "Aanvraag bijgewerkt",
       sendBase: "kontakt.html",
       inquiryHeader: "Graag ontvang ik een offerte voor kleding met DTF-bedrukking:",
@@ -97,7 +99,17 @@
       lines.push(`   ${lang === "nl" ? "Kleur" : "Kolor"}: ${item.color}`);
       lines.push(`   ${lang === "nl" ? "Aantal" : "Ilość"}: ${item.qty}`);
       if(Array.isArray(item.prints) && item.prints.length){
-        lines.push(`   ${lang === "nl" ? "Bedrukking" : "Nadruk"}: ${item.prints.map(p => p.label).join("; ")}`);
+        lines.push(`   ${lang === "nl" ? "Prijsopbouw / 1 stuk" : "Składowe ceny / 1 szt."}:`);
+        if(Number.isFinite(Number(item.basePrice))){
+          lines.push(`      ${lang === "nl" ? "Kleding" : "Koszulka"} ${item.code}: ${formatPrice(item.basePrice)} ${lang === "nl" ? "netto" : "netto"} / ${formatPrice(Number.isFinite(Number(item.baseGross)) ? item.baseGross : grossPrice(item.basePrice))} ${lang === "nl" ? "bruto" : "brutto"}`);
+        }
+        item.prints.forEach(p => {
+          if(Number.isFinite(Number(p.price))){
+            lines.push(`      ${p.label}: ${formatPrice(p.price)} netto / ${formatPrice(grossPrice(p.price))} ${lang === "nl" ? "bruto" : "brutto"}`);
+          } else {
+            lines.push(`      ${p.label}: ${lang === "nl" ? "individuele offerte" : "wycena indywidualna"}`);
+          }
+        });
       } else {
         lines.push(`   ${lang === "nl" ? "Bedrukking" : "Nadruk"}: ${lang === "nl" ? "zonder bedrukking" : "bez nadruku"}`);
       }
@@ -528,7 +540,8 @@
 
     const addBtn = card.querySelector("[data-add-to-inquiry]");
     if(addBtn) {
-      const originalLabel = addBtn.textContent.trim();
+      const originalLabel = labels.addToInquiry;
+      addBtn.textContent = originalLabel;
       addBtn.setAttribute("aria-live", "polite");
       addBtn.addEventListener("click", () => {
         addToInquiry(card);
