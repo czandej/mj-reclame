@@ -30,6 +30,10 @@
   const statusesWarn = new Set(["Nowe","Nowy","Planowanie","Wstrzymany","Do wyceny","Wycenione","Po terminie","Robocza","Gotowa","Wygasła"]);
   const statusesDanger = new Set(["Anulowane","Anulowany"]);
   const activeProjectStatuses = new Set(["Nowy","Planowanie","W toku","Wstrzymany"]);
+  const shopTranslationTimers = new Map();
+  let shopTranslator = null;
+  let shopTranslatorPromise = null;
+
 
   function $(id){ return document.getElementById(id); }
   function qsa(sel){ return Array.from(document.querySelectorAll(sel)); }
@@ -248,6 +252,170 @@
     </tr>`).join("") : '<tr><td colspan="5" class="empty">Brak kategorii grafik.</td></tr>';
   }
 
+  function slugifyShop(value){
+    return String(value || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[łŁ]/g,"l")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g,"")
+      .replace(/[^a-z0-9]+/g,"-")
+      .replace(/^-+|-+$/g,"")
+      .replace(/-{2,}/g,"-")
+      .slice(0,120);
+  }
+
+  function resetShopSlugState(slugEl){ if(slugEl) slugEl.dataset.manual="false"; }
+  function lockExistingShopSlug(slugEl){ if(slugEl) slugEl.dataset.manual="true"; }
+  function syncNewShopSlug(nameEl, slugEl, idEl){
+    if(!nameEl || !slugEl || !idEl || idEl.value || slugEl.dataset.manual==="true") return;
+    slugEl.value=slugifyShop(nameEl.value);
+  }
+  function ensureShopSlug(nameEl, slugEl){
+    if(!slugEl.value.trim()) slugEl.value=slugifyShop(nameEl.value);
+    return slugEl.value.trim();
+  }
+
+  function shopTranslationStatus(key, text, cls=""){
+    const el=document.querySelector(`[data-translation-status="${key}"]`);
+    if(!el) return;
+    el.textContent=text;
+    el.classList.remove("is-working","is-error","is-manual");
+    if(cls) el.classList.add(cls);
+  }
+  function resetShopTranslationState(form){
+    if(!form) return;
+    form.querySelectorAll("[data-translate-target]").forEach(target=>{ target.dataset.manual="false"; target.dataset.autoFill="false"; });
+    form.querySelectorAll("[data-translate-source]").forEach(source=>{ source.dataset.lastTranslatedSource=""; source.dataset.translateRequestId="0"; const key=source.dataset.translateSource; shopTranslationStatus(key,shopTranslationInitialText()); });
+  }
+  function shopTranslationInitialText(){
+    return "NL uzupełni się automatycznie w Chrome";
+  }
+  function shopTranslationErrorMessage(error){
+    if(!("Translator" in window) || typeof window.Translator?.create !== "function")
+      return "Automatyczne tłumaczenie działa w Chrome na komputerze. W tej przeglądarce wpisz NL ręcznie.";
+    if(error?.name === "NotAllowedError")
+      return "Chrome potrzebuje kliknięcia, aby uruchomić model. Kliknij „Przetłumacz ponownie”.";
+    if(error?.name === "NotSupportedError")
+      return "Tłumaczenie PL → NL nie jest dostępne na tym urządzeniu. Wpisz NL ręcznie.";
+    return error?.message || "Nie udało się wykonać tłumaczenia PL → NL w Chrome.";
+  }
+  function primeShopTranslator(key){
+    if(shopTranslator) return Promise.resolve(shopTranslator);
+    if(shopTranslatorPromise) return shopTranslatorPromise;
+    if(!("Translator" in window) || typeof window.Translator?.create !== "function")
+      return Promise.reject(new Error("Automatyczne tłumaczenie działa w Chrome na komputerze. W tej przeglądarce wpisz NL ręcznie."));
+
+    shopTranslationStatus(key,"Przygotowuję tłumaczenie PL → NL w Chrome…","is-working");
+    try{
+      shopTranslatorPromise = window.Translator.create({
+        sourceLanguage:"pl",
+        targetLanguage:"nl",
+        monitor(m){
+          m.addEventListener("downloadprogress", event=>{
+            const loaded=Math.max(0,Math.min(1,Number(event.loaded)||0));
+            const pct=Math.round(loaded*100);
+            shopTranslationStatus(key,`Chrome pobiera model PL → NL… ${pct}%`,"is-working");
+          });
+        }
+      }).then(translator=>{
+        shopTranslator=translator;
+        shopTranslatorPromise=null;
+        return translator;
+      }).catch(error=>{
+        shopTranslatorPromise=null;
+        throw error;
+      });
+    }catch(error){
+      shopTranslatorPromise=null;
+      return Promise.reject(error);
+    }
+    return shopTranslatorPromise;
+  }
+  async function requestShopTranslation(text,key){
+    const translator=await primeShopTranslator(key);
+    const translated=await translator.translate(text);
+    return String(translated || "").trim();
+  }
+  async function translateShopPair(key,{force=false}={}){
+    const source=document.querySelector(`[data-translate-source="${key}"]`);
+    const target=document.querySelector(`[data-translate-target="${key}"]`);
+    if(!source || !target) return;
+    const text=source.value.trim();
+    if(!text){
+      if(target.dataset.manual!=="true") target.value="";
+      shopTranslationStatus(key,shopTranslationInitialText());
+      return;
+    }
+    if(!force && target.dataset.manual==="true"){
+      shopTranslationStatus(key,"NL zmienione ręcznie — automatyczne nadpisywanie wstrzymane.","is-manual");
+      return;
+    }
+    if(!force && source.dataset.lastTranslatedSource===text && target.value.trim()) return;
+    const requestId=String(Number(source.dataset.translateRequestId||0)+1);
+    source.dataset.translateRequestId=requestId;
+    shopTranslationStatus(key,"Tłumaczę PL → NL lokalnie w Chrome…","is-working");
+    try{
+      const translated=await requestShopTranslation(text,key);
+      if(source.dataset.translateRequestId!==requestId) return;
+      if(!force && target.dataset.manual==="true") return;
+      target.dataset.autoFill="true";
+      target.value=translated;
+      target.dataset.autoFill="false";
+      target.dataset.manual="false";
+      source.dataset.lastTranslatedSource=text;
+      shopTranslationStatus(key,"Przetłumaczono lokalnie w Chrome.","is-working");
+    }catch(error){
+      const message=shopTranslationErrorMessage(error);
+      shopTranslationStatus(key,message,"is-error");
+      if(force) notify(message,true);
+    }
+  }
+  function scheduleShopTranslation(key){
+    clearTimeout(shopTranslationTimers.get(key));
+    const source=document.querySelector(`[data-translate-source="${key}"]`);
+    const target=document.querySelector(`[data-translate-target="${key}"]`);
+    if(source?.value.trim() && target?.dataset.manual!=="true" && !shopTranslator && !shopTranslatorPromise){
+      // Wywołanie następuje bezpośrednio w zdarzeniu wpisywania, aby Chrome mógł
+      // rozpocząć pobieranie modelu językowego po aktywności użytkownika.
+      primeShopTranslator(key).catch(error=>shopTranslationStatus(key,shopTranslationErrorMessage(error),"is-error"));
+    }
+    shopTranslationTimers.set(key,setTimeout(()=>translateShopPair(key),900));
+  }
+  function setupShopAutomation(){
+    qsa("[data-translate-source]").forEach(source=>source.addEventListener("input",()=>scheduleShopTranslation(source.dataset.translateSource)));
+    qsa("[data-translate-target]").forEach(target=>target.addEventListener("input",()=>{
+      if(target.dataset.autoFill==="true") return;
+      target.dataset.manual="true";
+      shopTranslationStatus(target.dataset.translateTarget,"NL zmienione ręcznie — nie zostanie nadpisane.","is-manual");
+    }));
+    qsa("[data-retranslate]").forEach(button=>button.addEventListener("click",()=>{
+      const key=button.dataset.retranslate;
+      const target=document.querySelector(`[data-translate-target="${key}"]`);
+      if(target) target.dataset.manual="false";
+      translateShopPair(key,{force:true});
+    }));
+    const slugLinks=[
+      [els.shopCategoryNamePl,els.shopCategorySlug,els.shopCategoryId,"category"],
+      [els.shopProductNamePl,els.shopProductSlug,els.shopProductId,"product"],
+      [els.shopGraphicCategoryNamePl,els.shopGraphicCategorySlug,els.shopGraphicCategoryId,"graphic-category"]
+    ];
+    slugLinks.forEach(([nameEl,slugEl,idEl])=>{
+      nameEl?.addEventListener("input",()=>syncNewShopSlug(nameEl,slugEl,idEl));
+      slugEl?.addEventListener("input",()=>{slugEl.dataset.manual="true";});
+    });
+    qsa("[data-regenerate-slug]").forEach(button=>button.addEventListener("click",()=>{
+      const map={
+        "category":[els.shopCategoryNamePl,els.shopCategorySlug],
+        "product":[els.shopProductNamePl,els.shopProductSlug],
+        "graphic-category":[els.shopGraphicCategoryNamePl,els.shopGraphicCategorySlug]
+      };
+      const pair=map[button.dataset.regenerateSlug]; if(!pair) return;
+      pair[1].value=slugifyShop(pair[0].value); pair[1].dataset.manual="true";
+      notify("Slug został wygenerowany z nazwy PL.");
+    }));
+  }
+
   function validateShopTranslationPair(plEl, nlEl, label, required=false){
     const pl = (plEl?.value || "").trim();
     const nl = (nlEl?.value || "").trim();
@@ -282,36 +450,36 @@
   }
 
   function resetShopCategoryForm(){
-    els.shopCategoryForm.reset(); els.shopCategoryId.value=""; els.shopCategoryOrder.value="0"; els.shopCategoryActive.checked=true;
+    els.shopCategoryForm.reset(); els.shopCategoryId.value=""; els.shopCategoryOrder.value="0"; els.shopCategoryActive.checked=true; resetShopSlugState(els.shopCategorySlug); resetShopTranslationState(els.shopCategoryForm);
   }
   function openShopCategoryForm(id=null){
     resetShopCategoryForm();
-    if(id){ const c=state.shopCategories.find(x=>x.id===id); if(!c) return; els.shopCategoryId.value=c.id; els.shopCategorySlug.value=c.slug||""; els.shopCategoryOrder.value=c.display_order||0; els.shopCategoryNamePl.value=c.name_pl||""; els.shopCategoryNameNl.value=c.name_nl||""; els.shopCategoryDescriptionPl.value=c.description_pl||""; els.shopCategoryDescriptionNl.value=c.description_nl||""; els.shopCategoryActive.checked=!!c.is_active; }
+    if(id){ const c=state.shopCategories.find(x=>x.id===id); if(!c) return; els.shopCategoryId.value=c.id; els.shopCategorySlug.value=c.slug||""; els.shopCategoryOrder.value=c.display_order||0; els.shopCategoryNamePl.value=c.name_pl||""; els.shopCategoryNameNl.value=c.name_nl||""; els.shopCategoryDescriptionPl.value=c.description_pl||""; els.shopCategoryDescriptionNl.value=c.description_nl||""; els.shopCategoryActive.checked=!!c.is_active; lockExistingShopSlug(els.shopCategorySlug); }
     els.shopCategoryForm.hidden=false; requestAnimationFrame(()=>els.shopCategoryForm.scrollIntoView({behavior:"smooth",block:"center"}));
   }
   async function saveShopCategory(e){
-    e.preventDefault(); if(!validateShopCategoryTranslations()) return; const id=els.shopCategoryId.value; const payload={slug:els.shopCategorySlug.value.trim(),display_order:Number(els.shopCategoryOrder.value||0),name_pl:els.shopCategoryNamePl.value.trim(),name_nl:els.shopCategoryNameNl.value.trim()||null,description_pl:els.shopCategoryDescriptionPl.value.trim()||null,description_nl:els.shopCategoryDescriptionNl.value.trim()||null,is_active:els.shopCategoryActive.checked};
+    e.preventDefault(); if(!validateShopCategoryTranslations()) return; const id=els.shopCategoryId.value; const slug=ensureShopSlug(els.shopCategoryNamePl,els.shopCategorySlug); if(!slug){notify("Nie można utworzyć sluga bez nazwy PL.",true);return;} const payload={slug,display_order:Number(els.shopCategoryOrder.value||0),name_pl:els.shopCategoryNamePl.value.trim(),name_nl:els.shopCategoryNameNl.value.trim()||null,description_pl:els.shopCategoryDescriptionPl.value.trim()||null,description_nl:els.shopCategoryDescriptionNl.value.trim()||null,is_active:els.shopCategoryActive.checked};
     const q=id?state.sb.from("shop_product_categories").update(payload).eq("id",id):state.sb.from("shop_product_categories").insert(payload); const {error}=await q; if(error){notify("Nie zapisano kategorii: "+error.message,true);return;} resetShopCategoryForm(); els.shopCategoryForm.hidden=true; await loadShopCatalog(); renderShop(); notify("Kategoria sklepu została zapisana.");
   }
 
-  function resetShopProductForm(){ els.shopProductForm.reset(); els.shopProductId.value=""; els.shopProductType.value="product"; els.shopProductPrice.value="0"; els.shopProductVat.value="21"; els.shopProductUnit.value="szt."; els.shopProductOrder.value="0"; els.shopProductGraphics.checked=true; els.shopProductPersonalization.checked=true; els.shopProductActive.checked=true; renderShopCategoryOptions(); }
+  function resetShopProductForm(){ els.shopProductForm.reset(); els.shopProductId.value=""; els.shopProductType.value="product"; els.shopProductPrice.value="0"; els.shopProductVat.value="21"; els.shopProductUnit.value="szt."; els.shopProductOrder.value="0"; els.shopProductGraphics.checked=true; els.shopProductPersonalization.checked=true; els.shopProductActive.checked=true; resetShopSlugState(els.shopProductSlug); resetShopTranslationState(els.shopProductForm); renderShopCategoryOptions(); }
   function openShopProductForm(id=null){
     resetShopProductForm();
-    if(id){ const p=state.shopProducts.find(x=>x.id===id); if(!p)return; els.shopProductId.value=p.id; els.shopProductCategory.value=p.category_id||""; els.shopProductCode.value=p.code||""; els.shopProductSlug.value=p.slug||""; els.shopProductType.value=p.product_type||"product"; els.shopProductNamePl.value=p.name_pl||""; els.shopProductNameNl.value=p.name_nl||""; els.shopProductPrice.value=p.base_price_net??0; els.shopProductVat.value=p.vat_rate??21; els.shopProductUnit.value=p.unit||"szt."; els.shopProductOrder.value=p.display_order||0; els.shopProductDescriptionPl.value=p.description_pl||""; els.shopProductDescriptionNl.value=p.description_nl||""; els.shopProductGraphics.checked=!!p.graphics_enabled; els.shopProductPersonalization.checked=!!p.personalization_enabled; els.shopProductActive.checked=!!p.is_active; }
+    if(id){ const p=state.shopProducts.find(x=>x.id===id); if(!p)return; els.shopProductId.value=p.id; els.shopProductCategory.value=p.category_id||""; els.shopProductCode.value=p.code||""; els.shopProductSlug.value=p.slug||""; els.shopProductType.value=p.product_type||"product"; els.shopProductNamePl.value=p.name_pl||""; els.shopProductNameNl.value=p.name_nl||""; els.shopProductPrice.value=p.base_price_net??0; els.shopProductVat.value=p.vat_rate??21; els.shopProductUnit.value=p.unit||"szt."; els.shopProductOrder.value=p.display_order||0; els.shopProductDescriptionPl.value=p.description_pl||""; els.shopProductDescriptionNl.value=p.description_nl||""; els.shopProductGraphics.checked=!!p.graphics_enabled; els.shopProductPersonalization.checked=!!p.personalization_enabled; els.shopProductActive.checked=!!p.is_active; lockExistingShopSlug(els.shopProductSlug); }
     els.shopProductForm.hidden=false; requestAnimationFrame(()=>els.shopProductForm.scrollIntoView({behavior:"smooth",block:"center"}));
   }
   async function saveShopProduct(e){
-    e.preventDefault(); if(!validateShopProductTranslations()) return; const id=els.shopProductId.value; const payload={category_id:els.shopProductCategory.value,code:els.shopProductCode.value.trim(),slug:els.shopProductSlug.value.trim(),product_type:els.shopProductType.value.trim()||"product",name_pl:els.shopProductNamePl.value.trim(),name_nl:els.shopProductNameNl.value.trim()||null,description_pl:els.shopProductDescriptionPl.value.trim()||null,description_nl:els.shopProductDescriptionNl.value.trim()||null,base_price_net:Math.max(0,parseAmount(els.shopProductPrice.value)),vat_rate:Math.max(0,parseAmount(els.shopProductVat.value)),unit:els.shopProductUnit.value.trim()||"szt.",graphics_enabled:els.shopProductGraphics.checked,personalization_enabled:els.shopProductPersonalization.checked,is_active:els.shopProductActive.checked,display_order:Number(els.shopProductOrder.value||0)};
+    e.preventDefault(); if(!validateShopProductTranslations()) return; const id=els.shopProductId.value; const slug=ensureShopSlug(els.shopProductNamePl,els.shopProductSlug); if(!slug){notify("Nie można utworzyć sluga bez nazwy PL.",true);return;} const payload={category_id:els.shopProductCategory.value,code:els.shopProductCode.value.trim(),slug,product_type:els.shopProductType.value.trim()||"product",name_pl:els.shopProductNamePl.value.trim(),name_nl:els.shopProductNameNl.value.trim()||null,description_pl:els.shopProductDescriptionPl.value.trim()||null,description_nl:els.shopProductDescriptionNl.value.trim()||null,base_price_net:Math.max(0,parseAmount(els.shopProductPrice.value)),vat_rate:Math.max(0,parseAmount(els.shopProductVat.value)),unit:els.shopProductUnit.value.trim()||"szt.",graphics_enabled:els.shopProductGraphics.checked,personalization_enabled:els.shopProductPersonalization.checked,is_active:els.shopProductActive.checked,display_order:Number(els.shopProductOrder.value||0)};
     const q=id?state.sb.from("shop_products").update(payload).eq("id",id):state.sb.from("shop_products").insert(payload); const {error}=await q; if(error){notify("Nie zapisano produktu: "+error.message,true);return;} resetShopProductForm(); els.shopProductForm.hidden=true; await loadShopCatalog(); renderShop(); notify("Produkt został zapisany w Supabase.");
   }
 
-  function resetShopAddonForm(){ els.shopAddonForm.reset(); els.shopAddonId.value=""; els.shopAddonType.value="service"; els.shopAddonOrder.value="0"; els.shopAddonActive.checked=true; }
+  function resetShopAddonForm(){ els.shopAddonForm.reset(); els.shopAddonId.value=""; els.shopAddonType.value="service"; els.shopAddonOrder.value="0"; els.shopAddonActive.checked=true; resetShopTranslationState(els.shopAddonForm); }
   function openShopAddonForm(id=null){ resetShopAddonForm(); if(id){const a=state.shopAddons.find(x=>x.id===id);if(!a)return;els.shopAddonId.value=a.id;els.shopAddonCode.value=a.code||"";els.shopAddonType.value=a.addon_type||"service";els.shopAddonNamePl.value=a.name_pl||"";els.shopAddonNameNl.value=a.name_nl||"";els.shopAddonPrice.value=a.price_net??"";els.shopAddonOrder.value=a.display_order||0;els.shopAddonQuote.checked=!!a.requires_quote;els.shopAddonActive.checked=!!a.is_active;els.shopAddonDescriptionPl.value=a.description_pl||"";els.shopAddonDescriptionNl.value=a.description_nl||"";} els.shopAddonForm.hidden=false; requestAnimationFrame(()=>els.shopAddonForm.scrollIntoView({behavior:"smooth",block:"center"})); }
   async function saveShopAddon(e){ e.preventDefault(); if(!validateShopAddonTranslations()) return; const id=els.shopAddonId.value; const priceRaw=els.shopAddonPrice.value.trim(); const payload={code:els.shopAddonCode.value.trim(),addon_type:els.shopAddonType.value.trim()||"service",name_pl:els.shopAddonNamePl.value.trim(),name_nl:els.shopAddonNameNl.value.trim()||null,description_pl:els.shopAddonDescriptionPl.value.trim()||null,description_nl:els.shopAddonDescriptionNl.value.trim()||null,price_net:priceRaw===""?null:Math.max(0,parseAmount(priceRaw)),requires_quote:els.shopAddonQuote.checked,is_active:els.shopAddonActive.checked,display_order:Number(els.shopAddonOrder.value||0)}; const q=id?state.sb.from("shop_addons").update(payload).eq("id",id):state.sb.from("shop_addons").insert(payload); const {error}=await q; if(error){notify("Nie zapisano dodatku: "+error.message,true);return;} resetShopAddonForm(); els.shopAddonForm.hidden=true; await loadShopCatalog(); renderShop(); notify("Dodatek cenowy został zapisany."); }
 
-  function resetShopGraphicCategoryForm(){els.shopGraphicCategoryForm.reset();els.shopGraphicCategoryId.value="";els.shopGraphicCategoryOrder.value="0";els.shopGraphicCategoryActive.checked=true;}
-  function openShopGraphicCategoryForm(id=null){resetShopGraphicCategoryForm();if(id){const c=state.shopGraphicCategories.find(x=>x.id===id);if(!c)return;els.shopGraphicCategoryId.value=c.id;els.shopGraphicCategorySlug.value=c.slug||"";els.shopGraphicCategoryOrder.value=c.display_order||0;els.shopGraphicCategoryNamePl.value=c.name_pl||"";els.shopGraphicCategoryNameNl.value=c.name_nl||"";els.shopGraphicCategoryDescriptionPl.value=c.description_pl||"";els.shopGraphicCategoryDescriptionNl.value=c.description_nl||"";els.shopGraphicCategoryActive.checked=!!c.is_active;}els.shopGraphicCategoryForm.hidden=false;requestAnimationFrame(()=>els.shopGraphicCategoryForm.scrollIntoView({behavior:"smooth",block:"center"}));}
-  async function saveShopGraphicCategory(e){e.preventDefault();if(!validateShopGraphicCategoryTranslations())return;const id=els.shopGraphicCategoryId.value;const payload={slug:els.shopGraphicCategorySlug.value.trim(),display_order:Number(els.shopGraphicCategoryOrder.value||0),name_pl:els.shopGraphicCategoryNamePl.value.trim(),name_nl:els.shopGraphicCategoryNameNl.value.trim()||null,description_pl:els.shopGraphicCategoryDescriptionPl.value.trim()||null,description_nl:els.shopGraphicCategoryDescriptionNl.value.trim()||null,is_active:els.shopGraphicCategoryActive.checked};const q=id?state.sb.from("shop_graphic_categories").update(payload).eq("id",id):state.sb.from("shop_graphic_categories").insert(payload);const {error}=await q;if(error){notify("Nie zapisano kategorii grafik: "+error.message,true);return;}resetShopGraphicCategoryForm();els.shopGraphicCategoryForm.hidden=true;await loadShopCatalog();renderShop();notify("Kategoria grafik została zapisana.");}
+  function resetShopGraphicCategoryForm(){els.shopGraphicCategoryForm.reset();els.shopGraphicCategoryId.value="";els.shopGraphicCategoryOrder.value="0";els.shopGraphicCategoryActive.checked=true;resetShopSlugState(els.shopGraphicCategorySlug);resetShopTranslationState(els.shopGraphicCategoryForm);}
+  function openShopGraphicCategoryForm(id=null){resetShopGraphicCategoryForm();if(id){const c=state.shopGraphicCategories.find(x=>x.id===id);if(!c)return;els.shopGraphicCategoryId.value=c.id;els.shopGraphicCategorySlug.value=c.slug||"";els.shopGraphicCategoryOrder.value=c.display_order||0;els.shopGraphicCategoryNamePl.value=c.name_pl||"";els.shopGraphicCategoryNameNl.value=c.name_nl||"";els.shopGraphicCategoryDescriptionPl.value=c.description_pl||"";els.shopGraphicCategoryDescriptionNl.value=c.description_nl||"";els.shopGraphicCategoryActive.checked=!!c.is_active;lockExistingShopSlug(els.shopGraphicCategorySlug);}els.shopGraphicCategoryForm.hidden=false;requestAnimationFrame(()=>els.shopGraphicCategoryForm.scrollIntoView({behavior:"smooth",block:"center"}));}
+  async function saveShopGraphicCategory(e){e.preventDefault();if(!validateShopGraphicCategoryTranslations())return;const id=els.shopGraphicCategoryId.value;const slug=ensureShopSlug(els.shopGraphicCategoryNamePl,els.shopGraphicCategorySlug);if(!slug){notify("Nie można utworzyć sluga bez nazwy PL.",true);return;}const payload={slug,display_order:Number(els.shopGraphicCategoryOrder.value||0),name_pl:els.shopGraphicCategoryNamePl.value.trim(),name_nl:els.shopGraphicCategoryNameNl.value.trim()||null,description_pl:els.shopGraphicCategoryDescriptionPl.value.trim()||null,description_nl:els.shopGraphicCategoryDescriptionNl.value.trim()||null,is_active:els.shopGraphicCategoryActive.checked};const q=id?state.sb.from("shop_graphic_categories").update(payload).eq("id",id):state.sb.from("shop_graphic_categories").insert(payload);const {error}=await q;if(error){notify("Nie zapisano kategorii grafik: "+error.message,true);return;}resetShopGraphicCategoryForm();els.shopGraphicCategoryForm.hidden=true;await loadShopCatalog();renderShop();notify("Kategoria grafik została zapisana.");}
 
   async function toggleShopRecord(table,id,active){ const {error}=await state.sb.from(table).update({is_active:active}).eq("id",id); if(error){notify("Nie zapisano zmiany: "+error.message,true);return;} await loadShopCatalog(); renderShop(); notify(active?"Element został pokazany w sklepie.":"Element został ukryty w sklepie."); }
 
@@ -2035,6 +2203,7 @@
       if(!section.open) return;
       qsa("[data-shop-accordion]").forEach(other => { if(other !== section) other.open = false; });
     }));
+    setupShopAutomation();
     els.shopProductSearch.addEventListener("input", renderShop);
     els.shopProductFilter.addEventListener("change", renderShop);
     els.shopRefresh.addEventListener("click", async () => { await loadShopCatalog(); renderShop(); notify("Katalog sklepu został odświeżony."); });

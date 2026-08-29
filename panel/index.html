@@ -448,22 +448,22 @@
               </summary>
               <div class="shop-accordion-content">
                 <div class="panel-actions-row compact shop-section-actions">
-                  <p class="muted">Nazwy i opisy przeznaczone dla klienta uzupełniaj od razu w obu językach.</p>
+                  <p class="muted">Wpisz treść po polsku. Pole NL uzupełni się automatycznie i nadal możesz je ręcznie poprawić.</p>
                   <button class="primary" id="shop-category-new" type="button">+ Nowa kategoria</button>
                 </div>
                 <form id="shop-category-form" class="panel-form grid-form shop-edit-form" hidden>
                   <input id="shop-category-id" type="hidden">
-                  <label>Slug<input id="shop-category-slug" required placeholder="np. kubki"></label>
                   <label>Kolejność<input id="shop-category-order" type="number" value="0"></label>
                   <div class="shop-language-pair full">
-                    <label><span class="shop-language-label"><b>PL</b> Nazwa</span><input id="shop-category-name-pl" required></label>
-                    <label><span class="shop-language-label"><b>NL</b> Naam</span><input id="shop-category-name-nl" required></label>
+                    <div class="shop-language-field"><label><span class="shop-language-label"><b>PL</b> Nazwa</span><input id="shop-category-name-pl" data-translate-source="shop-category-name" required></label></div>
+                    <div class="shop-language-field"><label><span class="shop-language-label"><b>NL</b> Naam</span><input id="shop-category-name-nl" data-translate-target="shop-category-name" required></label><div class="shop-translate-controls"><span class="shop-translation-status" data-translation-status="shop-category-name">NL uzupełni się automatycznie w Chrome</span><button class="tiny ghost shop-retranslate" type="button" data-retranslate="shop-category-name">Przetłumacz ponownie</button></div></div>
                   </div>
                   <div class="shop-language-pair full">
-                    <label><span class="shop-language-label"><b>PL</b> Opis</span><textarea id="shop-category-description-pl"></textarea></label>
-                    <label><span class="shop-language-label"><b>NL</b> Beschrijving</span><textarea id="shop-category-description-nl"></textarea></label>
+                    <div class="shop-language-field"><label><span class="shop-language-label"><b>PL</b> Opis</span><textarea id="shop-category-description-pl" data-translate-source="shop-category-description"></textarea></label></div>
+                    <div class="shop-language-field"><label><span class="shop-language-label"><b>NL</b> Beschrijving</span><textarea id="shop-category-description-nl" data-translate-target="shop-category-description"></textarea></label><div class="shop-translate-controls"><span class="shop-translation-status" data-translation-status="shop-category-description">NL uzupełni się automatycznie w Chrome</span><button class="tiny ghost shop-retranslate" type="button" data-retranslate="shop-category-description">Przetłumacz ponownie</button></div></div>
                   </div>
                   <label><input id="shop-category-active" type="checkbox" checked> Kategoria aktywna</label>
+                  <details class="shop-advanced full"><summary>Ustawienia zaawansowane</summary><div class="shop-advanced-grid"><label>Slug<input id="shop-category-slug" placeholder="tworzony automatycznie"><small class="field-help">Techniczny adres kategorii. Przy nowej kategorii tworzy się automatycznie z nazwy PL i później pozostaje stały.</small></label><button class="secondary" type="button" data-regenerate-slug="category">Wygeneruj ponownie</button></div></details>
                   <div class="form-buttons full"><button class="primary" type="submit">Zapisz kategorię</button><button class="ghost" id="shop-category-cancel" type="button">Anuluj</button></div>
                 </form>
                 <div class="table-wrap"><table class="shop-table"><thead><tr><th>Kolejność</th><th>Nazwa PL / NL</th><th>Slug</th><th>Status</th><th>Akcje</th></tr></thead><tbody id="shop-categories-table"></tbody></table></div>
@@ -477,30 +477,30 @@
               </summary>
               <div class="shop-accordion-content">
                 <div class="panel-actions-row compact shop-section-actions">
-                  <p class="muted">Pola językowe są zestawione obok siebie: PL po lewej, NL po prawej.</p>
+                  <p class="muted">Wpisz PL po lewej. NL po prawej uzupełni się automatycznie; ręczna korekta NL pozostaje możliwa.</p>
                   <button class="primary" id="shop-product-new" type="button">+ Nowy produkt</button>
                 </div>
                 <form id="shop-product-form" class="panel-form grid-form shop-edit-form" hidden>
                   <input id="shop-product-id" type="hidden">
                   <label>Kategoria<select id="shop-product-category" required></select></label>
                   <label>Kod<input id="shop-product-code" required placeholder="np. KUB-001"></label>
-                  <label>Slug<input id="shop-product-slug" required></label>
                   <label>Typ produktu<input id="shop-product-type" value="product" required></label>
                   <div class="shop-language-pair full">
-                    <label><span class="shop-language-label"><b>PL</b> Nazwa</span><input id="shop-product-name-pl" required></label>
-                    <label><span class="shop-language-label"><b>NL</b> Naam</span><input id="shop-product-name-nl" required></label>
+                    <div class="shop-language-field"><label><span class="shop-language-label"><b>PL</b> Nazwa</span><input id="shop-product-name-pl" data-translate-source="shop-product-name" required></label></div>
+                    <div class="shop-language-field"><label><span class="shop-language-label"><b>NL</b> Naam</span><input id="shop-product-name-nl" data-translate-target="shop-product-name" required></label><div class="shop-translate-controls"><span class="shop-translation-status" data-translation-status="shop-product-name">NL uzupełni się automatycznie w Chrome</span><button class="tiny ghost shop-retranslate" type="button" data-retranslate="shop-product-name">Przetłumacz ponownie</button></div></div>
                   </div>
                   <label>Cena bazowa netto €<input id="shop-product-price" type="number" min="0" step="0.01" value="0" required></label>
                   <label>VAT %<input id="shop-product-vat" type="number" min="0" max="100" step="0.001" value="21" required></label>
                   <label>Jednostka techniczna<input id="shop-product-unit" value="szt."><small class="field-help">Pole wewnętrzne; tłumaczenie jednostki na stronie dodamy w warstwie sklepu.</small></label>
                   <label>Kolejność<input id="shop-product-order" type="number" value="0"></label>
                   <div class="shop-language-pair full">
-                    <label><span class="shop-language-label"><b>PL</b> Opis</span><textarea id="shop-product-description-pl"></textarea></label>
-                    <label><span class="shop-language-label"><b>NL</b> Beschrijving</span><textarea id="shop-product-description-nl"></textarea></label>
+                    <div class="shop-language-field"><label><span class="shop-language-label"><b>PL</b> Opis</span><textarea id="shop-product-description-pl" data-translate-source="shop-product-description"></textarea></label></div>
+                    <div class="shop-language-field"><label><span class="shop-language-label"><b>NL</b> Beschrijving</span><textarea id="shop-product-description-nl" data-translate-target="shop-product-description"></textarea></label><div class="shop-translate-controls"><span class="shop-translation-status" data-translation-status="shop-product-description">NL uzupełni się automatycznie w Chrome</span><button class="tiny ghost shop-retranslate" type="button" data-retranslate="shop-product-description">Przetłumacz ponownie</button></div></div>
                   </div>
                   <label><input id="shop-product-graphics" type="checkbox" checked> Obsługuje grafiki</label>
                   <label><input id="shop-product-personalization" type="checkbox" checked> Obsługuje personalizację</label>
                   <label><input id="shop-product-active" type="checkbox" checked> Produkt aktywny</label>
+                  <details class="shop-advanced full"><summary>Ustawienia zaawansowane</summary><div class="shop-advanced-grid"><label>Slug<input id="shop-product-slug" placeholder="tworzony automatycznie"><small class="field-help">Techniczny adres produktu. Dla nowego produktu powstaje z nazwy PL; późniejsza zmiana nazwy nie zmieni istniejącego adresu.</small></label><button class="secondary" type="button" data-regenerate-slug="product">Wygeneruj ponownie</button></div></details>
                   <div class="form-buttons full"><button class="primary" type="submit">Zapisz produkt</button><button class="ghost" id="shop-product-cancel" type="button">Anuluj</button></div>
                 </form>
                 <div class="table-tools wide-tools shop-product-tools">
@@ -518,7 +518,7 @@
               </summary>
               <div class="shop-accordion-content">
                 <div class="panel-actions-row compact shop-section-actions">
-                  <p class="muted">Nazwa i opis dodatku dla klienta muszą mieć wersję PL i NL.</p>
+                  <p class="muted">Wpisz nazwę i opis po polsku. Wersja NL zostanie uzupełniona automatycznie.</p>
                   <button class="primary" id="shop-addon-new" type="button">+ Nowy dodatek</button>
                 </div>
                 <form id="shop-addon-form" class="panel-form grid-form shop-edit-form" hidden>
@@ -526,16 +526,16 @@
                   <label>Kod<input id="shop-addon-code" required></label>
                   <label>Typ<input id="shop-addon-type" value="service" required></label>
                   <div class="shop-language-pair full">
-                    <label><span class="shop-language-label"><b>PL</b> Nazwa</span><input id="shop-addon-name-pl" required></label>
-                    <label><span class="shop-language-label"><b>NL</b> Naam</span><input id="shop-addon-name-nl" required></label>
+                    <div class="shop-language-field"><label><span class="shop-language-label"><b>PL</b> Nazwa</span><input id="shop-addon-name-pl" data-translate-source="shop-addon-name" required></label></div>
+                    <div class="shop-language-field"><label><span class="shop-language-label"><b>NL</b> Naam</span><input id="shop-addon-name-nl" data-translate-target="shop-addon-name" required></label><div class="shop-translate-controls"><span class="shop-translation-status" data-translation-status="shop-addon-name">NL uzupełni się automatycznie w Chrome</span><button class="tiny ghost shop-retranslate" type="button" data-retranslate="shop-addon-name">Przetłumacz ponownie</button></div></div>
                   </div>
                   <label>Cena netto €<input id="shop-addon-price" type="number" min="0" step="0.01"></label>
                   <label>Kolejność<input id="shop-addon-order" type="number" value="0"></label>
                   <label><input id="shop-addon-quote" type="checkbox"> Wycena indywidualna</label>
                   <label><input id="shop-addon-active" type="checkbox" checked> Dodatek aktywny</label>
                   <div class="shop-language-pair full">
-                    <label><span class="shop-language-label"><b>PL</b> Opis</span><textarea id="shop-addon-description-pl"></textarea></label>
-                    <label><span class="shop-language-label"><b>NL</b> Beschrijving</span><textarea id="shop-addon-description-nl"></textarea></label>
+                    <div class="shop-language-field"><label><span class="shop-language-label"><b>PL</b> Opis</span><textarea id="shop-addon-description-pl" data-translate-source="shop-addon-description"></textarea></label></div>
+                    <div class="shop-language-field"><label><span class="shop-language-label"><b>NL</b> Beschrijving</span><textarea id="shop-addon-description-nl" data-translate-target="shop-addon-description"></textarea></label><div class="shop-translate-controls"><span class="shop-translation-status" data-translation-status="shop-addon-description">NL uzupełni się automatycznie w Chrome</span><button class="tiny ghost shop-retranslate" type="button" data-retranslate="shop-addon-description">Przetłumacz ponownie</button></div></div>
                   </div>
                   <div class="form-buttons full"><button class="primary" type="submit">Zapisz dodatek</button><button class="ghost" id="shop-addon-cancel" type="button">Anuluj</button></div>
                 </form>
@@ -550,22 +550,22 @@
               </summary>
               <div class="shop-accordion-content">
                 <div class="panel-actions-row compact shop-section-actions">
-                  <p class="muted">Nazwy i opisy kategorii grafik zapisuj równolegle w PL i NL.</p>
+                  <p class="muted">Wpisz treść po polsku. Panel automatycznie przygotuje wersję NL.</p>
                   <button class="primary" id="shop-graphic-category-new" type="button">+ Nowa kategoria grafik</button>
                 </div>
                 <form id="shop-graphic-category-form" class="panel-form grid-form shop-edit-form" hidden>
                   <input id="shop-graphic-category-id" type="hidden">
-                  <label>Slug<input id="shop-graphic-category-slug" required></label>
                   <label>Kolejność<input id="shop-graphic-category-order" type="number" value="0"></label>
                   <div class="shop-language-pair full">
-                    <label><span class="shop-language-label"><b>PL</b> Nazwa</span><input id="shop-graphic-category-name-pl" required></label>
-                    <label><span class="shop-language-label"><b>NL</b> Naam</span><input id="shop-graphic-category-name-nl" required></label>
+                    <div class="shop-language-field"><label><span class="shop-language-label"><b>PL</b> Nazwa</span><input id="shop-graphic-category-name-pl" data-translate-source="shop-graphic-category-name" required></label></div>
+                    <div class="shop-language-field"><label><span class="shop-language-label"><b>NL</b> Naam</span><input id="shop-graphic-category-name-nl" data-translate-target="shop-graphic-category-name" required></label><div class="shop-translate-controls"><span class="shop-translation-status" data-translation-status="shop-graphic-category-name">NL uzupełni się automatycznie w Chrome</span><button class="tiny ghost shop-retranslate" type="button" data-retranslate="shop-graphic-category-name">Przetłumacz ponownie</button></div></div>
                   </div>
                   <div class="shop-language-pair full">
-                    <label><span class="shop-language-label"><b>PL</b> Opis</span><textarea id="shop-graphic-category-description-pl"></textarea></label>
-                    <label><span class="shop-language-label"><b>NL</b> Beschrijving</span><textarea id="shop-graphic-category-description-nl"></textarea></label>
+                    <div class="shop-language-field"><label><span class="shop-language-label"><b>PL</b> Opis</span><textarea id="shop-graphic-category-description-pl" data-translate-source="shop-graphic-category-description"></textarea></label></div>
+                    <div class="shop-language-field"><label><span class="shop-language-label"><b>NL</b> Beschrijving</span><textarea id="shop-graphic-category-description-nl" data-translate-target="shop-graphic-category-description"></textarea></label><div class="shop-translate-controls"><span class="shop-translation-status" data-translation-status="shop-graphic-category-description">NL uzupełni się automatycznie w Chrome</span><button class="tiny ghost shop-retranslate" type="button" data-retranslate="shop-graphic-category-description">Przetłumacz ponownie</button></div></div>
                   </div>
                   <label><input id="shop-graphic-category-active" type="checkbox" checked> Kategoria aktywna</label>
+                  <details class="shop-advanced full"><summary>Ustawienia zaawansowane</summary><div class="shop-advanced-grid"><label>Slug<input id="shop-graphic-category-slug" placeholder="tworzony automatycznie"><small class="field-help">Techniczny adres kategorii grafik. Tworzony automatycznie z nazwy PL.</small></label><button class="secondary" type="button" data-regenerate-slug="graphic-category">Wygeneruj ponownie</button></div></details>
                   <div class="form-buttons full"><button class="primary" type="submit">Zapisz kategorię grafik</button><button class="ghost" id="shop-graphic-category-cancel" type="button">Anuluj</button></div>
                 </form>
                 <div class="table-wrap"><table class="shop-table"><thead><tr><th>Kolejność</th><th>Nazwa PL / NL</th><th>Slug</th><th>Status</th><th>Akcje</th></tr></thead><tbody id="shop-graphic-categories-table"></tbody></table></div>
