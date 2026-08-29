@@ -56,3 +56,9 @@ button{cursor:pointer}
 
 /* v26 — dokument wyceny / oferty dla klienta */
 .field-help{display:block;margin-top:2px;color:var(--muted);font-size:11px;font-weight:700}.quote-preview-actions{flex-wrap:wrap}.row-actions .primary.tiny{background:var(--green);color:#061006}
+
+
+/* v30 — moduł Sklep: dynamiczny katalog Supabase */
+.shop-block{margin-bottom:18px}.shop-block h3{margin:0}.shop-stats-grid{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:18px}.shop-edit-form{margin:12px 0 16px;padding:15px;border:1px solid #dfeade;border-radius:14px;background:#fbfdfb}.shop-edit-form label:has(input[type="checkbox"]){display:flex;align-items:center;gap:8px;align-self:end;min-height:42px}.shop-edit-form input[type="checkbox"]{width:auto}.shop-table{min-width:760px}.shop-products-table{min-width:980px}.shop-status{display:inline-flex;align-items:center;border-radius:999px;padding:6px 9px;font-size:12px;font-weight:900}.shop-status.is-active{background:#e8f8e4;color:#1c6411}.shop-status.is-inactive{background:#f0f0f0;color:#666}.shop-product-tools{grid-template-columns:minmax(260px,1fr) 210px}
+@media(max-width:1180px){.shop-stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:980px){.shop-stats-grid{grid-template-columns:1fr}.shop-product-tools{grid-template-columns:1fr}}

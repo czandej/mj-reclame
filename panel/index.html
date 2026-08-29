@@ -12,7 +12,7 @@
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script defer src="/supabase-config.js"></script>
   <script defer src="/assets/canonical-domain.js"></script>
-  <script defer src="/assets/panel-firmowy.js?v=27"></script>
+  <script defer src="/assets/panel-firmowy.js?v=30"></script>
 </head>
 <body>
   <div class="panel-shell">
@@ -29,6 +29,7 @@
         <button data-view="projects">Projekty</button>
         <button data-view="orders">Usługi / zlecenia</button>
         <button data-view="invoices">Faktury</button>
+        <button data-view="shop">Sklep</button>
         <button data-view="settings">Ustawienia</button>
       </nav>
       <div class="panel-sidebar-footer">
@@ -421,6 +422,116 @@
           <div class="table-wrap"><table><thead><tr><th>Numer</th><th>Klient</th><th>Data</th><th>Termin</th><th>Status</th><th>Netto</th><th>VAT</th><th>Brutto</th></tr></thead><tbody id="invoices-table"></tbody></table></div>
         </section>
 
+
+        <section class="panel-view" data-panel-view="shop">
+          <div class="panel-actions-row">
+            <div>
+              <p class="panel-kicker">Katalog dynamiczny</p>
+              <h2>Sklep</h2>
+              <p class="muted">Produkty i ceny są pobierane z Supabase. Zmiany zapisane tutaj nie wymagają nowej paczki Netlify.</p>
+            </div>
+            <button class="secondary" id="shop-refresh" type="button">Odśwież katalog</button>
+          </div>
+
+          <div class="stats-grid shop-stats-grid">
+            <article class="stat-card"><span id="shop-stat-categories">0</span><p>Kategorie produktów</p></article>
+            <article class="stat-card"><span id="shop-stat-products">0</span><p>Produkty</p></article>
+            <article class="stat-card"><span id="shop-stat-addons">0</span><p>Dodatki cenowe</p></article>
+            <article class="stat-card"><span id="shop-stat-graphic-categories">0</span><p>Kategorie grafik</p></article>
+          </div>
+
+          <article class="panel-card inner shop-block">
+            <div class="panel-actions-row compact">
+              <div><p class="panel-kicker">Struktura sklepu</p><h3>Kategorie produktów</h3></div>
+              <button class="primary" id="shop-category-new" type="button">+ Nowa kategoria</button>
+            </div>
+            <form id="shop-category-form" class="panel-form grid-form shop-edit-form" hidden>
+              <input id="shop-category-id" type="hidden">
+              <label>Slug<input id="shop-category-slug" required placeholder="np. kubki"></label>
+              <label>Kolejność<input id="shop-category-order" type="number" value="0"></label>
+              <label>Nazwa PL<input id="shop-category-name-pl" required></label>
+              <label>Nazwa NL<input id="shop-category-name-nl"></label>
+              <label class="full">Opis PL<textarea id="shop-category-description-pl"></textarea></label>
+              <label class="full">Opis NL<textarea id="shop-category-description-nl"></textarea></label>
+              <label><input id="shop-category-active" type="checkbox" checked> Kategoria aktywna</label>
+              <div class="form-buttons full"><button class="primary" type="submit">Zapisz kategorię</button><button class="ghost" id="shop-category-cancel" type="button">Anuluj</button></div>
+            </form>
+            <div class="table-wrap"><table class="shop-table"><thead><tr><th>Kolejność</th><th>Nazwa</th><th>Slug</th><th>Status</th><th>Akcje</th></tr></thead><tbody id="shop-categories-table"></tbody></table></div>
+          </article>
+
+          <article class="panel-card inner shop-block">
+            <div class="panel-actions-row compact">
+              <div><p class="panel-kicker">Towary i nośniki</p><h3>Produkty</h3></div>
+              <button class="primary" id="shop-product-new" type="button">+ Nowy produkt</button>
+            </div>
+            <form id="shop-product-form" class="panel-form grid-form shop-edit-form" hidden>
+              <input id="shop-product-id" type="hidden">
+              <label>Kategoria<select id="shop-product-category" required></select></label>
+              <label>Kod<input id="shop-product-code" required placeholder="np. KUB-001"></label>
+              <label>Slug<input id="shop-product-slug" required></label>
+              <label>Typ produktu<input id="shop-product-type" value="product" required></label>
+              <label>Nazwa PL<input id="shop-product-name-pl" required></label>
+              <label>Nazwa NL<input id="shop-product-name-nl"></label>
+              <label>Cena bazowa netto €<input id="shop-product-price" type="number" min="0" step="0.01" value="0" required></label>
+              <label>VAT %<input id="shop-product-vat" type="number" min="0" max="100" step="0.001" value="21" required></label>
+              <label>Jednostka<input id="shop-product-unit" value="szt."></label>
+              <label>Kolejność<input id="shop-product-order" type="number" value="0"></label>
+              <label class="full">Opis PL<textarea id="shop-product-description-pl"></textarea></label>
+              <label class="full">Opis NL<textarea id="shop-product-description-nl"></textarea></label>
+              <label><input id="shop-product-graphics" type="checkbox" checked> Obsługuje grafiki</label>
+              <label><input id="shop-product-personalization" type="checkbox" checked> Obsługuje personalizację</label>
+              <label><input id="shop-product-active" type="checkbox" checked> Produkt aktywny</label>
+              <div class="form-buttons full"><button class="primary" type="submit">Zapisz produkt</button><button class="ghost" id="shop-product-cancel" type="button">Anuluj</button></div>
+            </form>
+            <div class="table-tools wide-tools shop-product-tools">
+              <input id="shop-product-search" placeholder="Szukaj po nazwie, kodzie lub typie…">
+              <select id="shop-product-filter"><option value="all">Wszystkie produkty</option><option value="active">Tylko aktywne</option><option value="inactive">Tylko ukryte</option></select>
+            </div>
+            <div class="table-wrap"><table class="shop-table shop-products-table"><thead><tr><th>Kod</th><th>Produkt</th><th>Kategoria</th><th>Cena netto</th><th>VAT</th><th>Status</th><th>Akcje</th></tr></thead><tbody id="shop-products-table"></tbody></table></div>
+          </article>
+
+          <article class="panel-card inner shop-block">
+            <div class="panel-actions-row compact">
+              <div><p class="panel-kicker">Cena składowa</p><h3>Dodatki / nadruki</h3></div>
+              <button class="primary" id="shop-addon-new" type="button">+ Nowy dodatek</button>
+            </div>
+            <form id="shop-addon-form" class="panel-form grid-form shop-edit-form" hidden>
+              <input id="shop-addon-id" type="hidden">
+              <label>Kod<input id="shop-addon-code" required></label>
+              <label>Typ<input id="shop-addon-type" value="service" required></label>
+              <label>Nazwa PL<input id="shop-addon-name-pl" required></label>
+              <label>Nazwa NL<input id="shop-addon-name-nl"></label>
+              <label>Cena netto €<input id="shop-addon-price" type="number" min="0" step="0.01"></label>
+              <label>Kolejność<input id="shop-addon-order" type="number" value="0"></label>
+              <label><input id="shop-addon-quote" type="checkbox"> Wycena indywidualna</label>
+              <label><input id="shop-addon-active" type="checkbox" checked> Dodatek aktywny</label>
+              <label class="full">Opis PL<textarea id="shop-addon-description-pl"></textarea></label>
+              <label class="full">Opis NL<textarea id="shop-addon-description-nl"></textarea></label>
+              <div class="form-buttons full"><button class="primary" type="submit">Zapisz dodatek</button><button class="ghost" id="shop-addon-cancel" type="button">Anuluj</button></div>
+            </form>
+            <div class="table-wrap"><table class="shop-table"><thead><tr><th>Kolejność</th><th>Nazwa</th><th>Typ</th><th>Cena netto</th><th>Status</th><th>Akcje</th></tr></thead><tbody id="shop-addons-table"></tbody></table></div>
+          </article>
+
+          <article class="panel-card inner shop-block">
+            <div class="panel-actions-row compact">
+              <div><p class="panel-kicker">Osobna klasyfikacja</p><h3>Kategorie grafik</h3></div>
+              <button class="primary" id="shop-graphic-category-new" type="button">+ Nowa kategoria grafik</button>
+            </div>
+            <form id="shop-graphic-category-form" class="panel-form grid-form shop-edit-form" hidden>
+              <input id="shop-graphic-category-id" type="hidden">
+              <label>Slug<input id="shop-graphic-category-slug" required></label>
+              <label>Kolejność<input id="shop-graphic-category-order" type="number" value="0"></label>
+              <label>Nazwa PL<input id="shop-graphic-category-name-pl" required></label>
+              <label>Nazwa NL<input id="shop-graphic-category-name-nl"></label>
+              <label class="full">Opis PL<textarea id="shop-graphic-category-description-pl"></textarea></label>
+              <label class="full">Opis NL<textarea id="shop-graphic-category-description-nl"></textarea></label>
+              <label><input id="shop-graphic-category-active" type="checkbox" checked> Kategoria aktywna</label>
+              <div class="form-buttons full"><button class="primary" type="submit">Zapisz kategorię grafik</button><button class="ghost" id="shop-graphic-category-cancel" type="button">Anuluj</button></div>
+            </form>
+            <div class="table-wrap"><table class="shop-table"><thead><tr><th>Kolejność</th><th>Nazwa</th><th>Slug</th><th>Status</th><th>Akcje</th></tr></thead><tbody id="shop-graphic-categories-table"></tbody></table></div>
+          </article>
+        </section>
+
         <section class="panel-view" data-panel-view="settings">
           <article class="panel-card inner">
             <p class="panel-kicker">Ustawienia</p>
@@ -433,6 +544,7 @@
               <li>Usługi/zlecenia zapisują się w tabeli <code>company_orders</code>. Zlecenie utworzone z zaakceptowanej wyceny zachowuje powiązanie z wyceną i zapytaniem, a jego pozycje są zapisywane w <code>company_order_items</code>. Projekt można przypisać od razu albo później.</li>
               <li>Wyceny i oferty zapisują się w tabelach <code>company_quotes</code> i <code>company_quote_items</code>, z powiązaniem do klienta oraz opcjonalnie do zapytania o wycenę.</li>
               <li>Faktury zapisują się w tabeli <code>company_invoices</code>.</li>
+              <li>Moduł Sklep zarządza katalogiem w tabelach <code>shop_product_categories</code>, <code>shop_products</code>, <code>shop_addons</code> i <code>shop_graphic_categories</code>.</li>
               <li>Dostęp do danych mają tylko konta z rolą <code>admin</code> w tabeli <code>profiles</code>.</li>
             </ul>
           </article>
