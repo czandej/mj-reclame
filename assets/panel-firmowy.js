@@ -172,7 +172,7 @@
   async function loadShopCatalog(){
     const [categories, products, addons, graphicCategories] = await Promise.all([
       state.sb.from("shop_product_categories").select("*").order("display_order", {ascending:true}).order("name_pl", {ascending:true}),
-      state.sb.from("shop_products").select("*, shop_product_categories(name_pl, slug)").order("display_order", {ascending:true}).order("name_pl", {ascending:true}),
+      state.sb.from("shop_products").select("*, shop_product_categories(name_pl, name_nl, slug)").order("display_order", {ascending:true}).order("name_pl", {ascending:true}),
       state.sb.from("shop_addons").select("*").order("display_order", {ascending:true}).order("name_pl", {ascending:true}),
       state.sb.from("shop_graphic_categories").select("*").order("display_order", {ascending:true}).order("name_pl", {ascending:true})
     ]);
@@ -208,7 +208,7 @@
 
     els.shopCategoriesTable.innerHTML = state.shopCategories.length ? state.shopCategories.map(c => `<tr>
       <td class="nowrap">${Number(c.display_order || 0)}</td>
-      <td><strong>${esc(c.name_pl)}</strong><br><span class="muted">${esc(c.name_nl || "")}</span></td>
+      <td><strong>PL: ${esc(c.name_pl)}</strong><br><span class="muted">NL: ${esc(c.name_nl || "—")}</span></td>
       <td><code>${esc(c.slug)}</code></td>
       <td>${shopStatus(c.is_active)}</td>
       <td class="row-actions"><button class="tiny secondary" type="button" data-shop-category-edit="${esc(c.id)}">Edytuj</button><button class="tiny ${c.is_active ? "danger-btn" : "secondary"}" type="button" data-shop-category-toggle="${esc(c.id)}" data-target-active="${c.is_active ? "false" : "true"}">${c.is_active ? "Ukryj" : "Pokaż"}</button></td>
@@ -222,8 +222,8 @@
     if(q) products = products.filter(p => [p.code,p.name_pl,p.name_nl,p.product_type,p.slug,p.shop_product_categories?.name_pl].some(v => String(v || "").toLowerCase().includes(q)));
     els.shopProductsTable.innerHTML = products.length ? products.map(p => `<tr>
       <td><code>${esc(p.code)}</code></td>
-      <td><strong>${esc(p.name_pl)}</strong><br><span class="muted">${esc(p.product_type || "product")}</span></td>
-      <td>${esc(p.shop_product_categories?.name_pl || "—")}</td>
+      <td><strong>${esc(p.name_pl)}</strong>${p.name_nl ? `<br><span class="muted">NL: ${esc(p.name_nl)}</span>` : `<br><span class="muted shop-translation-missing">Brak NL</span>`}<br><span class="muted">${esc(p.product_type || "product")}</span></td>
+      <td><strong>${esc(p.shop_product_categories?.name_pl || "—")}</strong>${p.shop_product_categories?.name_nl ? `<br><span class="muted">NL: ${esc(p.shop_product_categories.name_nl)}</span>` : ""}</td>
       <td class="amount">${money(p.base_price_net)}</td>
       <td>${Number(p.vat_rate || 0).toLocaleString("pl-PL")}%</td>
       <td>${shopStatus(p.is_active)}</td>
@@ -232,7 +232,7 @@
 
     els.shopAddonsTable.innerHTML = state.shopAddons.length ? state.shopAddons.map(a => `<tr>
       <td>${Number(a.display_order || 0)}</td>
-      <td><strong>${esc(a.name_pl)}</strong><br><span class="muted"><code>${esc(a.code)}</code></span></td>
+      <td><strong>PL: ${esc(a.name_pl)}</strong><br><span class="muted">NL: ${esc(a.name_nl || "—")}</span><br><span class="muted"><code>${esc(a.code)}</code></span></td>
       <td>${esc(a.addon_type || "service")}</td>
       <td class="amount">${a.requires_quote || a.price_net === null ? "Wycena" : money(a.price_net)}</td>
       <td>${shopStatus(a.is_active)}</td>
@@ -241,11 +241,44 @@
 
     els.shopGraphicCategoriesTable.innerHTML = state.shopGraphicCategories.length ? state.shopGraphicCategories.map(c => `<tr>
       <td>${Number(c.display_order || 0)}</td>
-      <td><strong>${esc(c.name_pl)}</strong><br><span class="muted">${esc(c.name_nl || "")}</span></td>
+      <td><strong>PL: ${esc(c.name_pl)}</strong><br><span class="muted">NL: ${esc(c.name_nl || "—")}</span></td>
       <td><code>${esc(c.slug)}</code></td>
       <td>${shopStatus(c.is_active)}</td>
       <td class="row-actions"><button class="tiny secondary" type="button" data-shop-graphic-category-edit="${esc(c.id)}">Edytuj</button><button class="tiny ${c.is_active ? "danger-btn" : "secondary"}" type="button" data-shop-graphic-category-toggle="${esc(c.id)}" data-target-active="${c.is_active ? "false" : "true"}">${c.is_active ? "Ukryj" : "Pokaż"}</button></td>
     </tr>`).join("") : '<tr><td colspan="5" class="empty">Brak kategorii grafik.</td></tr>';
+  }
+
+  function validateShopTranslationPair(plEl, nlEl, label, required=false){
+    const pl = (plEl?.value || "").trim();
+    const nl = (nlEl?.value || "").trim();
+    if(required && (!pl || !nl)){
+      notify(`${label}: uzupełnij od razu wersję PL i NL.`, true);
+      (!pl ? plEl : nlEl)?.focus();
+      return false;
+    }
+    if((pl && !nl) || (!pl && nl)){
+      notify(`${label}: jeżeli pole jest uzupełnione, musi mieć równocześnie wersję PL i NL.`, true);
+      (!pl ? plEl : nlEl)?.focus();
+      return false;
+    }
+    return true;
+  }
+
+  function validateShopCategoryTranslations(){
+    return validateShopTranslationPair(els.shopCategoryNamePl, els.shopCategoryNameNl, "Nazwa kategorii", true)
+      && validateShopTranslationPair(els.shopCategoryDescriptionPl, els.shopCategoryDescriptionNl, "Opis kategorii");
+  }
+  function validateShopProductTranslations(){
+    return validateShopTranslationPair(els.shopProductNamePl, els.shopProductNameNl, "Nazwa produktu", true)
+      && validateShopTranslationPair(els.shopProductDescriptionPl, els.shopProductDescriptionNl, "Opis produktu");
+  }
+  function validateShopAddonTranslations(){
+    return validateShopTranslationPair(els.shopAddonNamePl, els.shopAddonNameNl, "Nazwa dodatku", true)
+      && validateShopTranslationPair(els.shopAddonDescriptionPl, els.shopAddonDescriptionNl, "Opis dodatku");
+  }
+  function validateShopGraphicCategoryTranslations(){
+    return validateShopTranslationPair(els.shopGraphicCategoryNamePl, els.shopGraphicCategoryNameNl, "Nazwa kategorii grafik", true)
+      && validateShopTranslationPair(els.shopGraphicCategoryDescriptionPl, els.shopGraphicCategoryDescriptionNl, "Opis kategorii grafik");
   }
 
   function resetShopCategoryForm(){
@@ -257,7 +290,7 @@
     els.shopCategoryForm.hidden=false; requestAnimationFrame(()=>els.shopCategoryForm.scrollIntoView({behavior:"smooth",block:"center"}));
   }
   async function saveShopCategory(e){
-    e.preventDefault(); const id=els.shopCategoryId.value; const payload={slug:els.shopCategorySlug.value.trim(),display_order:Number(els.shopCategoryOrder.value||0),name_pl:els.shopCategoryNamePl.value.trim(),name_nl:els.shopCategoryNameNl.value.trim()||null,description_pl:els.shopCategoryDescriptionPl.value.trim()||null,description_nl:els.shopCategoryDescriptionNl.value.trim()||null,is_active:els.shopCategoryActive.checked};
+    e.preventDefault(); if(!validateShopCategoryTranslations()) return; const id=els.shopCategoryId.value; const payload={slug:els.shopCategorySlug.value.trim(),display_order:Number(els.shopCategoryOrder.value||0),name_pl:els.shopCategoryNamePl.value.trim(),name_nl:els.shopCategoryNameNl.value.trim()||null,description_pl:els.shopCategoryDescriptionPl.value.trim()||null,description_nl:els.shopCategoryDescriptionNl.value.trim()||null,is_active:els.shopCategoryActive.checked};
     const q=id?state.sb.from("shop_product_categories").update(payload).eq("id",id):state.sb.from("shop_product_categories").insert(payload); const {error}=await q; if(error){notify("Nie zapisano kategorii: "+error.message,true);return;} resetShopCategoryForm(); els.shopCategoryForm.hidden=true; await loadShopCatalog(); renderShop(); notify("Kategoria sklepu została zapisana.");
   }
 
@@ -268,17 +301,17 @@
     els.shopProductForm.hidden=false; requestAnimationFrame(()=>els.shopProductForm.scrollIntoView({behavior:"smooth",block:"center"}));
   }
   async function saveShopProduct(e){
-    e.preventDefault(); const id=els.shopProductId.value; const payload={category_id:els.shopProductCategory.value,code:els.shopProductCode.value.trim(),slug:els.shopProductSlug.value.trim(),product_type:els.shopProductType.value.trim()||"product",name_pl:els.shopProductNamePl.value.trim(),name_nl:els.shopProductNameNl.value.trim()||null,description_pl:els.shopProductDescriptionPl.value.trim()||null,description_nl:els.shopProductDescriptionNl.value.trim()||null,base_price_net:Math.max(0,parseAmount(els.shopProductPrice.value)),vat_rate:Math.max(0,parseAmount(els.shopProductVat.value)),unit:els.shopProductUnit.value.trim()||"szt.",graphics_enabled:els.shopProductGraphics.checked,personalization_enabled:els.shopProductPersonalization.checked,is_active:els.shopProductActive.checked,display_order:Number(els.shopProductOrder.value||0)};
+    e.preventDefault(); if(!validateShopProductTranslations()) return; const id=els.shopProductId.value; const payload={category_id:els.shopProductCategory.value,code:els.shopProductCode.value.trim(),slug:els.shopProductSlug.value.trim(),product_type:els.shopProductType.value.trim()||"product",name_pl:els.shopProductNamePl.value.trim(),name_nl:els.shopProductNameNl.value.trim()||null,description_pl:els.shopProductDescriptionPl.value.trim()||null,description_nl:els.shopProductDescriptionNl.value.trim()||null,base_price_net:Math.max(0,parseAmount(els.shopProductPrice.value)),vat_rate:Math.max(0,parseAmount(els.shopProductVat.value)),unit:els.shopProductUnit.value.trim()||"szt.",graphics_enabled:els.shopProductGraphics.checked,personalization_enabled:els.shopProductPersonalization.checked,is_active:els.shopProductActive.checked,display_order:Number(els.shopProductOrder.value||0)};
     const q=id?state.sb.from("shop_products").update(payload).eq("id",id):state.sb.from("shop_products").insert(payload); const {error}=await q; if(error){notify("Nie zapisano produktu: "+error.message,true);return;} resetShopProductForm(); els.shopProductForm.hidden=true; await loadShopCatalog(); renderShop(); notify("Produkt został zapisany w Supabase.");
   }
 
   function resetShopAddonForm(){ els.shopAddonForm.reset(); els.shopAddonId.value=""; els.shopAddonType.value="service"; els.shopAddonOrder.value="0"; els.shopAddonActive.checked=true; }
   function openShopAddonForm(id=null){ resetShopAddonForm(); if(id){const a=state.shopAddons.find(x=>x.id===id);if(!a)return;els.shopAddonId.value=a.id;els.shopAddonCode.value=a.code||"";els.shopAddonType.value=a.addon_type||"service";els.shopAddonNamePl.value=a.name_pl||"";els.shopAddonNameNl.value=a.name_nl||"";els.shopAddonPrice.value=a.price_net??"";els.shopAddonOrder.value=a.display_order||0;els.shopAddonQuote.checked=!!a.requires_quote;els.shopAddonActive.checked=!!a.is_active;els.shopAddonDescriptionPl.value=a.description_pl||"";els.shopAddonDescriptionNl.value=a.description_nl||"";} els.shopAddonForm.hidden=false; requestAnimationFrame(()=>els.shopAddonForm.scrollIntoView({behavior:"smooth",block:"center"})); }
-  async function saveShopAddon(e){ e.preventDefault(); const id=els.shopAddonId.value; const priceRaw=els.shopAddonPrice.value.trim(); const payload={code:els.shopAddonCode.value.trim(),addon_type:els.shopAddonType.value.trim()||"service",name_pl:els.shopAddonNamePl.value.trim(),name_nl:els.shopAddonNameNl.value.trim()||null,description_pl:els.shopAddonDescriptionPl.value.trim()||null,description_nl:els.shopAddonDescriptionNl.value.trim()||null,price_net:priceRaw===""?null:Math.max(0,parseAmount(priceRaw)),requires_quote:els.shopAddonQuote.checked,is_active:els.shopAddonActive.checked,display_order:Number(els.shopAddonOrder.value||0)}; const q=id?state.sb.from("shop_addons").update(payload).eq("id",id):state.sb.from("shop_addons").insert(payload); const {error}=await q; if(error){notify("Nie zapisano dodatku: "+error.message,true);return;} resetShopAddonForm(); els.shopAddonForm.hidden=true; await loadShopCatalog(); renderShop(); notify("Dodatek cenowy został zapisany."); }
+  async function saveShopAddon(e){ e.preventDefault(); if(!validateShopAddonTranslations()) return; const id=els.shopAddonId.value; const priceRaw=els.shopAddonPrice.value.trim(); const payload={code:els.shopAddonCode.value.trim(),addon_type:els.shopAddonType.value.trim()||"service",name_pl:els.shopAddonNamePl.value.trim(),name_nl:els.shopAddonNameNl.value.trim()||null,description_pl:els.shopAddonDescriptionPl.value.trim()||null,description_nl:els.shopAddonDescriptionNl.value.trim()||null,price_net:priceRaw===""?null:Math.max(0,parseAmount(priceRaw)),requires_quote:els.shopAddonQuote.checked,is_active:els.shopAddonActive.checked,display_order:Number(els.shopAddonOrder.value||0)}; const q=id?state.sb.from("shop_addons").update(payload).eq("id",id):state.sb.from("shop_addons").insert(payload); const {error}=await q; if(error){notify("Nie zapisano dodatku: "+error.message,true);return;} resetShopAddonForm(); els.shopAddonForm.hidden=true; await loadShopCatalog(); renderShop(); notify("Dodatek cenowy został zapisany."); }
 
   function resetShopGraphicCategoryForm(){els.shopGraphicCategoryForm.reset();els.shopGraphicCategoryId.value="";els.shopGraphicCategoryOrder.value="0";els.shopGraphicCategoryActive.checked=true;}
   function openShopGraphicCategoryForm(id=null){resetShopGraphicCategoryForm();if(id){const c=state.shopGraphicCategories.find(x=>x.id===id);if(!c)return;els.shopGraphicCategoryId.value=c.id;els.shopGraphicCategorySlug.value=c.slug||"";els.shopGraphicCategoryOrder.value=c.display_order||0;els.shopGraphicCategoryNamePl.value=c.name_pl||"";els.shopGraphicCategoryNameNl.value=c.name_nl||"";els.shopGraphicCategoryDescriptionPl.value=c.description_pl||"";els.shopGraphicCategoryDescriptionNl.value=c.description_nl||"";els.shopGraphicCategoryActive.checked=!!c.is_active;}els.shopGraphicCategoryForm.hidden=false;requestAnimationFrame(()=>els.shopGraphicCategoryForm.scrollIntoView({behavior:"smooth",block:"center"}));}
-  async function saveShopGraphicCategory(e){e.preventDefault();const id=els.shopGraphicCategoryId.value;const payload={slug:els.shopGraphicCategorySlug.value.trim(),display_order:Number(els.shopGraphicCategoryOrder.value||0),name_pl:els.shopGraphicCategoryNamePl.value.trim(),name_nl:els.shopGraphicCategoryNameNl.value.trim()||null,description_pl:els.shopGraphicCategoryDescriptionPl.value.trim()||null,description_nl:els.shopGraphicCategoryDescriptionNl.value.trim()||null,is_active:els.shopGraphicCategoryActive.checked};const q=id?state.sb.from("shop_graphic_categories").update(payload).eq("id",id):state.sb.from("shop_graphic_categories").insert(payload);const {error}=await q;if(error){notify("Nie zapisano kategorii grafik: "+error.message,true);return;}resetShopGraphicCategoryForm();els.shopGraphicCategoryForm.hidden=true;await loadShopCatalog();renderShop();notify("Kategoria grafik została zapisana.");}
+  async function saveShopGraphicCategory(e){e.preventDefault();if(!validateShopGraphicCategoryTranslations())return;const id=els.shopGraphicCategoryId.value;const payload={slug:els.shopGraphicCategorySlug.value.trim(),display_order:Number(els.shopGraphicCategoryOrder.value||0),name_pl:els.shopGraphicCategoryNamePl.value.trim(),name_nl:els.shopGraphicCategoryNameNl.value.trim()||null,description_pl:els.shopGraphicCategoryDescriptionPl.value.trim()||null,description_nl:els.shopGraphicCategoryDescriptionNl.value.trim()||null,is_active:els.shopGraphicCategoryActive.checked};const q=id?state.sb.from("shop_graphic_categories").update(payload).eq("id",id):state.sb.from("shop_graphic_categories").insert(payload);const {error}=await q;if(error){notify("Nie zapisano kategorii grafik: "+error.message,true);return;}resetShopGraphicCategoryForm();els.shopGraphicCategoryForm.hidden=true;await loadShopCatalog();renderShop();notify("Kategoria grafik została zapisana.");}
 
   async function toggleShopRecord(table,id,active){ const {error}=await state.sb.from(table).update({is_active:active}).eq("id",id); if(error){notify("Nie zapisano zmiany: "+error.message,true);return;} await loadShopCatalog(); renderShop(); notify(active?"Element został pokazany w sklepie.":"Element został ukryty w sklepie."); }
 
@@ -1998,6 +2031,10 @@
     els.clientStatusFilter.addEventListener("change", renderClients);
     els.projectSearch.addEventListener("input", renderProjects);
     els.projectStatusFilter.addEventListener("change", renderProjects);
+    qsa("[data-shop-accordion]").forEach(section => section.addEventListener("toggle", () => {
+      if(!section.open) return;
+      qsa("[data-shop-accordion]").forEach(other => { if(other !== section) other.open = false; });
+    }));
     els.shopProductSearch.addEventListener("input", renderShop);
     els.shopProductFilter.addEventListener("change", renderShop);
     els.shopRefresh.addEventListener("click", async () => { await loadShopCatalog(); renderShop(); notify("Katalog sklepu został odświeżony."); });
